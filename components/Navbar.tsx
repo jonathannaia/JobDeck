@@ -7,12 +7,12 @@ export default function Navbar() {
   const pathname = usePathname()
 
   return (
-    <nav className="border-b border-white/10 bg-[#0a1628]/80 backdrop-blur-sm sticky top-0 z-50">
+    <nav className="bg-white border-b border-[#e2e8f0] sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-orange-500 font-bold text-xl tracking-tight">
-              Job<span className="text-white">Deck</span>
+          <Link href="/" className="flex items-center">
+            <span className="font-bold text-xl tracking-tight text-[#0f172a]">
+              Job<span className="text-[#2563eb]">Deck</span>
             </span>
           </Link>
 
@@ -20,7 +20,7 @@ export default function Navbar() {
             <Link
               href="/"
               className={`text-sm font-medium transition-colors ${
-                pathname === '/' ? 'text-orange-400' : 'text-white/70 hover:text-white'
+                pathname === '/' ? 'text-[#0f172a]' : 'text-[#6b7280] hover:text-[#0f172a]'
               }`}
             >
               Post a Job
@@ -28,7 +28,7 @@ export default function Navbar() {
             <Link
               href="/contractors"
               className={`text-sm font-medium transition-colors ${
-                pathname === '/contractors' ? 'text-orange-400' : 'text-white/70 hover:text-white'
+                pathname === '/contractors' ? 'text-[#0f172a]' : 'text-[#6b7280] hover:text-[#0f172a]'
               }`}
             >
               For Contractors
@@ -36,14 +36,14 @@ export default function Navbar() {
             <Link
               href="/dashboard"
               className={`text-sm font-medium transition-colors ${
-                pathname.startsWith('/dashboard') ? 'text-orange-400' : 'text-white/70 hover:text-white'
+                pathname.startsWith('/dashboard') ? 'text-[#0f172a]' : 'text-[#6b7280] hover:text-[#0f172a]'
               }`}
             >
               Dashboard
             </Link>
             <Link
               href="/contractors#pricing"
-              className="bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors"
+              className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
             >
               Get Leads
             </Link>
