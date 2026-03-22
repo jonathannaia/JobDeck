@@ -64,7 +64,7 @@ export default function TermsPage() {
 
             <section>
               <h2 className="text-lg font-semibold text-[#0f172a] mb-3">9. Contact</h2>
-              <p>Questions about these Terms? Contact us at <a href="mailto:hello@jobdeck.ca" className="text-[#2563eb] hover:underline">hello@jobdeck.ca</a>.</p>
+              <p>Questions about these Terms? Contact us at <a href="mailto:jonathan@naiadigital.org" className="text-[#2563eb] hover:underline">jonathan@naiadigital.org</a>.</p>
             </section>
           </div>
         </div>

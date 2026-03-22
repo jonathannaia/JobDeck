@@ -14,7 +14,7 @@ export default function Footer() {
           <Link href="/terms" className="text-[#9ca3af] hover:text-[#6b7280] text-sm transition-colors">
             Terms of Service
           </Link>
-          <a href="mailto:hello@jobdeck.ca" className="text-[#9ca3af] hover:text-[#6b7280] text-sm transition-colors">
+          <a href="mailto:jonathan@naiadigital.org" className="text-[#9ca3af] hover:text-[#6b7280] text-sm transition-colors">
             Contact
           </a>
         </div>
