@@ -14,12 +14,12 @@ const TIMELINE_OPTIONS = [
 const inputClass = 'w-full bg-white border border-[#e2e8f0] rounded-lg px-4 py-3 text-[#0f172a] placeholder-[#9ca3af] focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-colors text-sm'
 const labelClass = 'block text-sm font-medium text-[#374151] mb-1.5'
 
-export default function JobRequestForm() {
+export default function JobRequestForm({ defaultTrade }: { defaultTrade?: string }) {
   const [form, setForm] = useState({
     name: '',
     phone: '',
     email: '',
-    trade_type: '' as TradeType | '',
+    trade_type: (defaultTrade || '') as TradeType | '',
     job_description: '',
     postal_code: '',
     timeline: '',
