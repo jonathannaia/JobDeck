@@ -42,8 +42,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to save your request' }, { status: 500 })
     }
 
-    // Run matching directly — no HTTP self-call
-    matchLead(lead.id).catch(err => console.error('matchLead error:', err))
+    // Run matching directly — awaited so Vercel doesn't kill it early
+    await matchLead(lead.id).catch(err => console.error('matchLead error:', err))
 
     return NextResponse.json({ success: true, lead_id: lead.id })
   } catch (err) {
