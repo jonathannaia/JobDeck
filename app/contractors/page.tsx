@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import CheckoutButton from '@/components/CheckoutButton'
 
 const STARTER_FEATURES = [
   '15 matched leads per month',
@@ -104,9 +103,9 @@ export default function ContractorsPage() {
                 ))}
               </ul>
 
-              <CheckoutButton plan="starter" className="w-full bg-white border border-[#e2e8f0] hover:border-[#94a3b8] text-[#374151] font-medium py-3 rounded-lg transition-colors text-center text-sm">
+              <Link href="/contractors/signup?plan=starter" className="w-full bg-white border border-[#e2e8f0] hover:border-[#94a3b8] text-[#374151] font-medium py-3 rounded-lg transition-colors text-center text-sm block">
                 Get Started — $99/mo
-              </CheckoutButton>
+              </Link>
             </div>
 
             {/* Pro */}
@@ -141,9 +140,9 @@ export default function ContractorsPage() {
                 ))}
               </ul>
 
-              <CheckoutButton plan="pro" className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-medium py-3 rounded-lg transition-colors text-center text-sm">
+              <Link href="/contractors/signup?plan=pro" className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-medium py-3 rounded-lg transition-colors text-center text-sm block">
                 Get Started — $199/mo
-              </CheckoutButton>
+              </Link>
             </div>
           </div>
 

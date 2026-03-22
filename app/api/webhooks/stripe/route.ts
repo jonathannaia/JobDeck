@@ -62,16 +62,18 @@ export async function POST(req: NextRequest) {
           })
           .eq('email', email)
       } else {
-        // Create new contractor (minimal record — they can fill details from dashboard later)
-        const name = session.customer_details?.name || email.split('@')[0]
+        const name = session.metadata?.name || session.customer_details?.name || email.split('@')[0]
+        const phone = session.metadata?.phone || session.customer_details?.phone || ''
+        const trade_type = session.metadata?.trade_type || 'general_contractor'
+        const service_area = session.metadata?.service_area || 'M,L,K,N,P'
         await supabase
           .from('contractors')
           .insert({
             name,
             email,
-            phone: session.customer_details?.phone || '',
-            trade_type: session.metadata?.trade_type || 'general_contractor',
-            service_area: session.metadata?.service_area || 'M,L,K,N,P',
+            phone,
+            trade_type,
+            service_area,
             plan_type: planType,
             lead_credits_limit: creditLimit,
             stripe_customer_id: customerId,

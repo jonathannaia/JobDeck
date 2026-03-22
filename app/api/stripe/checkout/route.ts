@@ -8,7 +8,7 @@ const PRICE_IDS: Record<string, string> = {
 
 export async function POST(req: NextRequest) {
   try {
-    const { plan } = await req.json()
+    const { plan, name, phone, email, trade_type, service_area } = await req.json()
 
     if (!plan || !['starter', 'pro'].includes(plan)) {
       return NextResponse.json({ error: 'Invalid plan' }, { status: 400 })
@@ -28,7 +28,14 @@ export async function POST(req: NextRequest) {
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${appUrl}/dashboard?success=1`,
       cancel_url: `${appUrl}/contractors#pricing`,
-      metadata: { plan },
+      customer_email: email || undefined,
+      metadata: {
+        plan,
+        name: name || '',
+        phone: phone || '',
+        trade_type: trade_type || '',
+        service_area: service_area || '',
+      },
     })
 
     return NextResponse.json({ url: session.url })
