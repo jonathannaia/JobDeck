@@ -16,34 +16,36 @@ export default function Navbar() {
             </span>
           </Link>
 
-          <div className="flex items-center gap-6">
-            <Link
-              href="/"
-              className={`text-sm font-medium transition-colors ${
-                pathname === '/' ? 'text-[#0f172a]' : 'text-[#6b7280] hover:text-[#0f172a]'
-              }`}
-            >
-              Post a Job
-            </Link>
-            <Link
-              href="/contractors"
-              className={`text-sm font-medium transition-colors ${
-                pathname === '/contractors' ? 'text-[#0f172a]' : 'text-[#6b7280] hover:text-[#0f172a]'
-              }`}
-            >
-              For Contractors
-            </Link>
-            <Link
-              href="/dashboard"
-              className={`text-sm font-medium transition-colors ${
-                pathname.startsWith('/dashboard') ? 'text-[#0f172a]' : 'text-[#6b7280] hover:text-[#0f172a]'
-              }`}
-            >
-              Dashboard
-            </Link>
+          <div className="flex items-center gap-4">
+            <div className="hidden sm:flex items-center gap-4">
+              <Link
+                href="/"
+                className={`text-sm font-medium transition-colors whitespace-nowrap ${
+                  pathname === '/' ? 'text-[#0f172a]' : 'text-[#6b7280] hover:text-[#0f172a]'
+                }`}
+              >
+                Post a Job
+              </Link>
+              <Link
+                href="/contractors"
+                className={`text-sm font-medium transition-colors whitespace-nowrap ${
+                  pathname === '/contractors' ? 'text-[#0f172a]' : 'text-[#6b7280] hover:text-[#0f172a]'
+                }`}
+              >
+                For Contractors
+              </Link>
+              <Link
+                href="/dashboard"
+                className={`text-sm font-medium transition-colors whitespace-nowrap ${
+                  pathname.startsWith('/dashboard') ? 'text-[#0f172a]' : 'text-[#6b7280] hover:text-[#0f172a]'
+                }`}
+              >
+                Dashboard
+              </Link>
+            </div>
             <Link
               href="/contractors#pricing"
-              className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+              className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
             >
               Get Leads
             </Link>
