@@ -74,7 +74,13 @@ export default function ContractorsPage() {
       <section id="pricing" className="py-20 px-4 bg-white">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-[#0f172a] text-center mb-2">Simple, Transparent Pricing</h2>
-          <p className="text-[#6b7280] text-center mb-12">No setup fees. No contracts. Cancel anytime.</p>
+          <p className="text-[#6b7280] text-center mb-2">No setup fees. No contracts. Cancel anytime.</p>
+          <div className="flex justify-center mb-12">
+            <span className="inline-flex items-center gap-1.5 bg-[#dcfce7] text-[#16a34a] text-sm font-medium px-4 py-1.5 rounded-full">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+              7-day free trial — no charge until day 8
+            </span>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
             {/* Starter */}
@@ -104,7 +110,7 @@ export default function ContractorsPage() {
               </ul>
 
               <Link href="/contractors/signup?plan=starter" className="w-full bg-white border border-[#e2e8f0] hover:border-[#94a3b8] text-[#374151] font-medium py-3 rounded-lg transition-colors text-center text-sm block">
-                Get Started — $99/mo
+                Start Free Trial — then $99/mo
               </Link>
             </div>
 
@@ -141,13 +147,13 @@ export default function ContractorsPage() {
               </ul>
 
               <Link href="/contractors/signup?plan=pro" className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-medium py-3 rounded-lg transition-colors text-center text-sm block">
-                Get Started — $199/mo
+                Start Free Trial — then $199/mo
               </Link>
             </div>
           </div>
 
           <p className="text-center text-[#6b7280] text-sm mt-6">
-            🔒 Lock in this rate forever. First 25 contractors only.
+            🔒 7-day free trial. Lock in this rate forever. First 25 contractors only.
           </p>
         </div>
       </section>
