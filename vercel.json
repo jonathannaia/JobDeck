@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/lead-monitor",
+      "schedule": "0 13 * * *"
+    }
+  ]
+}
