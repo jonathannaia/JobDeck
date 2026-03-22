@@ -186,7 +186,8 @@ export default function JobRequestForm() {
       </button>
 
       <p className="text-[#9ca3af] text-xs text-center">
-        By submitting you agree that contractors may contact you. No spam, no accounts needed.
+        By submitting, you consent to being contacted by matched contractors about your project.
+        View our <a href="/privacy" className="underline hover:text-[#6b7280]">Privacy Policy</a> and <a href="/terms" className="underline hover:text-[#6b7280]">Terms of Service</a>.
       </p>
     </form>
   )
