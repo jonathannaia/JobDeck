@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
-import { fetchRedditPosts, fetchCraigslistPosts, fetchKijijiPosts } from '@/lib/monitor'
+import { fetchRedditPosts, fetchCraigslistPosts } from '@/lib/monitor'
 import twilio from 'twilio'
 
 const ADMIN_PHONE = '+19054470705'
@@ -15,13 +15,12 @@ export async function GET(req: NextRequest) {
   const supabase = createServiceClient()
 
   // Fetch from all platforms in parallel
-  const [reddit, craigslist, kijiji] = await Promise.all([
+  const [reddit, craigslist] = await Promise.all([
     fetchRedditPosts(),
     fetchCraigslistPosts(),
-    fetchKijijiPosts(),
   ])
 
-  const allPosts = [...reddit, ...craigslist, ...kijiji]
+  const allPosts = [...reddit, ...craigslist]
   let newCount = 0
 
   for (const post of allPosts) {
@@ -59,7 +58,6 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     reddit: reddit.length,
     craigslist: craigslist.length,
-    kijiji: kijiji.length,
     new_saved: newCount,
   })
 }

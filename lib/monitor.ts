@@ -61,57 +61,57 @@ export interface MonitoredPost {
 
 const SUBREDDITS = [
   'ontario', 'toronto', 'hamilton', 'mississauga', 'ottawa',
-  'brampton', 'markham', 'Burlington', 'Kitchener', 'London',
-]
-
-const REDDIT_QUERIES = [
-  'looking for contractor', 'need plumber', 'need electrician',
-  'need roofer', 'need handyman', 'renovation help', 'recommend contractor',
+  'brampton', 'Kitchener', 'londonontario', 'windsorontario',
 ]
 
 export async function fetchRedditPosts(): Promise<MonitoredPost[]> {
   const posts: MonitoredPost[] = []
 
+  // Fetch latest 100 posts from each subreddit and filter locally
   for (const sub of SUBREDDITS) {
-    for (const query of REDDIT_QUERIES) {
-      try {
-        const url = `https://www.reddit.com/r/${sub}/search.json?q=${encodeURIComponent(query)}&sort=new&restrict_sr=1&limit=10&t=day`
-        const res = await fetch(url, {
-          headers: { 'User-Agent': 'JobDeck-Monitor/1.0' },
+    try {
+      const url = `https://www.reddit.com/r/${sub}/new.json?limit=100`
+      const res = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 JobDeck-Monitor/1.0',
+          'Accept': 'application/json',
+        },
+      })
+      if (!res.ok) continue
+      const json = await res.json()
+      const items = json?.data?.children ?? []
+
+      for (const item of items) {
+        const d = item.data
+        if (!d?.id || !d?.title) continue
+        // Skip if older than 48 hours
+        if (Date.now() / 1000 - d.created_utc > 48 * 3600) continue
+        if (!isRelevantPost(d.title, d.selftext)) continue
+
+        posts.push({
+          platform: 'reddit',
+          post_id: d.id,
+          title: d.title,
+          url: `https://reddit.com${d.permalink}`,
+          snippet: d.selftext?.slice(0, 200) || null,
+          subreddit: sub,
         })
-        if (!res.ok) continue
-        const json = await res.json()
-        const items = json?.data?.children ?? []
-
-        for (const item of items) {
-          const d = item.data
-          if (!d?.id || !d?.title) continue
-          if (!isRelevantPost(d.title, d.selftext)) continue
-
-          posts.push({
-            platform: 'reddit',
-            post_id: d.id,
-            title: d.title,
-            url: `https://reddit.com${d.permalink}`,
-            snippet: d.selftext?.slice(0, 200) || null,
-            subreddit: sub,
-          })
-        }
-      } catch {
-        // skip on error
       }
+    } catch {
+      // skip on error
     }
   }
 
-  // Deduplicate by post_id
   return [...new Map(posts.map(p => [p.post_id, p])).values()]
 }
 
 // ─── Craigslist ───────────────────────────────────────────────────────────────
 
 const CRAIGSLIST_FEEDS = [
-  'https://toronto.craigslist.org/search/hss?format=rss',   // household services
-  'https://toronto.craigslist.org/search/lbg?format=rss',   // labour gigs
+  // "gigs" section — people hiring for tasks
+  'https://toronto.craigslist.org/search/ggg?format=rss',
+  // "household services wanted"
+  'https://toronto.craigslist.org/search/hsa?format=rss',
 ]
 
 export async function fetchCraigslistPosts(): Promise<MonitoredPost[]> {
@@ -120,36 +120,46 @@ export async function fetchCraigslistPosts(): Promise<MonitoredPost[]> {
   for (const feedUrl of CRAIGSLIST_FEEDS) {
     try {
       const res = await fetch(feedUrl, {
-        headers: { 'User-Agent': 'JobDeck-Monitor/1.0' },
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; JobDeck-Monitor/1.0)',
+          'Accept': 'application/rss+xml, application/xml, text/xml',
+        },
       })
       if (!res.ok) continue
       const xml = await res.text()
 
-      // Simple XML parsing — extract <item> blocks
-      const items = xml.match(/<item>[\s\S]*?<\/item>/g) ?? []
+      // Extract <item> blocks
+      const items = xml.match(/<item[\s\S]*?<\/item>/g) ?? []
       for (const item of items) {
-        const title = item.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/)?.[1]
-          || item.match(/<title>(.*?)<\/title>/)?.[1]
-          || ''
-        const link = item.match(/<link>(.*?)<\/link>/)?.[1]
-          || item.match(/<guid>(.*?)<\/guid>/)?.[1]
-          || ''
-        const desc = item.match(/<description><!\[CDATA\[(.*?)\]\]><\/description>/)?.[1]
-          || item.match(/<description>(.*?)<\/description>/)?.[1]
-          || ''
+        const title = (
+          item.match(/<title><!\[CDATA\[([\s\S]*?)\]\]><\/title>/)?.[1] ||
+          item.match(/<title>([\s\S]*?)<\/title>/)?.[1] ||
+          ''
+        ).trim()
+
+        const link = (
+          item.match(/<link>([\s\S]*?)<\/link>/)?.[1] ||
+          item.match(/<guid[^>]*>([\s\S]*?)<\/guid>/)?.[1] ||
+          ''
+        ).trim()
+
+        const desc = (
+          item.match(/<description><!\[CDATA\[([\s\S]*?)\]\]><\/description>/)?.[1] ||
+          item.match(/<description>([\s\S]*?)<\/description>/)?.[1] ||
+          ''
+        ).replace(/<[^>]+>/g, '').trim()
 
         if (!title || !link) continue
         if (!isRelevantPost(title, desc)) continue
 
-        // Use URL path as post_id
-        const post_id = link.split('/').filter(Boolean).pop() || link
+        const post_id = link.split('/').filter(Boolean).pop()?.split('?')[0] || link
 
         posts.push({
           platform: 'craigslist',
           post_id,
-          title: title.trim(),
+          title,
           url: link,
-          snippet: desc.replace(/<[^>]+>/g, '').slice(0, 200) || null,
+          snippet: desc.slice(0, 200) || null,
           subreddit: null,
         })
       }
