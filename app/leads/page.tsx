@@ -6,8 +6,8 @@ export const dynamic = 'force-dynamic'
 
 const REGION_LABELS: Record<string, string> = {
   M: 'Toronto / GTA',
-  L: 'Hamilton / Niagara / Barrie',
-  N: 'London / Windsor / Kitchener',
+  L: 'Hamilton / Burlington / Niagara / Barrie',
+  N: 'London / Windsor / Kitchener / Cambridge',
   K: 'Ottawa / Eastern Ontario',
   P: 'Northern Ontario / Sudbury',
 }
