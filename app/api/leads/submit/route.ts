@@ -6,7 +6,7 @@ import { matchLead } from '@/lib/matchLead'
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { name, phone, email, trade_type, job_description, postal_code, timeline } = body
+    const { name, phone, email, trade_type, job_description, city, postal_code, timeline } = body
 
     if (!name || !phone || !trade_type || !job_description || !postal_code) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
@@ -30,6 +30,7 @@ export async function POST(req: NextRequest) {
         email: email?.trim() || null,
         trade_type: trade_type as TradeType,
         job_description: job_description.trim(),
+        city: city?.trim() || null,
         postal_code: postal_code.trim().toUpperCase(),
         timeline: timeline || null,
         status: 'new',

@@ -101,7 +101,7 @@ export default function LeadsClient({ leads }: { leads: AnonymizedLead[] }) {
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-2">
                       <span className="bg-[#EFF6FF] text-[#1d4ed8] text-xs font-medium px-2.5 py-1 rounded-full">{lead.trade_label}</span>
-                      <span className="text-[#6b7280] text-xs">{lead.region}</span>
+                      <span className="text-[#6b7280] text-xs">{lead.location}</span>
                       <span className="text-[#9ca3af] text-xs">· {timeAgo(lead.created_at)}</span>
                     </div>
                     <p className="text-[#374151] text-sm mb-1">{lead.description}</p>

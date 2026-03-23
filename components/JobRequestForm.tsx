@@ -21,6 +21,7 @@ export default function JobRequestForm({ defaultTrade }: { defaultTrade?: string
     email: '',
     trade_type: (defaultTrade || '') as TradeType | '',
     job_description: '',
+    city: '',
     postal_code: '',
     timeline: '',
   })
@@ -92,7 +93,7 @@ export default function JobRequestForm({ defaultTrade }: { defaultTrade?: string
         <button
           onClick={() => {
             setSubmitted(false)
-            setForm({ name: '', phone: '', email: '', trade_type: '', job_description: '', postal_code: '', timeline: '' })
+            setForm({ name: '', phone: '', email: '', trade_type: '', job_description: '', city: '', postal_code: '', timeline: '' })
           }}
           className="mt-6 text-[#2563eb] hover:text-[#1d4ed8] text-sm underline"
         >
@@ -153,6 +154,10 @@ export default function JobRequestForm({ defaultTrade }: { defaultTrade?: string
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div>
+          <label className={labelClass}>City <span className="text-[#2563eb]">*</span></label>
+          <input type="text" value={form.city} onChange={set('city')} placeholder="Cambridge" className={inputClass} />
+        </div>
         <div>
           <label className={labelClass}>Postal Code <span className="text-[#2563eb]">*</span></label>
           <input
