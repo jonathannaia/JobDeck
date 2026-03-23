@@ -176,7 +176,7 @@ export async function matchLead(lead_id: string) {
   // Always notify admin of every lead
   const adminPhone = process.env.ADMIN_PHONE
   if (adminPhone) {
-    const tradeLabel = TRADE_LABELS[lead.trade_type] || lead.trade_type
+    const tradeLabel = TRADE_LABELS[lead.trade_type as TradeType] || lead.trade_type
     const adminMsg = `[Admin] New ${tradeLabel} lead from ${lead.name} (${lead.phone}) in ${lead.postal_code}. Job: ${lead.job_description.slice(0, 80)}`
     await sendSms(adminPhone, adminMsg).catch(err => console.error('Admin SMS failed:', err))
   }
