@@ -16,7 +16,7 @@ export default function Navbar() {
             </span>
           </Link>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <div className="hidden sm:flex items-center gap-4">
               <Link
                 href="/"
@@ -35,14 +35,6 @@ export default function Navbar() {
                 For Contractors
               </Link>
               <Link
-                href="/leads"
-                className={`text-sm font-medium transition-colors whitespace-nowrap ${
-                  pathname.startsWith('/leads') ? 'text-[#0f172a]' : 'text-[#6b7280] hover:text-[#0f172a]'
-                }`}
-              >
-                Live Leads
-              </Link>
-              <Link
                 href="/dashboard"
                 className={`text-sm font-medium transition-colors whitespace-nowrap ${
                   pathname.startsWith('/dashboard') ? 'text-[#0f172a]' : 'text-[#6b7280] hover:text-[#0f172a]'
@@ -51,6 +43,14 @@ export default function Navbar() {
                 Dashboard
               </Link>
             </div>
+            <Link
+              href="/leads"
+              className={`text-sm font-medium transition-colors whitespace-nowrap ${
+                pathname.startsWith('/leads') ? 'text-[#0f172a]' : 'text-[#6b7280] hover:text-[#0f172a]'
+              }`}
+            >
+              Live Leads
+            </Link>
             <Link
               href="/contractors#pricing"
               className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
