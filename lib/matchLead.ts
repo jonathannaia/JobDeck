@@ -1,9 +1,11 @@
 import { createServiceClient } from '@/lib/supabase/server'
 import { TRADE_LABELS, type TradeType, type Contractor } from '@/lib/types'
 import twilio from 'twilio'
+import Stripe from 'stripe'
 
 const MAX_RECIPIENTS_PER_LEAD = 5
 const STARTER_DELAY_MS = 30 * 60 * 1000
+const PAY_PER_LEAD_AMOUNT = 4000 // $40 CAD in cents
 
 async function sendSms(to: string, body: string) {
   const client = twilio(process.env.TWILIO_ACCOUNT_SID!, process.env.TWILIO_AUTH_TOKEN!)
@@ -12,6 +14,27 @@ async function sendSms(to: string, body: string) {
     from: process.env.TWILIO_PHONE_NUMBER!,
     to,
   })
+}
+
+async function chargePayPerLead(stripeCustomerId: string): Promise<boolean> {
+  try {
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
+    const customer = await stripe.customers.retrieve(stripeCustomerId) as Stripe.Customer
+    const paymentMethodId = customer.invoice_settings?.default_payment_method as string | null
+    if (!paymentMethodId) return false
+    await stripe.paymentIntents.create({
+      amount: PAY_PER_LEAD_AMOUNT,
+      currency: 'cad',
+      customer: stripeCustomerId,
+      payment_method: paymentMethodId,
+      confirm: true,
+      off_session: true,
+    })
+    return true
+  } catch (err) {
+    console.error('Pay-per-lead charge failed:', err)
+    return false
+  }
 }
 
 function buildSmsMessage(lead: {
@@ -63,10 +86,14 @@ export async function matchLead(lead_id: string) {
   const starterContractors = matching.filter(
     c => c.plan_type === 'starter' && c.lead_credits_used < c.lead_credits_limit
   )
+  const payPerLeadContractors = matching.filter(
+    c => c.plan_type === 'pay_per_lead' && c.stripe_customer_id
+  )
 
   const selectedPro = proContractors.slice(0, MAX_RECIPIENTS_PER_LEAD)
   const remainingSlots = MAX_RECIPIENTS_PER_LEAD - selectedPro.length
   const selectedStarter = starterContractors.slice(0, remainingSlots)
+  const selectedPpl = payPerLeadContractors.slice(0, MAX_RECIPIENTS_PER_LEAD)
 
   const smsBody = buildSmsMessage(lead)
 
@@ -84,6 +111,29 @@ export async function matchLead(lead_id: string) {
         .eq('id', delivery.id)
     } catch (err) {
       console.error(`SMS failed for pro contractor ${contractor.id}:`, err)
+      await supabase.from('lead_deliveries').update({ delivery_status: 'failed' }).eq('id', delivery.id)
+    }
+  }))
+
+  // Charge and send to Pay Per Lead contractors immediately
+  await Promise.all(selectedPpl.map(async (contractor) => {
+    const { data: delivery } = await supabase
+      .from('lead_deliveries')
+      .insert({ lead_id, contractor_id: contractor.id, delivery_status: 'pending', plan_type: 'pay_per_lead' })
+      .select().single()
+
+    try {
+      const charged = await chargePayPerLead(contractor.stripe_customer_id!)
+      if (!charged) {
+        await supabase.from('lead_deliveries').update({ delivery_status: 'failed' }).eq('id', delivery.id)
+        return
+      }
+      await sendSms(contractor.phone, smsBody)
+      await supabase.from('lead_deliveries')
+        .update({ delivery_status: 'sent', delivered_at: new Date().toISOString() })
+        .eq('id', delivery.id)
+    } catch (err) {
+      console.error(`SMS failed for pay-per-lead contractor ${contractor.id}:`, err)
       await supabase.from('lead_deliveries').update({ delivery_status: 'failed' }).eq('id', delivery.id)
     }
   }))
@@ -123,5 +173,13 @@ export async function matchLead(lead_id: string) {
 
   await supabase.from('homeowner_leads').update({ status: 'matched' }).eq('id', lead_id)
 
-  console.log(`matchLead: pro_notified=${selectedPro.length} starter_scheduled=${selectedStarter.length}`)
+  // Always notify admin of every lead
+  const adminPhone = process.env.ADMIN_PHONE
+  if (adminPhone) {
+    const tradeLabel = TRADE_LABELS[lead.trade_type] || lead.trade_type
+    const adminMsg = `[Admin] New ${tradeLabel} lead from ${lead.name} (${lead.phone}) in ${lead.postal_code}. Job: ${lead.job_description.slice(0, 80)}`
+    await sendSms(adminPhone, adminMsg).catch(err => console.error('Admin SMS failed:', err))
+  }
+
+  console.log(`matchLead: pro_notified=${selectedPro.length} starter_scheduled=${selectedStarter.length} ppl_notified=${selectedPpl.length}`)
 }

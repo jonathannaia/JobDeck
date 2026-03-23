@@ -29,7 +29,6 @@ export async function POST(req: NextRequest) {
     case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session
       const customerId = session.customer as string
-      const subscriptionId = session.subscription as string
       const email = session.customer_email || session.customer_details?.email
 
       if (!email) {
@@ -37,10 +36,27 @@ export async function POST(req: NextRequest) {
         break
       }
 
-      // Determine plan from metadata
-      const plan = session.metadata?.plan as 'starter' | 'pro' | undefined
+      const plan = session.metadata?.plan as 'starter' | 'pro' | 'pay_per_lead' | undefined
       const planType = plan || 'starter'
-      const creditLimit = planType === 'pro' ? 999999 : 15
+      const name = session.metadata?.name || session.customer_details?.name || email.split('@')[0]
+      const phone = session.metadata?.phone || session.customer_details?.phone || ''
+      const trade_type = session.metadata?.trade_type || 'general_contractor'
+      const service_area = session.metadata?.service_area || 'M,L,K,N,P'
+
+      // For pay_per_lead: setup session — save payment method as customer default
+      if (planType === 'pay_per_lead' && session.mode === 'setup') {
+        const setupIntentId = session.setup_intent as string
+        const setupIntent = await stripe.setupIntents.retrieve(setupIntentId)
+        const paymentMethodId = setupIntent.payment_method as string
+        if (paymentMethodId) {
+          await stripe.customers.update(customerId, {
+            invoice_settings: { default_payment_method: paymentMethodId },
+          })
+        }
+      }
+
+      const subscriptionId = session.subscription as string | null
+      const creditLimit = planType === 'pro' ? 999999 : planType === 'pay_per_lead' ? 999999 : 15
 
       // Check if contractor already exists
       const { data: existing } = await supabase
@@ -50,22 +66,17 @@ export async function POST(req: NextRequest) {
         .single()
 
       if (existing) {
-        // Update existing contractor
         await supabase
           .from('contractors')
           .update({
             plan_type: planType,
             lead_credits_limit: creditLimit,
             stripe_customer_id: customerId,
-            stripe_subscription_id: subscriptionId,
+            stripe_subscription_id: subscriptionId || null,
             is_active: true,
           })
           .eq('email', email)
       } else {
-        const name = session.metadata?.name || session.customer_details?.name || email.split('@')[0]
-        const phone = session.metadata?.phone || session.customer_details?.phone || ''
-        const trade_type = session.metadata?.trade_type || 'general_contractor'
-        const service_area = session.metadata?.service_area || 'M,L,K,N,P'
         await supabase
           .from('contractors')
           .insert({
@@ -77,7 +88,7 @@ export async function POST(req: NextRequest) {
             plan_type: planType,
             lead_credits_limit: creditLimit,
             stripe_customer_id: customerId,
-            stripe_subscription_id: subscriptionId,
+            stripe_subscription_id: subscriptionId || null,
             is_active: true,
           })
       }

@@ -155,6 +155,21 @@ export default function ContractorsPage() {
           <p className="text-center text-[#6b7280] text-sm mt-6">
             🔒 7-day free trial. Lock in this rate forever. First 25 contractors only.
           </p>
+
+          {/* Pay Per Lead */}
+          <div className="mt-8 max-w-3xl mx-auto">
+            <div className="bg-[#f8fafc] border border-[#e2e8f0] rounded-xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-[#374151] text-sm font-medium uppercase tracking-wide">Pay Per Lead</span>
+                </div>
+                <p className="text-[#6b7280] text-sm">No subscription. Pay <span className="font-semibold text-[#0f172a]">$40</span> only when you receive a matched lead. Card saved securely — charged automatically.</p>
+              </div>
+              <Link href="/contractors/signup?plan=pay_per_lead" className="shrink-0 bg-white border border-[#e2e8f0] hover:border-[#94a3b8] text-[#374151] font-medium px-5 py-2.5 rounded-lg transition-colors text-center text-sm whitespace-nowrap">
+                Get Started — $40/lead
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 

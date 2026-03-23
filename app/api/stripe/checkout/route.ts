@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
   try {
     const { plan, name, phone, email, trade_type, service_area } = await req.json()
 
-    if (!plan || !['starter', 'pro'].includes(plan)) {
+    if (!plan || !['starter', 'pro', 'pay_per_lead'].includes(plan)) {
       return NextResponse.json({ error: 'Invalid plan' }, { status: 400 })
     }
 
@@ -20,9 +20,37 @@ export async function POST(req: NextRequest) {
     }
 
     const stripe = new Stripe(secretKey, { apiVersion: '2026-02-25.clover' })
-    const priceId = PRICE_IDS[plan]
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
+    const metadata = {
+      plan,
+      name: name || '',
+      phone: phone || '',
+      trade_type: trade_type || '',
+      service_area: service_area || '',
+    }
+
+    // Pay per lead: save card only, no subscription
+    if (plan === 'pay_per_lead') {
+      const customer = await stripe.customers.create({
+        email: email || undefined,
+        name: name || undefined,
+        metadata,
+      })
+
+      const session = await stripe.checkout.sessions.create({
+        mode: 'setup',
+        customer: customer.id,
+        success_url: `${appUrl}/dashboard?success=1`,
+        cancel_url: `${appUrl}/contractors#pricing`,
+        metadata,
+      })
+
+      return NextResponse.json({ url: session.url })
+    }
+
+    // Subscription plans
+    const priceId = PRICE_IDS[plan]
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       line_items: [{ price: priceId, quantity: 1 }],
@@ -32,13 +60,7 @@ export async function POST(req: NextRequest) {
       success_url: `${appUrl}/dashboard?success=1`,
       cancel_url: `${appUrl}/contractors#pricing`,
       customer_email: email || undefined,
-      metadata: {
-        plan,
-        name: name || '',
-        phone: phone || '',
-        trade_type: trade_type || '',
-        service_area: service_area || '',
-      },
+      metadata,
     })
 
     return NextResponse.json({ url: session.url })

@@ -21,7 +21,7 @@ export const TRADE_LABELS: Record<TradeType, string> = {
 
 export const ONTARIO_POSTAL_PREFIXES = ['K', 'L', 'M', 'N', 'P']
 
-export type PlanType = 'starter' | 'pro'
+export type PlanType = 'starter' | 'pro' | 'pay_per_lead'
 
 export interface HomeownerLead {
   id: string

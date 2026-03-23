@@ -84,7 +84,7 @@ export default function ContractorSignupPage() {
     }
   }
 
-  const planLabel = plan === 'pro' ? 'Pro — $199/mo' : 'Starter — $99/mo'
+  const planLabel = plan === 'pro' ? 'Pro — $199/mo' : plan === 'pay_per_lead' ? 'Pay Per Lead — $40/lead' : 'Starter — $99/mo'
 
   return (
     <div className="min-h-screen bg-[#f8fafc] py-16 px-4">
@@ -176,7 +176,7 @@ export default function ContractorSignupPage() {
               disabled={loading}
               className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium py-3.5 rounded-lg transition-colors text-sm mt-2"
             >
-              {loading ? 'Redirecting to payment...' : `Continue to Payment — ${planLabel}`}
+              {loading ? 'Redirecting...' : plan === 'pay_per_lead' ? 'Save Card — $40/lead' : `Continue to Payment — ${planLabel}`}
             </button>
 
             <p className="text-[#9ca3af] text-xs text-center">
