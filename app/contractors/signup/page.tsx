@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { TRADE_LABELS, type TradeType } from '@/lib/types'
 
 const POSTAL_PREFIXES = [
@@ -15,12 +15,12 @@ const inputClass = 'w-full bg-white border border-[#e2e8f0] rounded-lg px-4 py-3
 const labelClass = 'block text-sm font-medium text-[#374151] mb-1.5'
 
 export default function ContractorSignupPage() {
-  const [plan] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return new URLSearchParams(window.location.search).get('plan') || 'starter'
-    }
-    return 'starter'
-  })
+  const [plan, setPlan] = useState('starter')
+
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search).get('plan') || 'starter'
+    setPlan(p)
+  }, [])
 
   const [form, setForm] = useState({
     name: '',
