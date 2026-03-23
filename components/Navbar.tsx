@@ -35,6 +35,14 @@ export default function Navbar() {
                 For Contractors
               </Link>
               <Link
+                href="/leads"
+                className={`text-sm font-medium transition-colors whitespace-nowrap ${
+                  pathname.startsWith('/leads') ? 'text-[#0f172a]' : 'text-[#6b7280] hover:text-[#0f172a]'
+                }`}
+              >
+                Live Leads
+              </Link>
+              <Link
                 href="/dashboard"
                 className={`text-sm font-medium transition-colors whitespace-nowrap ${
                   pathname.startsWith('/dashboard') ? 'text-[#0f172a]' : 'text-[#6b7280] hover:text-[#0f172a]'

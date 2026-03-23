@@ -29,6 +29,21 @@ export async function POST(req: NextRequest) {
     case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session
       const customerId = session.customer as string
+
+      // Handle lead unlock payments
+      if (session.metadata?.type === 'lead_unlock') {
+        const { lead_id, contractor_email } = session.metadata
+        if (lead_id && contractor_email) {
+          await supabase.from('lead_unlocks').upsert({
+            lead_id,
+            contractor_email,
+            payment_type: 'pay_per_lead',
+            stripe_session_id: session.id,
+          }, { onConflict: 'lead_id,contractor_email' })
+        }
+        break
+      }
+
       const email = session.customer_email || session.customer_details?.email
 
       if (!email) {
