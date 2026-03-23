@@ -30,6 +30,20 @@ export default function LeadsClient({ leads }: { leads: AnonymizedLead[] }) {
       }
     }
     checkAuth()
+
+    // Show unlocked lead after returning from Stripe payment
+    const params = new URLSearchParams(window.location.search)
+    const unlockedId = params.get('unlocked')
+    if (unlockedId) {
+      fetch('/api/leads/reveal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lead_id: unlockedId }),
+      }).then(r => r.json()).then(data => {
+        if (data.lead) setUnlockedLeads(prev => ({ ...prev, [unlockedId]: data.lead }))
+      })
+      window.history.replaceState({}, '', '/leads')
+    }
   }, [])
 
   async function handleUnlock(leadId: string) {
@@ -40,7 +54,8 @@ export default function LeadsClient({ leads }: { leads: AnonymizedLead[] }) {
 
     setUnlocking(leadId)
 
-    if (contractor.plan_type === 'pay_per_lead') {
+    if (contractor.plan_type === 'pay_per_lead' || !contractor.plan_type) {
+      // No subscription — pay $40
       const res = await fetch('/api/stripe/unlock-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -51,6 +66,7 @@ export default function LeadsClient({ leads }: { leads: AnonymizedLead[] }) {
       else alert(data.error || 'Something went wrong')
       setUnlocking(null)
     } else {
+      // Subscription holder — unlock free (counts toward starter limit)
       const res = await fetch('/api/leads/unlock', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -69,6 +85,7 @@ export default function LeadsClient({ leads }: { leads: AnonymizedLead[] }) {
   function getButtonLabel() {
     if (!contractor) return 'Get Access'
     if (contractor.plan_type === 'pay_per_lead') return 'Unlock — $40'
+    if (contractor.plan_type === 'starter') return `Reveal Lead (${15 - contractor.lead_credits_used} left)`
     return 'Reveal Lead'
   }
 
