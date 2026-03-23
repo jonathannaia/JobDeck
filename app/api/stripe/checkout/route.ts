@@ -41,6 +41,7 @@ export async function POST(req: NextRequest) {
       const session = await stripe.checkout.sessions.create({
         mode: 'setup',
         customer: customer.id,
+        currency: 'cad',
         success_url: `${appUrl}/dashboard?success=1`,
         cancel_url: `${appUrl}/contractors#pricing`,
         metadata,
