@@ -7,6 +7,9 @@ export const TRADES = [
   { slug: 'painter', label: 'Painter', plural: 'Painters', trade_type: 'painter', verb: 'painting' },
   { slug: 'landscaper', label: 'Landscaper', plural: 'Landscapers', trade_type: 'landscaper', verb: 'landscaping' },
   { slug: 'general-contractor', label: 'General Contractor', plural: 'General Contractors', trade_type: 'general_contractor', verb: 'home renovation' },
+  { slug: 'lawn-service', label: 'Lawn Service', plural: 'Lawn Service Providers', trade_type: 'lawn_service', verb: 'lawn care' },
+  { slug: 'decking', label: 'Decking Contractor', plural: 'Decking Contractors', trade_type: 'decking', verb: 'decking' },
+  { slug: 'fencing', label: 'Fencing Contractor', plural: 'Fencing Contractors', trade_type: 'fencing', verb: 'fencing' },
 ]
 
 export const CITIES = [
