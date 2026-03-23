@@ -82,7 +82,7 @@ export default function ContractorsPage() {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {/* Starter */}
             <div className="bg-white border border-[#e2e8f0] rounded-xl p-8 flex flex-col">
               <div className="mb-6">
@@ -150,26 +150,38 @@ export default function ContractorsPage() {
                 Start Free Trial — then $199/mo
               </Link>
             </div>
-          </div>
 
-          <p className="text-center text-[#6b7280] text-sm mt-6">
-            🔒 7-day free trial. Lock in this rate forever. First 25 contractors only.
-          </p>
-
-          {/* Pay Per Lead */}
-          <div className="mt-8 max-w-3xl mx-auto">
-            <div className="bg-[#f8fafc] border border-[#e2e8f0] rounded-xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
+            {/* Pay Per Lead */}
+            <div className="bg-white border border-[#e2e8f0] rounded-xl p-8 flex flex-col">
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3">
                   <span className="text-[#374151] text-sm font-medium uppercase tracking-wide">Pay Per Lead</span>
                 </div>
-                <p className="text-[#6b7280] text-sm">No subscription. Pay <span className="font-semibold text-[#0f172a]">$40</span> only when you receive a matched lead. Card saved securely — charged automatically.</p>
+                <div className="flex items-end gap-2 mb-1">
+                  <span className="text-4xl font-bold text-[#0f172a]">$40</span>
+                  <span className="text-[#6b7280] pb-1">/lead</span>
+                </div>
+                <p className="text-[#6b7280] text-sm">No subscription — pay only for leads you want</p>
               </div>
-              <Link href="/contractors/signup?plan=pay_per_lead" className="shrink-0 bg-white border border-[#e2e8f0] hover:border-[#94a3b8] text-[#374151] font-medium px-5 py-2.5 rounded-lg transition-colors text-center text-sm whitespace-nowrap">
+
+              <ul className="space-y-3 mb-8 flex-1">
+                {['Browse live homeowner leads', 'Unlock any lead for $40', 'Card saved securely via Stripe', 'No monthly commitment', 'Access to contractor dashboard'].map(f => (
+                  <li key={f} className="flex items-start gap-3 text-sm text-[#374151]">
+                    <CheckIcon />
+                    {f}
+                  </li>
+                ))}
+              </ul>
+
+              <Link href="/contractors/signup?plan=pay_per_lead" className="w-full bg-white border border-[#e2e8f0] hover:border-[#94a3b8] text-[#374151] font-medium py-3 rounded-lg transition-colors text-center text-sm block">
                 Get Started — $40/lead
               </Link>
             </div>
           </div>
+
+          <p className="text-center text-[#6b7280] text-sm mt-6">
+            🔒 7-day free trial on monthly plans. Lock in this rate forever. First 25 contractors only.
+          </p>
         </div>
       </section>
 
