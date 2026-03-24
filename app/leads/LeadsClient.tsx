@@ -48,7 +48,7 @@ export default function LeadsClient({ leads }: { leads: AnonymizedLead[] }) {
 
   async function handleUnlock(leadId: string) {
     if (!contractor) {
-      window.location.href = '/contractors'
+      window.location.href = '/contractors/signup'
       return
     }
 

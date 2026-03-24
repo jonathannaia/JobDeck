@@ -42,8 +42,8 @@ export async function POST(req: NextRequest) {
         mode: 'setup',
         customer: customer.id,
         currency: 'cad',
-        success_url: `${appUrl}/dashboard?success=1`,
-        cancel_url: `${appUrl}/contractors#pricing`,
+        success_url: `${appUrl}/leads?setup=1`,
+        cancel_url: `${appUrl}/leads`,
         metadata,
       })
 
