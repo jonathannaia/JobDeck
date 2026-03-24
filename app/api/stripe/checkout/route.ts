@@ -45,6 +45,11 @@ export async function POST(req: NextRequest) {
         success_url: `${appUrl}/leads?setup=1`,
         cancel_url: `${appUrl}/leads`,
         metadata,
+        custom_text: {
+          submit: {
+            message: 'Save your card to start claiming leads on JobDeck. You\'ll only be charged when you choose to claim a lead — $40 per lead, no subscription.',
+          },
+        },
       })
 
       return NextResponse.json({ url: session.url })

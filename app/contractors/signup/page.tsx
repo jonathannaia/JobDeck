@@ -166,7 +166,7 @@ export default function ContractorSignupPage() {
               disabled={loading}
               className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium py-3.5 rounded-lg transition-colors text-sm mt-2"
             >
-              {loading ? 'Redirecting...' : 'Save Card & Browse Leads'}
+              {loading ? 'Redirecting...' : 'Continue to Payment'}
             </button>
 
             <p className="text-[#9ca3af] text-xs text-center">
