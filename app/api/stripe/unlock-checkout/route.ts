@@ -33,21 +33,38 @@ export async function POST(req: NextRequest) {
 
   if (!contractor) return NextResponse.json({ error: 'No contractor account found' }, { status: 403 })
 
+  const { data: lead } = await service
+    .from('homeowner_leads')
+    .select('trade_type, city, postal_code')
+    .eq('id', lead_id)
+    .single()
+
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+
+  const location = lead?.city || lead?.postal_code?.slice(0, 3) || 'Ontario'
+  const trade = lead?.trade_type
+    ? lead.trade_type.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())
+    : 'Homeowner Lead'
 
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
     line_items: [{
       price_data: {
         currency: 'cad',
-        product_data: { name: 'Lead Unlock — JobDeck' },
+        product_data: {
+          name: `${trade} Lead — ${location}`,
+          description: 'One-time fee to unlock full contact info and job details for this homeowner lead.',
+        },
         unit_amount: 4000,
       },
       quantity: 1,
     }],
     customer: contractor.stripe_customer_id || undefined,
     customer_email: contractor.stripe_customer_id ? undefined : user.email!,
+    payment_intent_data: {
+      setup_future_usage: 'off_session',
+    },
     success_url: `${appUrl}/leads?unlocked=${lead_id}`,
     cancel_url: `${appUrl}/leads`,
     metadata: {
