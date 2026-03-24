@@ -52,7 +52,7 @@ export default function Navbar() {
               Live Leads
             </Link>
             <Link
-              href="/contractors#pricing"
+              href="/leads"
               className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
             >
               Get Leads

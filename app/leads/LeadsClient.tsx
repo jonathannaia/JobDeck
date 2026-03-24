@@ -83,10 +83,7 @@ export default function LeadsClient({ leads }: { leads: AnonymizedLead[] }) {
   }
 
   function getButtonLabel() {
-    if (!contractor) return 'Get Access'
-    if (contractor.plan_type === 'pay_per_lead') return 'Unlock — $40'
-    if (contractor.plan_type === 'starter') return `Reveal Lead (${15 - contractor.lead_credits_used} left)`
-    return 'Reveal Lead'
+    return 'Claim Lead'
   }
 
   return (

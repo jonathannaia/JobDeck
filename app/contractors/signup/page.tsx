@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { TRADE_LABELS, type TradeType } from '@/lib/types'
 
 const POSTAL_PREFIXES = [
@@ -15,12 +15,7 @@ const inputClass = 'w-full bg-white border border-[#e2e8f0] rounded-lg px-4 py-3
 const labelClass = 'block text-sm font-medium text-[#374151] mb-1.5'
 
 export default function ContractorSignupPage() {
-  const [plan, setPlan] = useState('starter')
-
-  useEffect(() => {
-    const p = new URLSearchParams(window.location.search).get('plan') || 'starter'
-    setPlan(p)
-  }, [])
+  const [plan] = useState('pay_per_lead')
 
   const [form, setForm] = useState({
     name: '',
@@ -84,15 +79,10 @@ export default function ContractorSignupPage() {
     }
   }
 
-  const planLabel = plan === 'pro' ? 'Pro — $199/mo' : plan === 'pay_per_lead' ? 'Pay Per Lead — $40/lead' : 'Starter — $99/mo'
-
   return (
     <div className="min-h-screen bg-[#f8fafc] py-16 px-4">
       <div className="max-w-lg mx-auto">
         <div className="mb-8">
-          <div className="inline-flex items-center bg-[#EFF6FF] rounded-full px-3 py-1 text-[#1d4ed8] text-xs font-medium mb-4">
-            {planLabel}
-          </div>
           <h1 className="text-2xl font-bold text-[#0f172a] mb-2">Set Up Your Account</h1>
           <p className="text-[#6b7280] text-sm">Tell us about your business so we can match you with the right leads.</p>
         </div>
@@ -176,7 +166,7 @@ export default function ContractorSignupPage() {
               disabled={loading}
               className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium py-3.5 rounded-lg transition-colors text-sm mt-2"
             >
-              {loading ? 'Redirecting...' : plan === 'pay_per_lead' ? 'Save Card — $40/lead' : `Continue to Payment — ${planLabel}`}
+              {loading ? 'Redirecting...' : 'Save Card & Browse Leads'}
             </button>
 
             <p className="text-[#9ca3af] text-xs text-center">

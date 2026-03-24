@@ -133,13 +133,13 @@ export default async function TradecityPage({ params }: { params: Promise<{ trad
             Are you a {trade.label} in {city.label}?
           </h2>
           <p className="text-[#6b7280] mb-6">
-            Get matched with homeowners in {city.label} looking for {trade.verb}. 7-day free trial.
+            Browse real jobs from homeowners in {city.label} looking for {trade.verb}. Only pay for the leads you want.
           </p>
           <a
-            href="/contractors"
+            href="/leads"
             className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-medium px-6 py-3 rounded-lg transition-colors inline-block"
           >
-            Start Receiving Leads
+            Browse Live Leads
           </a>
         </div>
       </section>
