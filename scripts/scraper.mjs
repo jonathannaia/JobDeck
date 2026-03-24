@@ -1,58 +1,23 @@
 /**
- * JobDeck Homeowner Lead Scraper
- *
- * SETUP (one time):
- *   1. Go to https://www.reddit.com/prefs/apps
- *   2. Click "create another app" → choose "script"
- *   3. Name: JobDeck Scraper | Redirect URI: http://localhost:8080
- *   4. Copy the client ID (under app name) and secret
- *   5. Create scripts/.env with:
- *        REDDIT_CLIENT_ID=your_client_id
- *        REDDIT_SECRET=your_secret
- *
+ * JobDeck Homeowner Lead Scraper — Kijiji
  * Run: node scripts/scraper.mjs
  */
 
-import https from 'https'
+import puppeteer from 'puppeteer'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-
-// Load .env from scripts/.env
-const envPath = path.join(__dirname, '.env')
-if (fs.existsSync(envPath)) {
-  fs.readFileSync(envPath, 'utf8').split('\n').forEach(line => {
-    const [k, v] = line.split('=')
-    if (k && v) process.env[k.trim()] = v.trim()
-  })
-}
-
-const REDDIT_CLIENT_ID = process.env.REDDIT_CLIENT_ID
-const REDDIT_SECRET = process.env.REDDIT_SECRET
-
-if (!REDDIT_CLIENT_ID || !REDDIT_SECRET) {
-  console.error('❌ Missing Reddit credentials.')
-  console.error('   See setup instructions at the top of scripts/scraper.mjs')
-  process.exit(1)
-}
+const CSV_PATH = path.join(__dirname, 'leads.csv')
 
 const MAX_AGE_DAYS = 5
-const URGENT_TRADES = ['plumber', 'plumbing', 'electrician', 'electrical', 'hvac', 'furnace', 'leak', 'flood', 'pipe']
-
-const TRADES = [
-  'plumber', 'plumbing', 'roofer', 'roofing', 'electrician', 'electrical',
-  'hvac', 'furnace', 'handyman', 'carpenter', 'painter', 'landscaper',
-  'lawn', 'deck', 'decking', 'fence', 'fencing', 'contractor', 'renovation',
-  'drywall', 'flooring', 'tile', 'window', 'siding', 'insulation', 'gutter',
-]
 
 const HOMEOWNER_SIGNALS = [
   'need', 'looking for', 'anyone know', 'recommend', 'help me find',
   'quote', 'hire', 'seeking', 'wanted', 'required', 'who do i call',
   'any suggestions', 'any recommendations', 'does anyone', 'can someone',
-  'how do i find', 'where can i find', 'can anyone', 'i need',
+  'how do i find', 'where can i find', 'can anyone', 'i need', 'wanted:',
 ]
 
 const CONTRACTOR_SIGNALS = [
@@ -62,29 +27,49 @@ const CONTRACTOR_SIGNALS = [
   'my company', 'my business', 'affordable rates', 'competitive rates',
   'fully insured', 'fully licensed', 'we are hiring', 'hiring now',
   'looking for work', 'looking for jobs', 'seeking work', 'seeking employment',
-  'any leads', 'slow right now', 'slow season', 'my services',
+  'my services', 'quality workmanship', 'no job too small',
+  'for hire', 'plumber for hire', 'electrician for hire', 'roofer for hire',
+  'painter for hire', 'handyman for hire', 'contractor for hire',
+  'call paul', 'call us at', 'give us a call', 'text us', 'experienced &',
+  'affordable &', '& affordable', '& experienced', 'here to help with all your',
+  'all your plumbing', 'all your electrical', 'all your roofing',
 ]
 
-const SUBREDDITS = [
-  'hamilton', 'cambridge', 'kitchener', 'waterloo', 'burlington',
-  'toronto', 'mississauga', 'ontario', 'GTA', 'oshawa', 'barrie',
-  'londonontario', 'stcatharines',
+const TRADES = [
+  'plumber', 'plumbing', 'roofer', 'roofing', 'electrician', 'electrical',
+  'hvac', 'furnace', 'handyman', 'carpenter', 'painter', 'landscaper',
+  'lawn', 'deck', 'decking', 'fence', 'fencing', 'contractor', 'renovation',
+  'drywall', 'flooring', 'tile', 'window', 'siding', 'insulation', 'gutter',
+]
+
+// Kijiji city slugs + their region codes
+const CITIES = [
+  { name: 'Hamilton',     slug: 'hamilton',     code: 'l80014' },
+  { name: 'Burlington',   slug: 'burlington',   code: 'l80026' },
+  { name: 'Kitchener',    slug: 'kitchener-waterloo', code: 'l1700212' },
+  { name: 'Toronto',      slug: 'city-of-toronto', code: 'l1700273' },
+  { name: 'Mississauga',  slug: 'mississauga',  code: 'l1700276' },
+  { name: 'Brampton',     slug: 'brampton',     code: 'l1700274' },
+  { name: 'Oshawa',       slug: 'oshawa',       code: 'l1700275' },
+  { name: 'Barrie',       slug: 'barrie',       code: 'l1700208' },
+  { name: 'London',       slug: 'london',       code: 'l1700214' },
 ]
 
 const SEARCH_TERMS = [
-  'need plumber', 'need roofer', 'need electrician',
-  'looking for contractor', 'need handyman', 'recommend contractor',
-  'need painter', 'need landscaper', 'renovation quote',
+  'need plumber',
+  'need roofer',
+  'need electrician',
+  'need handyman',
+  'looking for contractor',
+  'renovation help',
 ]
 
-// --- Helpers ---
-
-function isHomeownerPost(title, body) {
-  const text = `${title} ${body}`.toLowerCase()
-  const hasHomeownerSignal = HOMEOWNER_SIGNALS.some(s => text.includes(s))
-  const hasContractorSignal = CONTRACTOR_SIGNALS.some(s => text.includes(s))
-  const hasTrade = TRADES.some(t => text.includes(t))
-  return hasTrade && hasHomeownerSignal && !hasContractorSignal
+function isHomeownerPost(text) {
+  const lower = text.toLowerCase()
+  const hasHomeowner = HOMEOWNER_SIGNALS.some(s => lower.includes(s))
+  const hasContractor = CONTRACTOR_SIGNALS.some(s => lower.includes(s))
+  const hasTrade = TRADES.some(t => lower.includes(t))
+  return hasTrade && hasHomeowner && !hasContractor
 }
 
 function extractContacts(text) {
@@ -99,7 +84,8 @@ function extractContacts(text) {
 }
 
 function isUrgent(text) {
-  return URGENT_TRADES.some(t => text.toLowerCase().includes(t))
+  const urgent = ['plumber', 'plumbing', 'electrician', 'electrical', 'hvac', 'furnace', 'leak', 'flood', 'pipe']
+  return urgent.some(t => text.toLowerCase().includes(t))
 }
 
 function ageLabel(ms) {
@@ -108,110 +94,105 @@ function ageLabel(ms) {
   return `${Math.floor(h / 24)}d ago`
 }
 
-function sleep(ms) {
-  return new Promise(r => setTimeout(r, ms))
-}
-
-function httpsPost(url, body, headers) {
-  return new Promise((resolve, reject) => {
-    const u = new URL(url)
-    const req = https.request({
-      hostname: u.hostname,
-      path: u.pathname,
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Content-Length': Buffer.byteLength(body), ...headers },
-      timeout: 10000,
-    }, res => {
-      let d = ''
-      res.on('data', c => d += c)
-      res.on('end', () => { try { resolve(JSON.parse(d)) } catch { reject(new Error('Bad JSON')) } })
-    })
-    req.on('error', reject)
-    req.on('timeout', () => { req.destroy(); reject(new Error('Timeout')) })
-    req.write(body)
-    req.end()
-  })
-}
-
-function httpsGet(url, headers) {
-  return new Promise((resolve, reject) => {
-    const req = https.get(url, { headers, timeout: 10000 }, res => {
-      let d = ''
-      res.on('data', c => d += c)
-      res.on('end', () => { try { resolve(JSON.parse(d)) } catch { reject(new Error('Bad JSON')) } })
-    })
-    req.on('error', reject)
-    req.on('timeout', () => { req.destroy(); reject(new Error('Timeout')) })
-  })
-}
-
-// --- Reddit OAuth ---
-
-async function getRedditToken() {
-  const creds = Buffer.from(`${REDDIT_CLIENT_ID}:${REDDIT_SECRET}`).toString('base64')
-  const data = await httpsPost(
-    'https://www.reddit.com/api/v1/access_token',
-    'grant_type=client_credentials',
-    {
-      'Authorization': `Basic ${creds}`,
-      'User-Agent': 'JobDeck/1.0 (by /u/jobdeck_ca)',
-    }
-  )
-  return data.access_token
-}
-
-async function scrapeReddit(token) {
-  const results = []
-  const cutoff = Date.now() - MAX_AGE_DAYS * 86400000
-  const seen = new Set()
-  const headers = {
-    'Authorization': `Bearer ${token}`,
-    'User-Agent': 'JobDeck/1.0 (by /u/jobdeck_ca)',
+function parseKijijiDate(str) {
+  if (!str) return null
+  const s = str.trim().toLowerCase()
+  const now = Date.now()
+  if (s.includes('minute') || s.includes('just now') || s.includes('second')) return now
+  if (s.includes('hour')) {
+    const h = parseInt(s) || 1
+    return now - h * 3600000
   }
+  if (s.includes('yesterday')) return now - 86400000
+  if (s.includes('day')) {
+    const d = parseInt(s) || 1
+    return now - d * 86400000
+  }
+  // Try parsing as a date string
+  const parsed = new Date(str).getTime()
+  return isNaN(parsed) ? null : parsed
+}
 
-  for (const sub of SUBREDDITS) {
+async function scrapeKijiji() {
+  const results = []
+  const seen = new Set()
+  const cutoff = Date.now() - MAX_AGE_DAYS * 86400000
+
+  const browser = await puppeteer.launch({
+    headless: 'new',
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  })
+
+  const page = await browser.newPage()
+  await page.setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
+  await page.setViewport({ width: 1280, height: 800 })
+
+  for (const city of CITIES) {
     for (const term of SEARCH_TERMS) {
       try {
-        const url = `https://oauth.reddit.com/r/${sub}/search.json?q=${encodeURIComponent(term)}&sort=new&t=week&restrict_sr=1&limit=25`
-        const data = await httpsGet(url, headers)
-        const posts = data?.data?.children || []
+        const encoded = encodeURIComponent(term)
+        // Search in Services category (c72) for the city
+        const url = `https://www.kijiji.ca/b-services/${city.slug}/${encoded}/k0c72${city.code}?sortingExpression=dateDesc`
 
-        for (const { data: post } of posts) {
-          if (seen.has(post.id)) continue
-          const created = post.created_utc * 1000
-          if (created < cutoff) continue
+        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 })
+        await new Promise(r => setTimeout(r, 1500))
 
-          const title = post.title || ''
-          const body = post.selftext || ''
-          if (!isHomeownerPost(title, body)) continue
+        // Extract listings
+        const listings = await page.evaluate(() => {
+          const items = []
+          const cards = document.querySelectorAll('[data-testid="rich-card"]')
 
-          seen.add(post.id)
-          const contacts = extractContacts(`${title} ${body}`)
-          const age = Date.now() - created
+          cards.forEach(card => {
+            const titleEl = card.querySelector('[data-testid="listing-title"] a')
+            const title = titleEl?.textContent?.trim() || ''
+            const href = titleEl?.getAttribute('href') || ''
+            const dateEl = card.querySelector('[data-testid="listing-date"]')
+            const dateStr = dateEl?.textContent?.trim() || ''
+            const descEl = card.querySelector('[data-testid="listing-description"], [data-testid="listing-details"]')
+            const desc = descEl?.textContent?.trim() || ''
+
+            if (title && href) {
+              items.push({ id: href, title, desc, dateStr, href })
+            }
+          })
+          return items
+        })
+
+        for (const item of listings) {
+          if (seen.has(item.id)) continue
+
+          const created = parseKijijiDate(item.dateStr)
+          if (created && created < cutoff) continue
+
+          const text = `${item.title} ${item.desc}`
+          if (!isHomeownerPost(text)) continue
+
+          seen.add(item.id)
+          const contacts = extractContacts(text)
+          const age = created ? Date.now() - created : null
 
           results.push({
-            source: `Reddit r/${sub}`,
-            title,
-            snippet: body.slice(0, 250).trim(),
-            url: `https://reddit.com${post.permalink}`,
-            ageLabel: ageLabel(age),
-            ageMs: age,
-            urgent: isUrgent(`${title} ${body}`),
+            source: `Kijiji ${city.name}`,
+            title: item.title,
+            snippet: item.desc.slice(0, 250),
+            url: item.href.startsWith('http') ? item.href : `https://www.kijiji.ca${item.href}`,
+            ageLabel: age ? ageLabel(age) : 'Unknown age',
+            ageMs: age || 0,
+            urgent: isUrgent(text),
             contacts,
           })
         }
 
-        await sleep(300)
-      } catch {
-        // skip failed subreddits silently
+        await new Promise(r => setTimeout(r, 1000))
+      } catch (e) {
+        // skip failed pages
       }
     }
   }
 
+  await browser.close()
   return results
 }
-
-// --- Output ---
 
 function printResult(r) {
   const urgentTag = r.urgent ? '  ⚡ URGENT — act within 24h' : ''
@@ -232,29 +213,15 @@ function printResult(r) {
   }
 }
 
-// --- Main ---
-
 async function main() {
-  console.log('🔍 JobDeck Lead Scraper')
-  console.log(`   Scanning Reddit — last ${MAX_AGE_DAYS} days...\n`)
+  console.log('🔍 JobDeck Lead Scraper — Kijiji')
+  console.log(`   Scanning ${CITIES.length} Ontario cities, last ${MAX_AGE_DAYS} days...\n`)
 
-  let token
-  try {
-    token = await getRedditToken()
-  } catch (e) {
-    console.error('❌ Failed to authenticate with Reddit:', e.message)
-    console.error('   Check your REDDIT_CLIENT_ID and REDDIT_SECRET in scripts/.env')
-    process.exit(1)
-  }
-
-  console.log('✅ Reddit authenticated\n')
-
-  const results = await scrapeReddit(token)
+  const results = await scrapeKijiji()
   results.sort((a, b) => a.ageMs - b.ageMs)
 
   if (results.length === 0) {
-    console.log('No homeowner leads found in the last', MAX_AGE_DAYS, 'days.')
-    console.log('Try again tomorrow — Reddit posts are time-sensitive.')
+    console.log('No homeowner leads found. Try again later.')
     return
   }
 
@@ -263,9 +230,9 @@ async function main() {
   const urgent = results.filter(r => r.urgent)
 
   console.log(`✅ Found ${results.length} homeowner leads`)
-  console.log(`   📞 ${withContact.length} with contact info — add directly to JobDeck`)
-  console.log(`   💬 ${withoutContact.length} without contact info — reply and direct to jobdeck.ca`)
-  if (urgent.length) console.log(`   ⚡ ${urgent.length} urgent trades — act within 24h or they've already hired`)
+  console.log(`   📞 ${withContact.length} with contact info`)
+  console.log(`   💬 ${withoutContact.length} without contact info`)
+  if (urgent.length) console.log(`   ⚡ ${urgent.length} urgent — act within 24h`)
 
   if (withContact.length > 0) {
     console.log('\n\n══════════════════════════════════════════════════════════')
@@ -283,6 +250,52 @@ async function main() {
 
   console.log(`\n${'─'.repeat(65)}`)
   console.log(`Done. ${results.length} leads found.\n`)
+
+  // Write to CSV
+  writeCSV(results)
+}
+
+function writeCSV(results) {
+  const headers = ['Source', 'Title', 'Description', 'URL', 'Age', 'Phone', 'Email', 'Has Contact', 'Urgent']
+  const escape = v => `"${String(v || '').replace(/"/g, '""')}"`
+
+  const exists = fs.existsSync(CSV_PATH)
+  const existingUrls = new Set()
+
+  if (exists) {
+    const lines = fs.readFileSync(CSV_PATH, 'utf8').split('\n').slice(1)
+    lines.forEach(line => {
+      const cols = line.match(/"[^"]*"/g) || []
+      if (cols[2]) existingUrls.add(cols[2].replace(/"/g, ''))
+    })
+  }
+
+  const newRows = results.filter(r => !existingUrls.has(r.url))
+  if (newRows.length === 0) {
+    console.log('📄 No new leads to add to CSV (all duplicates).')
+    return
+  }
+
+  const rows = newRows.map(r => [
+    escape(r.source),
+    escape(r.title),
+    escape(r.snippet),
+    escape(r.url),
+    escape(r.ageLabel),
+    escape(r.contacts.phones.join(', ')),
+    escape(r.contacts.emails.join(', ')),
+    escape(r.contacts.phones.length || r.contacts.emails.length ? 'YES' : 'no'),
+    escape(r.urgent ? 'YES' : 'no'),
+  ].join(','))
+
+  if (!exists) {
+    fs.writeFileSync(CSV_PATH, [headers.join(','), ...rows].join('\n') + '\n')
+  } else {
+    fs.appendFileSync(CSV_PATH, rows.join('\n') + '\n')
+  }
+
+  console.log(`📄 ${newRows.length} new leads saved to scripts/leads.csv`)
+  console.log('   Drag the file into Google Sheets or File → Import to view.')
 }
 
 main().catch(console.error)
