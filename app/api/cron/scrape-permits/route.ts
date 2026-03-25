@@ -90,37 +90,70 @@ function isHotPermit(issuedDate: string): boolean {
   return Date.now() - new Date(issuedDate).getTime() < HOT_WINDOW_MS
 }
 
-// Returns all matching trades for a permit (multi-trade tagging)
-function classifyTrade(type: string, description: string, cost?: string | number): string[] {
-  const text = `${type} ${description}`.toLowerCase()
+// City-specific term normalization — translate municipal jargon to standard JobDeck keywords
+// before trade classification so the same logic works across all cities
+const CITY_ALIASES: { city: string; match: string; inject: string }[] = [
+  { city: 'Mississauga', match: 'second unit',     inject: 'Basement Finish' },
+  { city: 'Mississauga', match: 'accessory unit',  inject: 'Basement Finish' },
+  { city: 'Toronto',     match: 'small residential', inject: 'Renovation' },
+  { city: 'Toronto',     match: 'house',            inject: 'Renovation' },
+  { city: 'Brampton',    match: 'accessory loft',   inject: 'Secondary Suite' },
+  { city: 'Brampton',    match: 'accessory apt',    inject: 'Secondary Suite' },
+  { city: 'Hamilton',    match: 'residential alteration', inject: 'Interior Alteration' },
+  { city: 'Hamilton',    match: 'accessory building',    inject: 'Renovation' },
+  { city: 'Ottawa',      match: 'interior renovation',   inject: 'Interior Alteration' },
+  { city: 'Ottawa',      match: 'dwelling unit',         inject: 'Renovation' },
+]
 
-  // Step 1: global exclusions — discard non-trade permits entirely
+function normalizePermit(city: string, type: string, desc: string): string {
+  const combined = `${type} ${desc}`.toLowerCase()
+  const injections: string[] = []
+  for (const alias of CITY_ALIASES) {
+    if (alias.city === city && combined.includes(alias.match)) {
+      injections.push(alias.inject)
+    }
+  }
+  return injections.length ? `${type} ${desc} ${injections.join(' ')}` : `${type} ${desc}`
+}
+
+// Returns all matching trades for a permit (multi-trade tagging)
+function classifyTrade(city: string, type: string, description: string, cost?: string | number): string[] {
+  // Step 1: normalize city-specific terms before matching
+  const normalized = normalizePermit(city, type, description)
+  const text = normalized.toLowerCase()
+
+  // Step 2: global exclusions — discard non-trade permits entirely
   if (GLOBAL_EXCLUDE.some(k => text.includes(k))) return []
 
   const costVal = parseCost(cost)
   const trades: string[] = []
   const isHighRise = HIGH_RISE_SIGNALS.some(k => text.includes(k))
 
-  // Step 2: high-value structural work → General Contractor
+  // Step 3: high-value structural work → General Contractor
   if (!isNaN(costVal) && costVal > 40000) {
     if (['addition', 'new building', 'second storey', 'second story'].some(k => text.includes(k))) {
       trades.push('General Contractor')
     }
   }
 
-  // Step 3: high-value interior work → Painter (renovation intent signal)
+  // Step 4: high-value interior work → Painter (renovation intent signal)
   if (!isNaN(costVal) && costVal > 15000) {
     if (['interior alteration', 'basement finishing', 'secondary suite'].some(k => text.includes(k))) {
       trades.push('Painter')
     }
   }
 
-  // Step 4: keyword matching with negative constraints + high-rise exclusions
+  // Step 5: keyword matching with negative constraints + high-rise exclusions
   for (const [trade, includes, excludes] of TRADE_MAP) {
     if (!includes.some(k => text.includes(k))) continue
     if (excludes.some(k => text.includes(k))) continue
     if (isHighRise && (trade === 'Roofer' || trade === 'Decking')) continue
     if (!trades.includes(trade)) trades.push(trade)
+  }
+
+  // Step 6: unmapped city fallback — high-value unclassified permit → General Contractor
+  if (trades.length === 0 && !isNaN(costVal) && costVal > 25000) {
+    trades.push('General Contractor')
   }
 
   return trades
@@ -170,7 +203,7 @@ async function fetchToronto(): Promise<Permit[]> {
     if (r.ISSUED_DATE && r.ISSUED_DATE < cutoff) continue
     const type = r.PERMIT_TYPE || ''
     const desc = r.DESCRIPTION || ''
-    const trades = classifyTrade(type, desc, r.EST_CONST_COST)
+    const trades = classifyTrade('Toronto', type, desc, r.EST_CONST_COST)
     if (!trades.length || !isActivePermit(r.STATUS) || !isResidentialScale(r.EST_CONST_COST)) continue
     const address = `${r.STREET_NUM} ${r.STREET_NAME} ${r.STREET_TYPE || ''}`.trim()
     const issued_date = r.ISSUED_DATE || r.APPLICATION_DATE || ''
@@ -196,7 +229,7 @@ async function fetchMississauga(): Promise<Permit[]> {
     const a = f.attributes || {}
     const type = a.SCOPE || a.FILE_TYPE || ''
     const desc = a.DESCRIPTION || ''
-    const trades = classifyTrade(type, desc, a.EST_CON_VALUE)
+    const trades = classifyTrade('Mississauga', type, desc, a.EST_CON_VALUE)
     const issued_date = a.ISSUE_DATE ? new Date(a.ISSUE_DATE).toISOString().slice(0, 10) : ''
     if (!trades.length || !isActivePermit(a.STATUS) || !isResidentialScale(a.EST_CON_VALUE)) continue
     const address = a.ADDRESS || ''
@@ -222,7 +255,7 @@ async function fetchBurlington(): Promise<Permit[]> {
     const a = f.attributes || {}
     const type = a.FOLDERTYPE || ''
     const desc = `${a.WORKDESC || ''} ${a.SUBDESC || ''}`.trim()
-    const trades = classifyTrade(type, desc, a.CONSTRUCTVALUE)
+    const trades = classifyTrade('Burlington', type, desc, a.CONSTRUCTVALUE)
     const issued_date = a.ISSUEDATE ? new Date(a.ISSUEDATE).toISOString().slice(0, 10) : ''
     if (!trades.length || !isActivePermit(a.FOLDERSTATUSDESC) || !isResidentialScale(a.CONSTRUCTVALUE)) continue
     const address = (a.ADDRESS || '').trim()
@@ -248,7 +281,7 @@ async function fetchBrampton(): Promise<Permit[]> {
     const a = f.attributes || {}
     const type = a.SUBDESC || ''
     const desc = `${a.WORKDESC || ''} ${a.SUBDESC || ''}`.trim()
-    const trades = classifyTrade(type, desc, a.CONSTRUCTVALUE)
+    const trades = classifyTrade('Brampton', type, desc, a.CONSTRUCTVALUE)
     const issued_date = a.ISSUEDATE ? new Date(a.ISSUEDATE).toISOString().slice(0, 10) : ''
     if (!trades.length || !isActivePermit(a.STATUSDESC) || !isResidentialScale(a.CONSTRUCTVALUE)) continue
     const address = (a.ADDRESS || '').trim()
@@ -274,7 +307,7 @@ async function fetchBarrie(): Promise<Permit[]> {
     const a = f.attributes || {}
     const type = a.Sub_Type || ''
     const desc = a.Description || ''
-    const trades = classifyTrade(type, desc)
+    const trades = classifyTrade('Barrie', type, desc)
     const issued_date = (a.Date_Status || '').replace(/\./g, '-')
     if (!trades.length || !isActivePermit(a.RECORD_STATUS)) continue
     const address = (a.Full_Address || '').trim()
@@ -286,6 +319,60 @@ async function fetchBarrie(): Promise<Permit[]> {
         status: a.RECORD_STATUS || '', issued_date, est_cost: '',
         builder: '', permit_num: `${a.RECORD_ID || ''}|${trade}`,
         trade, velocity: classifyVelocity(type, desc), maps_url: mapsUrl(address, 'Barrie'), tags,
+      })
+    }
+  }
+  return results
+}
+
+async function fetchHamilton(): Promise<Permit[]> {
+  const cutoff = new Date(Date.now() - MAX_AGE_DAYS * 86400000).toISOString().slice(0, 10)
+  // TODO: verify Hamilton ArcGIS endpoint — check https://open.hamilton.ca for the current URL
+  const data = await fetchJson(`https://maps.hamilton.ca/arcgis/rest/services/PublicMaps/Building_Permits/MapServer/0/query?where=ISSUEDATE+%3E+date+%27${cutoff}%27&outFields=*&f=json&resultRecordCount=500&orderByFields=ISSUEDATE+DESC`)
+  const results: Permit[] = []
+  for (const f of data.features || []) {
+    const a = f.attributes || {}
+    const type = a.PERMIT_TYPE || a.WORKTYPE || ''
+    const desc = `${a.DESCRIPTION || ''} ${a.WORK_DESC || ''}`.trim()
+    const trades = classifyTrade('Hamilton', type, desc, a.CONST_VALUE || a.EST_COST)
+    const issued_date = a.ISSUEDATE ? new Date(a.ISSUEDATE).toISOString().slice(0, 10) : ''
+    if (!trades.length || !isActivePermit(a.STATUS || a.PERMIT_STATUS) || !isResidentialScale(a.CONST_VALUE || a.EST_COST)) continue
+    const address = (a.ADDRESS || a.CIVIC_ADDRESS || '').trim()
+    const tags = isHotPermit(issued_date) ? ['HOT'] : []
+    for (const trade of trades) {
+      if (issued_date && issued_date < cutoffForTrade(trade)) continue
+      results.push({
+        city: 'Hamilton', address, postal: a.POSTAL_CODE || '', permit_type: type, description: desc,
+        status: a.STATUS || a.PERMIT_STATUS || '', issued_date, est_cost: a.CONST_VALUE || a.EST_COST || '',
+        builder: a.CONTRACTOR || '', permit_num: `${a.PERMIT_NO || a.PERMIT_NUM || ''}|${trade}`,
+        trade, velocity: classifyVelocity(type, desc), maps_url: mapsUrl(address, 'Hamilton'), tags,
+      })
+    }
+  }
+  return results
+}
+
+async function fetchOttawa(): Promise<Permit[]> {
+  const cutoff = new Date(Date.now() - MAX_AGE_DAYS * 86400000).toISOString().slice(0, 10)
+  // TODO: verify Ottawa ArcGIS endpoint — check https://open.ottawa.ca for the current URL
+  const data = await fetchJson(`https://maps.ottawa.ca/arcgis/rest/services/Building_Permits/MapServer/0/query?where=ISSUEDATE+%3E+date+%27${cutoff}%27&outFields=*&f=json&resultRecordCount=500&orderByFields=ISSUEDATE+DESC`)
+  const results: Permit[] = []
+  for (const f of data.features || []) {
+    const a = f.attributes || {}
+    const type = a.PERMIT_TYPE || a.APPLICATION_TYPE || ''
+    const desc = `${a.DESCRIPTION || ''} ${a.WORK_DESCRIPTION || ''}`.trim()
+    const trades = classifyTrade('Ottawa', type, desc, a.CONSTRUCTION_VALUE || a.EST_COST)
+    const issued_date = a.ISSUEDATE ? new Date(a.ISSUEDATE).toISOString().slice(0, 10) : ''
+    if (!trades.length || !isActivePermit(a.STATUS) || !isResidentialScale(a.CONSTRUCTION_VALUE || a.EST_COST)) continue
+    const address = (a.ADDRESS || a.CIVIC_ADDRESS || '').trim()
+    const tags = isHotPermit(issued_date) ? ['HOT'] : []
+    for (const trade of trades) {
+      if (issued_date && issued_date < cutoffForTrade(trade)) continue
+      results.push({
+        city: 'Ottawa', address, postal: a.POSTAL_CODE || '', permit_type: type, description: desc,
+        status: a.STATUS || '', issued_date, est_cost: a.CONSTRUCTION_VALUE || a.EST_COST || '',
+        builder: a.CONTRACTOR || '', permit_num: `${a.PERMIT_NUMBER || a.PERMIT_NO || ''}|${trade}`,
+        trade, velocity: classifyVelocity(type, desc), maps_url: mapsUrl(address, 'Ottawa'), tags,
       })
     }
   }
@@ -304,6 +391,8 @@ export async function GET(req: NextRequest) {
     scrapeCity('Burlington', fetchBurlington),
     scrapeCity('Brampton', fetchBrampton),
     scrapeCity('Barrie', fetchBarrie),
+    scrapeCity('Hamilton', fetchHamilton),
+    scrapeCity('Ottawa', fetchOttawa),
   ])
 
   const allPermits: Permit[] = []
