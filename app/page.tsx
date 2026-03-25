@@ -137,6 +137,17 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Disclaimer */}
+      <section className="py-6 px-4 bg-[#f8fafc] border-t border-[#e2e8f0]">
+        <div className="max-w-3xl mx-auto text-center">
+          <p className="text-[#9ca3af] text-xs leading-relaxed">
+            JobDeck provides publicly available building permit data for informational and business prospecting purposes only.
+            We do not issue permits or represent any municipal authority.{' '}
+            <a href="/terms" className="text-[#2563eb] hover:underline">Terms of Service</a>
+          </p>
+        </div>
+      </section>
+
       {/* Contractor CTA banner */}
       <section className="py-16 px-4 bg-[#0f172a]">
         <div className="max-w-3xl mx-auto text-center">

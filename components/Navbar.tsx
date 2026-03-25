@@ -46,7 +46,7 @@ export default function Navbar() {
               href="/contractors/batch"
               className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm whitespace-nowrap"
             >
-              Get Leads
+              Browse Permit Data
             </Link>
           </div>
 
@@ -84,7 +84,7 @@ export default function Navbar() {
               onClick={() => setMobileOpen(false)}
               className="block text-center bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-sm font-semibold px-5 py-3 rounded-xl"
             >
-              Get Leads
+              Browse Permit Data
             </Link>
           </div>
         </div>
