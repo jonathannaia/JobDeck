@@ -19,7 +19,7 @@ export default function HomePage() {
               <span className="text-[#2563eb]">right.</span>
             </h1>
             <p className="text-[#6b7280] text-xl mb-8 leading-relaxed">
-              Describe your project, get matched with trusted local contractors. Free for homeowners — always.
+              Post your project and get matched with local contractors. Free for homeowners — always.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 mb-10">
               <a
@@ -141,12 +141,12 @@ export default function HomePage() {
       <section className="py-16 px-4 bg-[#0f172a]">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-white mb-3">Are you a contractor?</h2>
-          <p className="text-slate-400 mb-8 text-lg">Browse 1,100+ active homeowner leads and building permits across Ontario.</p>
+          <p className="text-slate-400 mb-8 text-lg">Know which homes in your city are about to spend money — before anyone else does.</p>
           <a
-            href="/leads"
+            href="/contractors/batch"
             className="inline-flex items-center gap-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-semibold px-8 py-4 rounded-xl text-base shadow-md hover:shadow-lg"
           >
-            Browse Live Leads
+            Get Renovation Opportunities
             <ArrowRight size={18} strokeWidth={2} />
           </a>
         </div>
