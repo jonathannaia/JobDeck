@@ -53,7 +53,7 @@ export default async function DashboardPage() {
             <p className="text-[#6b7280] text-sm mb-6">
               We couldn&apos;t find a contractor account linked to this email. Please subscribe to a plan to get started.
             </p>
-            <a href="/contractors#pricing" className="inline-block bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-medium px-6 py-3 rounded-lg transition-colors text-sm">
+            <a href="/contractors/batch" className="inline-block bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-medium px-6 py-3 rounded-lg transition-colors text-sm">
               View Plans
             </a>
           </div>
@@ -118,7 +118,7 @@ export default async function DashboardPage() {
                   <p className="text-[#0f172a] font-medium text-sm">Upgrade to Pro for instant lead delivery</p>
                   <p className="text-[#6b7280] text-sm mt-0.5">Get every lead before Starter users — unlimited per month</p>
                 </div>
-                <a href="/contractors#pricing" className="shrink-0 ml-4 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+                <a href="/contractors/batch" className="shrink-0 ml-4 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
                   Upgrade to Pro
                 </a>
               </div>

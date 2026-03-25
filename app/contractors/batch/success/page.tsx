@@ -57,7 +57,7 @@ function SuccessContent() {
         </div>
 
         <a href="/contractors/batch" className="text-sm text-[#2563eb] hover:underline">
-          Buy another batch
+          Get another batch
         </a>
       </div>
     </div>

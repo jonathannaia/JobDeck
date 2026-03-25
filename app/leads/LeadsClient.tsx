@@ -166,7 +166,10 @@ export default function LeadsClient({
     async function checkAuth() {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
+      if (!user) {
+        setAuthChecked(true)
+        return
+      }
       const res = await fetch('/api/contractors/me')
       if (res.ok) {
         const data = await res.json()
