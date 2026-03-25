@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createServiceClient } from '@/lib/supabase/server'
+import { Resend } from 'resend'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2026-02-25.clover',
@@ -29,6 +30,44 @@ export async function POST(req: NextRequest) {
     case 'checkout.session.completed': {
       const session = event.data.object as Stripe.Checkout.Session
       const customerId = session.customer as string
+
+      // Handle batch permit purchase — send confirmation email with download link
+      if (session.metadata?.type === 'batch_purchase') {
+        const { city, trade, name, count } = session.metadata
+        const email = session.customer_email || session.customer_details?.email
+        const firstName = (name || email || 'there').split(' ')[0]
+        const tradeLabel = trade === 'all' ? 'All Trades' : trade
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://jobdeck.ca'
+        const downloadUrl = `${appUrl}/api/permits/batch-download?session_id=${session.id}`
+
+        if (email) {
+          const resend = new Resend(process.env.RESEND_API_KEY)
+          await resend.emails.send({
+            from: 'JobDeck <noreply@jobdeck.ca>',
+            to: email,
+            subject: `Your JobDeck Project Addresses for ${city} are ready!`,
+            html: `
+              <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#0f172a">
+                <h2 style="margin-bottom:8px">Your permit batch is ready</h2>
+                <p>Hi ${firstName},</p>
+                <p>Thank you for your purchase. Your batch of <strong>${count} residential project addresses</strong> for <strong>${tradeLabel}</strong> in <strong>${city}</strong> is ready to download.</p>
+                <p style="margin:24px 0">
+                  <a href="${downloadUrl}" style="background:#2563eb;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold">
+                    Download Your Project Addresses
+                  </a>
+                </p>
+                <p style="color:#374151">These are fresh building permits pulled directly from the city. We recommend dropping a flyer or knocking on the door this week to be the first contractor they speak with!</p>
+                <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0"/>
+                <p style="font-size:12px;color:#9ca3af">
+                  JobDeck · ${city}, Ontario · <a href="${appUrl}/terms" style="color:#9ca3af">Terms of Service</a><br/>
+                  Data sourced from public municipal building permit records.
+                </p>
+              </div>
+            `,
+          }).catch(err => console.error('Resend error:', err))
+        }
+        break
+      }
 
       // Handle lead unlock payments
       if (session.metadata?.type === 'lead_unlock') {
