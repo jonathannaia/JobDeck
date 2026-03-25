@@ -329,29 +329,28 @@ async function fetchBarrie(): Promise<Permit[]> {
 
 async function fetchHamilton(): Promise<Permit[]> {
   const cutoff = new Date(Date.now() - MAX_AGE_DAYS * 86400000).toISOString().slice(0, 10)
-  // TODO: paste the real Hamilton ArcGIS URL here once confirmed from open.hamilton.ca
-  const data = await fetchJson(`https://maps.hamilton.ca/arcgis/rest/services/PublicMaps/Building_Permits/MapServer/0/query?where=ISSUEDATE+%3E+date+%27${cutoff}%27&outFields=*&f=json&resultRecordCount=500&orderByFields=ISSUEDATE+DESC`)
+  const data = await fetchJson(`https://services1.arcgis.com/mUcv9CtI38HO679M/arcgis/rest/services/Building_Permits_Issued_Year_to_Date/FeatureServer/0/query?where=1%3D1&outFields=*&f=json&resultRecordCount=500&orderByFields=ISSUE_DATE+DESC`)
   const results: Permit[] = []
   for (const f of data.features || []) {
     const a = f.attributes || {}
     const type = a.PERMIT_TYPE || a.WORKTYPE || ''
-    // Hamilton uses DESCRIPTIO (truncated) and WORK_VALUE for cost
-    const desc = (a.DESCRIPTIO || a.DESCRIPTION || '').trim()
-    const cost = a.WORK_VALUE || a.CONST_VALUE || ''
-    // Hamilton-specific exclusions (Sign and Pool Heater are common false positives)
+    const desc = (a.DESCRIPTIO || '').trim()
+    const cost = a.WORK_VALUE || ''
+    const address = (a.PROJ_ADDR || '').trim()
+    const issued_date = a.ISSUE_DATE ? new Date(a.ISSUE_DATE).toISOString().slice(0, 10) : ''
+    if (issued_date && issued_date < cutoff) continue
+    // Hamilton-specific exclusions: Pool Heater and Tent are common false positives
     const descLower = `${type} ${desc}`.toLowerCase()
-    if (descLower.includes('sign') || descLower.includes('pool heater')) continue
+    if (descLower.includes('pool heater') || descLower.includes('tent')) continue
     const trades = classifyTrade('Hamilton', type, desc, cost)
-    const issued_date = a.ISSUEDATE ? new Date(a.ISSUEDATE).toISOString().slice(0, 10) : ''
-    if (!trades.length || !isActivePermit(a.STATUS || a.PERMIT_STATUS) || !isResidentialScale(cost)) continue
-    const address = (a.ADDRESS || a.CIVIC_ADDRESS || '').trim()
+    if (!trades.length || !isActivePermit(a.STATUS || a.PERMIT_STATUS || '') || !isResidentialScale(cost)) continue
     const tags = isHotPermit(issued_date) ? ['HOT'] : []
     for (const trade of trades) {
       if (issued_date && issued_date < cutoffForTrade(trade)) continue
       results.push({
         city: 'Hamilton', address, postal: a.POSTAL_CODE || '', permit_type: type, description: desc,
         status: a.STATUS || a.PERMIT_STATUS || '', issued_date, est_cost: cost,
-        builder: a.CONTRACTOR || '', permit_num: `${a.PERMIT_NO || a.PERMIT_NUM || ''}|${trade}`,
+        builder: a.CONTRACTOR || a.BUILDER || '', permit_num: `${a.PERMIT_NO || a.PERMIT_NUM || ''}|${trade}`,
         trade, velocity: classifyVelocity(type, desc),
         maps_url: mapsUrl(`${address}, Hamilton, ON`, ''), tags,
       })
@@ -362,26 +361,26 @@ async function fetchHamilton(): Promise<Permit[]> {
 
 async function fetchOttawa(): Promise<Permit[]> {
   const cutoff = new Date(Date.now() - MAX_AGE_DAYS * 86400000).toISOString().slice(0, 10)
-  // TODO: paste the real Ottawa ArcGIS URL here once confirmed from open.ottawa.ca
-  const data = await fetchJson(`https://maps.ottawa.ca/arcgis/rest/services/Building_Permits/MapServer/0/query?where=ISSUEDATE+%3E+date+%27${cutoff}%27&outFields=*&f=json&resultRecordCount=500&orderByFields=ISSUEDATE+DESC`)
+  const data = await fetchJson(`https://services.arcgis.com/999sd9Zrv9M9Y7p5/arcgis/rest/services/Building_Permits/FeatureServer/0/query?where=1%3D1&outFields=*&f=json&resultRecordCount=500&orderByFields=PERMIT_ISSUED_DATE+DESC`)
   const results: Permit[] = []
   for (const f of data.features || []) {
     const a = f.attributes || {}
-    // Ottawa uses PERMIT_TYPE_DESC for the type label and PROJECT_DESCRIPTION + ESTIMATED_VALUE
-    const type = a.PERMIT_TYPE_DESC || a.PERMIT_TYPE || a.APPLICATION_TYPE || ''
-    const desc = (a.PROJECT_DESCRIPTION || a.DESCRIPTION || '').trim()
-    const cost = a.ESTIMATED_VALUE || a.CONSTRUCTION_VALUE || ''
+    const type = a.PERMIT_TYPE_DESC || a.PERMIT_TYPE || ''
+    const desc = (a.PROJECT_DESCRIPTION || '').trim()
+    const cost = a.ESTIMATED_VALUE || ''
+    // Ottawa address is split into number + street name
+    const address = `${a.ADDRESS_NUMBER || ''} ${a.STREET_NAME || ''}`.trim()
+    const issued_date = a.PERMIT_ISSUED_DATE ? new Date(a.PERMIT_ISSUED_DATE).toISOString().slice(0, 10) : ''
+    if (issued_date && issued_date < cutoff) continue
     const trades = classifyTrade('Ottawa', type, desc, cost)
-    const issued_date = a.ISSUEDATE ? new Date(a.ISSUEDATE).toISOString().slice(0, 10) : ''
-    if (!trades.length || !isActivePermit(a.STATUS) || !isResidentialScale(cost)) continue
-    const address = (a.ADDRESS || a.CIVIC_ADDRESS || '').trim()
+    if (!trades.length || !isActivePermit(a.STATUS || a.PERMIT_STATUS || '') || !isResidentialScale(cost)) continue
     const tags = isHotPermit(issued_date) ? ['HOT'] : []
     for (const trade of trades) {
       if (issued_date && issued_date < cutoffForTrade(trade)) continue
       results.push({
         city: 'Ottawa', address, postal: a.POSTAL_CODE || '', permit_type: type, description: desc,
-        status: a.STATUS || '', issued_date, est_cost: cost,
-        builder: a.CONTRACTOR || '', permit_num: `${a.PERMIT_NUMBER || a.PERMIT_NO || ''}|${trade}`,
+        status: a.STATUS || a.PERMIT_STATUS || '', issued_date, est_cost: cost,
+        builder: a.CONTRACTOR || a.BUILDER || '', permit_num: `${a.PERMIT_NUMBER || a.PERMIT_NO || ''}|${trade}`,
         trade, velocity: classifyVelocity(type, desc),
         maps_url: mapsUrl(`${address}, Ottawa, ON`, ''), tags,
       })
