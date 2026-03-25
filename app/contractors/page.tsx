@@ -14,7 +14,7 @@ export default function ContractorsPage() {
             <span className="text-[#60a5fa]">before anyone else calls them.</span>
           </h1>
           <p className="text-slate-400 text-xl max-w-xl mx-auto mb-10">
-            We pull active building permits across Ontario. Every record is a confirmed renovation — with the address and project details.
+            We pull active building permit data across Ontario. Every record is a real renovation project — with the address and project details from public city records.
           </p>
           <Link
             href="/contractors/batch"

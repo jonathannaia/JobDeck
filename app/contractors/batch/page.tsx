@@ -86,7 +86,8 @@ export default function BatchPage() {
         <div className="max-w-lg mx-auto">
           <div className="bg-white border border-[#e2e8f0] rounded-2xl p-8 shadow-sm">
             <h2 className="text-2xl font-bold text-[#0f172a] mb-1">Get my batch</h2>
-            <p className="text-[#6b7280] text-sm mb-6">Pick your city and trade. We'll pull up to 25 active renovation permits and deliver them as a CSV right after checkout.</p>
+            <p className="text-[#6b7280] text-sm mb-1">Pick your city and trade. We'll pull up to 25 active renovation permits and deliver them as a CSV right after checkout.</p>
+            <p className="text-[#9ca3af] text-xs mb-6">You receive addresses and project details based on public permit records. JobDeck is a data provider, not a municipal authority.</p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
