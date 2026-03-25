@@ -226,7 +226,7 @@ export default function LeadsClient({
 
   async function handleUnlock(leadId: string, type: 'organic' | 'permit') {
     if (!contractor) {
-      window.location.href = '/contractors/signup'
+      window.location.href = '/contractors/batch'
       return
     }
 
@@ -294,18 +294,18 @@ export default function LeadsClient({
     <div className="min-h-screen bg-[#f8fafc]">
       <section className="bg-white border-b border-[#e2e8f0] py-12 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-3xl font-bold text-[#0f172a] mb-3">Live Homeowner Leads</h1>
+          <h1 className="text-3xl font-bold text-[#0f172a] mb-3">Browse Individual Permits</h1>
           <p className="text-[#6b7280] max-w-xl mx-auto">
-            Organic leads posted by Ontario homeowners, plus active building permits — sorted by your trade.
+            Active building permit records across Ontario — sorted by city and trade. Claim individual addresses or <a href="/contractors/batch" className="text-[#2563eb] hover:underline">get a full batch of 25</a>.
           </p>
           {contractor && myTradeCount > 0 && (
             <p className="mt-3 text-[#2563eb] text-sm font-medium">
-              {myTradeCount} leads matching your trade ({contractor.trade_type}) shown first
+              {myTradeCount} permits matching your trade ({contractor.trade_type}) shown first
             </p>
           )}
           {authChecked && !contractor && (
-            <a href="/contractors/signup" className="mt-6 inline-block bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-medium px-6 py-2.5 rounded-lg text-sm transition-colors">
-              Sign Up to Access Leads
+            <a href="/contractors/batch" className="mt-6 inline-block bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-medium px-6 py-2.5 rounded-lg text-sm transition-colors">
+              Get a Batch of 25 — $40
             </a>
           )}
         </div>
