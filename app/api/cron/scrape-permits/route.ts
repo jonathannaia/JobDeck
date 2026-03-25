@@ -3,6 +3,28 @@ import { createServiceClient } from '@/lib/supabase/server'
 
 export const maxDuration = 300
 
+// How many days back each trade's permits remain valid leads
+const TRADE_MAX_AGE: Record<string, number> = {
+  Painter:              90, // long renovations — lead stays active for months
+  Carpenter:            90,
+  'General Contractor': 90,
+  Roofer:               30, // urgent repairs — filled quickly
+  Plumber:              30,
+  Electrician:          30,
+  HVAC:                 30,
+  Decking:              60,
+  Fencing:              60,
+  Landscaper:           60,
+  'Lawn Service':       30,
+}
+const DEFAULT_MAX_AGE = 30
+
+function cutoffForTrade(trade: string): string {
+  const days = TRADE_MAX_AGE[trade] ?? DEFAULT_MAX_AGE
+  return new Date(Date.now() - days * 86400000).toISOString().slice(0, 10)
+}
+
+// Outer fetch window — use the most permissive to avoid excluding anything prematurely
 const MAX_AGE_DAYS = 90
 
 const DEAD_STATUSES = ['final', 'completed', 'closed', 'abandoned', 'withdrawn', 'refusal', 'cancellation', 'cancelled']
@@ -154,6 +176,7 @@ async function fetchToronto(): Promise<Permit[]> {
     const issued_date = r.ISSUED_DATE || r.APPLICATION_DATE || ''
     const tags = isHotPermit(issued_date) ? ['HOT'] : []
     for (const trade of trades) {
+      if (issued_date && issued_date < cutoffForTrade(trade)) continue
       results.push({
         city: 'Toronto', address, postal: r.POSTAL || '', permit_type: type, description: desc,
         status: r.STATUS || '', issued_date, est_cost: r.EST_CONST_COST || '',
@@ -179,6 +202,7 @@ async function fetchMississauga(): Promise<Permit[]> {
     const address = a.ADDRESS || ''
     const tags = isHotPermit(issued_date) ? ['HOT'] : []
     for (const trade of trades) {
+      if (issued_date && issued_date < cutoffForTrade(trade)) continue
       results.push({
         city: 'Mississauga', address, postal: a.POSTAL_CODE || '', permit_type: type, description: desc,
         status: a.STATUS || '', issued_date, est_cost: a.EST_CON_VALUE || '',
@@ -204,6 +228,7 @@ async function fetchBurlington(): Promise<Permit[]> {
     const address = (a.ADDRESS || '').trim()
     const tags = isHotPermit(issued_date) ? ['HOT'] : []
     for (const trade of trades) {
+      if (issued_date && issued_date < cutoffForTrade(trade)) continue
       results.push({
         city: 'Burlington', address, postal: '', permit_type: type, description: desc,
         status: a.FOLDERSTATUSDESC || '', issued_date, est_cost: a.CONSTRUCTVALUE || '',
@@ -229,6 +254,7 @@ async function fetchBrampton(): Promise<Permit[]> {
     const address = (a.ADDRESS || '').trim()
     const tags = isHotPermit(issued_date) ? ['HOT'] : []
     for (const trade of trades) {
+      if (issued_date && issued_date < cutoffForTrade(trade)) continue
       results.push({
         city: 'Brampton', address, postal: '', permit_type: type, description: desc,
         status: a.STATUSDESC || '', issued_date, est_cost: a.CONSTRUCTVALUE || '',
@@ -254,6 +280,7 @@ async function fetchBarrie(): Promise<Permit[]> {
     const address = (a.Full_Address || '').trim()
     const tags = isHotPermit(issued_date) ? ['HOT'] : []
     for (const trade of trades) {
+      if (issued_date && issued_date < cutoffForTrade(trade)) continue
       results.push({
         city: 'Barrie', address, postal: '', permit_type: type, description: desc,
         status: a.RECORD_STATUS || '', issued_date, est_cost: '',
