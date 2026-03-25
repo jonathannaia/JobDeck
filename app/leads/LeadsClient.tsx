@@ -265,10 +265,10 @@ export default function LeadsClient({
     return Array.from(map.entries()) // [city, leads[]]
   }, [sortedAll])
 
-  const [collapsedCities, setCollapsedCities] = useState<Set<string>>(new Set())
+  const [expandedCities, setExpandedCities] = useState<Set<string>>(new Set())
 
   const toggleCity = useCallback((city: string) => {
-    setCollapsedCities(prev => {
+    setExpandedCities(prev => {
       const next = new Set(prev)
       if (next.has(city)) next.delete(city)
       else next.add(city)
@@ -307,7 +307,7 @@ export default function LeadsClient({
             <p className="text-center text-[#6b7280] py-12">No leads yet — check back soon.</p>
           )}
           {citySections.map(([city, cityLeads]) => {
-            const isCollapsed = collapsedCities.has(city)
+            const isExpanded = expandedCities.has(city)
             return (
               <div key={city}>
                 <button
@@ -320,9 +320,9 @@ export default function LeadsClient({
                       {cityLeads.length} lead{cityLeads.length !== 1 ? 's' : ''}
                     </span>
                   </div>
-                  <span className="text-[#9ca3af] text-sm">{isCollapsed ? '▸ Show' : '▾ Hide'}</span>
+                  <span className="text-[#9ca3af] text-sm">{isExpanded ? '▾ Hide' : '▸ Show'}</span>
                 </button>
-                {!isCollapsed && (
+                {isExpanded && (
                   <div className="space-y-4">
                     {cityLeads.map(lead => (
                       <LeadCard
