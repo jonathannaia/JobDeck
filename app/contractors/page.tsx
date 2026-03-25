@@ -20,21 +20,13 @@ export default function ContractorsPage() {
           <p className="text-slate-400 text-xl max-w-xl mx-auto mb-10 leading-relaxed">
             Browse real homeowner leads and active building permits across Ontario. Pay only for what you claim.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link
-              href="/leads"
-              className="inline-flex items-center justify-center gap-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-semibold px-8 py-4 rounded-xl text-base shadow-md hover:shadow-lg"
-            >
-              Browse Live Leads
-              <ArrowRight size={18} strokeWidth={2} />
-            </Link>
-            <Link
-              href="/contractors/signup"
-              className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold px-8 py-4 rounded-xl text-base border border-white/20"
-            >
-              Create Account
-            </Link>
-          </div>
+          <Link
+            href="/leads"
+            className="inline-flex items-center justify-center gap-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-semibold px-8 py-4 rounded-xl text-base shadow-md hover:shadow-lg"
+          >
+            Browse Live Leads
+            <ArrowRight size={18} strokeWidth={2} />
+          </Link>
         </div>
       </section>
 
