@@ -1,19 +1,146 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { AnonymizedLead } from './page'
 
 function timeAgo(dateStr: string) {
+  if (!dateStr) return ''
   const diff = Date.now() - new Date(dateStr).getTime()
+  const days = Math.floor(diff / 86400000)
   const hours = Math.floor(diff / 3600000)
-  const days = Math.floor(hours / 24)
   if (days > 0) return `${days}d ago`
   if (hours > 0) return `${hours}h ago`
   return 'Just now'
 }
 
-export default function LeadsClient({ leads }: { leads: AnonymizedLead[] }) {
+function LeadCard({
+  lead,
+  contractorTrade,
+  onUnlock,
+  unlocking,
+  unlockedData,
+}: {
+  lead: AnonymizedLead
+  contractorTrade: string | null
+  onUnlock: (id: string, type: 'organic' | 'permit') => void
+  unlocking: string | null
+  unlockedData: any
+}) {
+  const isPermit = lead.type === 'permit'
+  const isFast = lead.velocity === 'Fast'
+  const isMyTrade = contractorTrade && lead.trade_key === contractorTrade
+
+  return (
+    <div className={`bg-white border rounded-xl p-6 transition-all ${
+      isMyTrade ? 'border-[#2563eb] shadow-sm' : 'border-[#e2e8f0]'
+    }`}>
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          {/* Badges row */}
+          <div className="flex flex-wrap items-center gap-2 mb-2">
+            <span className="bg-[#EFF6FF] text-[#1d4ed8] text-xs font-medium px-2.5 py-1 rounded-full">
+              {lead.trade_label}
+            </span>
+            {isPermit && isFast && (
+              <span className="bg-[#fef9c3] text-[#854d0e] text-xs font-semibold px-2.5 py-1 rounded-full">
+                ⚡ Fill-In Ready
+              </span>
+            )}
+            {isPermit && !isFast && (
+              <span className="bg-[#f3f4f6] text-[#6b7280] text-xs font-medium px-2.5 py-1 rounded-full">
+                Long-Term Project
+              </span>
+            )}
+            {isPermit && (
+              <span className="bg-[#f0fdf4] text-[#16a34a] text-xs font-medium px-2.5 py-1 rounded-full">
+                📋 Building Permit
+              </span>
+            )}
+            <span className="text-[#6b7280] text-xs">{lead.location}</span>
+            <span className="text-[#9ca3af] text-xs">·{' '}
+              {isPermit && lead.issued_date
+                ? `Issued ${lead.issued_date}`
+                : timeAgo(lead.created_at)}
+            </span>
+          </div>
+
+          {/* Description */}
+          <p className="text-[#374151] text-sm mb-1">{lead.description}</p>
+
+          {/* Permit extras */}
+          {isPermit && lead.permit_type && (
+            <p className="text-[#9ca3af] text-xs">Permit type: {lead.permit_type}</p>
+          )}
+          {isPermit && lead.est_cost && (
+            <p className="text-[#9ca3af] text-xs">
+              Est. value: ${Number(lead.est_cost).toLocaleString()}
+            </p>
+          )}
+
+          {/* Timeline for organic */}
+          {!isPermit && lead.timeline && (
+            <p className="text-[#9ca3af] text-xs">Timeline: {lead.timeline}</p>
+          )}
+
+          {/* Unlocked organic lead */}
+          {!isPermit && unlockedData && (
+            <div className="mt-4 bg-[#f0fdf4] border border-[#bbf7d0] rounded-lg p-4">
+              <p className="text-[#16a34a] text-sm font-semibold mb-2">Lead Unlocked</p>
+              <div className="space-y-1 text-sm text-[#374151]">
+                <p><span className="font-medium">Name:</span> {unlockedData.name}</p>
+                <p><span className="font-medium">Phone:</span>{' '}
+                  <a href={`tel:${unlockedData.phone}`} className="text-[#2563eb] underline">{unlockedData.phone}</a>
+                </p>
+                {unlockedData.email && <p><span className="font-medium">Email:</span> {unlockedData.email}</p>}
+                <p><span className="font-medium">Postal Code:</span> {unlockedData.postal_code}</p>
+                <p><span className="font-medium">Full Description:</span> {unlockedData.job_description}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Unlocked permit — show address */}
+          {isPermit && unlockedData && (
+            <div className="mt-4 bg-[#f0fdf4] border border-[#bbf7d0] rounded-lg p-4">
+              <p className="text-[#16a34a] text-sm font-semibold mb-2">Permit Claimed</p>
+              <div className="space-y-1 text-sm text-[#374151]">
+                <p><span className="font-medium">Address:</span> {unlockedData.address}</p>
+                {unlockedData.postal && <p><span className="font-medium">Postal:</span> {unlockedData.postal}</p>}
+                {unlockedData.builder && <p><span className="font-medium">Builder on file:</span> {unlockedData.builder}</p>}
+                <p className="text-[#6b7280] text-xs mt-2">
+                  💡 Door knock or search this address on Facebook to reach the homeowner.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Claim button */}
+        {!unlockedData && (
+          <button
+            onClick={() => onUnlock(lead.id, lead.type)}
+            disabled={unlocking === lead.id}
+            className={`shrink-0 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors whitespace-nowrap ${
+              isFast && isPermit
+                ? 'bg-[#d97706] hover:bg-[#b45309]'
+                : 'bg-[#2563eb] hover:bg-[#1d4ed8]'
+            }`}
+          >
+            {unlocking === lead.id ? 'Loading...' : 'Claim Lead'}
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export default function LeadsClient({
+  leads,
+  permits,
+}: {
+  leads: AnonymizedLead[]
+  permits: AnonymizedLead[]
+}) {
   const [contractor, setContractor] = useState<any>(null)
   const [unlocking, setUnlocking] = useState<string | null>(null)
   const [unlockedLeads, setUnlockedLeads] = useState<Record<string, any>>({})
@@ -31,7 +158,6 @@ export default function LeadsClient({ leads }: { leads: AnonymizedLead[] }) {
     }
     checkAuth()
 
-    // Show unlocked lead after returning from Stripe payment
     const params = new URLSearchParams(window.location.search)
     const unlockedId = params.get('unlocked')
     if (unlockedId) {
@@ -44,9 +170,40 @@ export default function LeadsClient({ leads }: { leads: AnonymizedLead[] }) {
       })
       window.history.replaceState({}, '', '/leads')
     }
+
+    const permitClaimedId = params.get('permit_claimed')
+    if (permitClaimedId) {
+      fetch('/api/permits/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ permit_id: permitClaimedId }),
+      }).then(r => r.json()).then(data => {
+        if (data.permit) setUnlockedLeads(prev => ({ ...prev, [permitClaimedId]: data.permit }))
+      })
+      window.history.replaceState({}, '', '/leads')
+    }
   }, [])
 
-  async function handleUnlock(leadId: string) {
+  // Sort: contractor's trade first, then Fast permits, then everything else
+  const sortedAll = useMemo(() => {
+    const trade = contractor?.trade_type
+    const all = [...leads, ...permits]
+    return all.sort((a, b) => {
+      const aMatch = trade && a.trade_key === trade ? 0 : 1
+      const bMatch = trade && b.trade_key === trade ? 0 : 1
+      if (aMatch !== bMatch) return aMatch - bMatch
+      // Within same trade group: Fast permits first, then organic, then slow permits
+      const aScore = a.type === 'permit' && a.velocity === 'Fast' ? 0
+        : a.type === 'organic' ? 1 : 2
+      const bScore = b.type === 'permit' && b.velocity === 'Fast' ? 0
+        : b.type === 'organic' ? 1 : 2
+      if (aScore !== bScore) return aScore - bScore
+      // Finally by date desc
+      return (b.created_at || '').localeCompare(a.created_at || '')
+    })
+  }, [leads, permits, contractor])
+
+  async function handleUnlock(leadId: string, type: 'organic' | 'permit') {
     if (!contractor) {
       window.location.href = '/contractors/signup'
       return
@@ -54,37 +211,36 @@ export default function LeadsClient({ leads }: { leads: AnonymizedLead[] }) {
 
     setUnlocking(leadId)
 
-    if (contractor.plan_type === 'pay_per_lead' || !contractor.plan_type) {
-      // No subscription — pay $40
-      const res = await fetch('/api/stripe/unlock-checkout', {
+    if (type === 'permit') {
+      // Permit claim — fetch address details directly (permit data is public once paid)
+      const res = await fetch('/api/permits/claim', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lead_id: leadId }),
+        body: JSON.stringify({ permit_id: leadId }),
       })
       const data = await res.json()
       if (data.url) window.location.href = data.url
+      else if (data.permit) setUnlockedLeads(prev => ({ ...prev, [leadId]: data.permit }))
       else alert(data.error || 'Something went wrong')
       setUnlocking(null)
-    } else {
-      // Subscription holder — unlock free (counts toward starter limit)
-      const res = await fetch('/api/leads/unlock', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lead_id: leadId }),
-      })
-      const data = await res.json()
-      if (data.lead) {
-        setUnlockedLeads(prev => ({ ...prev, [leadId]: data.lead }))
-      } else {
-        alert(data.error || 'Something went wrong')
-      }
-      setUnlocking(null)
+      return
     }
+
+    // Organic lead
+    const res = await fetch('/api/stripe/unlock-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lead_id: leadId }),
+    })
+    const data = await res.json()
+    if (data.url) window.location.href = data.url
+    else alert(data.error || 'Something went wrong')
+    setUnlocking(null)
   }
 
-  function getButtonLabel() {
-    return 'Claim Lead'
-  }
+  const myTradeCount = contractor
+    ? sortedAll.filter(l => l.trade_key === contractor.trade_type).length
+    : 0
 
   return (
     <div className="min-h-screen bg-[#f8fafc]">
@@ -92,10 +248,15 @@ export default function LeadsClient({ leads }: { leads: AnonymizedLead[] }) {
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-3xl font-bold text-[#0f172a] mb-3">Live Homeowner Leads</h1>
           <p className="text-[#6b7280] max-w-xl mx-auto">
-            Real jobs posted by Ontario homeowners. Unlock a lead to get their name, phone number, and full job details.
+            Organic leads posted by Ontario homeowners, plus active building permits — sorted by your trade.
           </p>
+          {contractor && myTradeCount > 0 && (
+            <p className="mt-3 text-[#2563eb] text-sm font-medium">
+              {myTradeCount} leads matching your trade ({contractor.trade_type}) shown first
+            </p>
+          )}
           {!contractor && (
-            <a href="/contractors" className="mt-6 inline-block bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-medium px-6 py-2.5 rounded-lg text-sm transition-colors">
+            <a href="/contractors/signup" className="mt-6 inline-block bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-medium px-6 py-2.5 rounded-lg text-sm transition-colors">
               Sign Up to Access Leads
             </a>
           )}
@@ -104,50 +265,19 @@ export default function LeadsClient({ leads }: { leads: AnonymizedLead[] }) {
 
       <section className="py-10 px-4">
         <div className="max-w-3xl mx-auto space-y-4">
-          {leads.length === 0 && (
+          {sortedAll.length === 0 && (
             <p className="text-center text-[#6b7280] py-12">No leads yet — check back soon.</p>
           )}
-          {leads.map(lead => {
-            const unlocked = unlockedLeads[lead.id]
-            return (
-              <div key={lead.id} className="bg-white border border-[#e2e8f0] rounded-xl p-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <span className="bg-[#EFF6FF] text-[#1d4ed8] text-xs font-medium px-2.5 py-1 rounded-full">{lead.trade_label}</span>
-                      <span className="text-[#6b7280] text-xs">{lead.location}</span>
-                      <span className="text-[#9ca3af] text-xs">· {timeAgo(lead.created_at)}</span>
-                    </div>
-                    <p className="text-[#374151] text-sm mb-1">{lead.description}</p>
-                    {lead.timeline && (
-                      <p className="text-[#9ca3af] text-xs">Timeline: {lead.timeline}</p>
-                    )}
-                    {unlocked && (
-                      <div className="mt-4 bg-[#f0fdf4] border border-[#bbf7d0] rounded-lg p-4">
-                        <p className="text-[#16a34a] text-sm font-semibold mb-2">Lead Unlocked</p>
-                        <div className="space-y-1 text-sm text-[#374151]">
-                          <p><span className="font-medium">Name:</span> {unlocked.name}</p>
-                          <p><span className="font-medium">Phone:</span> <a href={`tel:${unlocked.phone}`} className="text-[#2563eb] underline">{unlocked.phone}</a></p>
-                          {unlocked.email && <p><span className="font-medium">Email:</span> {unlocked.email}</p>}
-                          <p><span className="font-medium">Postal Code:</span> {unlocked.postal_code}</p>
-                          <p><span className="font-medium">Full Description:</span> {unlocked.job_description}</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  {!unlocked && (
-                    <button
-                      onClick={() => handleUnlock(lead.id)}
-                      disabled={unlocking === lead.id}
-                      className="shrink-0 bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
-                    >
-                      {unlocking === lead.id ? 'Loading...' : getButtonLabel()}
-                    </button>
-                  )}
-                </div>
-              </div>
-            )
-          })}
+          {sortedAll.map(lead => (
+            <LeadCard
+              key={lead.id}
+              lead={lead}
+              contractorTrade={contractor?.trade_type ?? null}
+              onUnlock={handleUnlock}
+              unlocking={unlocking}
+              unlockedData={unlockedLeads[lead.id]}
+            />
+          ))}
         </div>
       </section>
     </div>

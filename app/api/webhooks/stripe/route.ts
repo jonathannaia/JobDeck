@@ -44,6 +44,19 @@ export async function POST(req: NextRequest) {
         break
       }
 
+      // Handle permit claim payments
+      if (session.metadata?.type === 'permit_claim') {
+        const { permit_id, contractor_id } = session.metadata
+        if (permit_id && contractor_id) {
+          await supabase.from('permit_claims').upsert({
+            permit_id,
+            contractor_id,
+            stripe_payment_intent_id: session.payment_intent as string || null,
+          }, { onConflict: 'permit_id,contractor_id' })
+        }
+        break
+      }
+
       const email = session.customer_email || session.customer_details?.email
 
       if (!email) {
