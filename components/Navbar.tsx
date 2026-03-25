@@ -2,64 +2,93 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useState } from 'react'
+import { Menu, X } from 'lucide-react'
 
 export default function Navbar() {
   const pathname = usePathname()
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  const links = [
+    { href: '/', label: 'Post a Job' },
+    { href: '/contractors', label: 'For Contractors' },
+    { href: '/leads', label: 'Live Leads' },
+    { href: '/dashboard', label: 'Dashboard' },
+  ]
 
   return (
     <nav className="bg-white border-b border-[#e2e8f0] sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <Link href="/" className="flex items-center">
+          {/* Logo */}
+          <Link href="/" className="flex items-center shrink-0">
             <span className="font-bold text-xl tracking-tight text-[#0f172a]">
               Job<span className="text-[#2563eb]">Deck</span>
             </span>
           </Link>
 
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-4">
+          {/* Desktop nav */}
+          <div className="hidden sm:flex items-center gap-6">
+            {links.map(({ href, label }) => (
               <Link
-                href="/"
+                key={href}
+                href={href}
                 className={`text-sm font-medium transition-colors whitespace-nowrap ${
-                  pathname === '/' ? 'text-[#0f172a]' : 'text-[#6b7280] hover:text-[#0f172a]'
+                  pathname === href || (href !== '/' && pathname.startsWith(href))
+                    ? 'text-[#0f172a]'
+                    : 'text-[#6b7280] hover:text-[#0f172a]'
                 }`}
               >
-                Post a Job
+                {label}
               </Link>
-              <Link
-                href="/contractors"
-                className={`text-sm font-medium transition-colors whitespace-nowrap ${
-                  pathname === '/contractors' ? 'text-[#0f172a]' : 'text-[#6b7280] hover:text-[#0f172a]'
-                }`}
-              >
-                For Contractors
-              </Link>
-              <Link
-                href="/dashboard"
-                className={`text-sm font-medium transition-colors whitespace-nowrap ${
-                  pathname.startsWith('/dashboard') ? 'text-[#0f172a]' : 'text-[#6b7280] hover:text-[#0f172a]'
-                }`}
-              >
-                Dashboard
-              </Link>
-            </div>
+            ))}
             <Link
               href="/leads"
-              className={`text-sm font-medium transition-colors whitespace-nowrap ${
-                pathname.startsWith('/leads') ? 'text-[#0f172a]' : 'text-[#6b7280] hover:text-[#0f172a]'
+              className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm whitespace-nowrap"
+            >
+              Get Leads
+            </Link>
+          </div>
+
+          {/* Mobile hamburger */}
+          <button
+            className="sm:hidden p-2 text-[#6b7280] hover:text-[#0f172a]"
+            onClick={() => setMobileOpen(o => !o)}
+            aria-label="Toggle menu"
+          >
+            {mobileOpen ? <X size={22} strokeWidth={2} /> : <Menu size={22} strokeWidth={2} />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile menu */}
+      {mobileOpen && (
+        <div className="sm:hidden border-t border-[#e2e8f0] bg-white px-4 py-4 space-y-1">
+          {links.map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              onClick={() => setMobileOpen(false)}
+              className={`block px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                pathname === href || (href !== '/' && pathname.startsWith(href))
+                  ? 'bg-[#EFF6FF] text-[#1d4ed8]'
+                  : 'text-[#374151] hover:bg-[#f8fafc]'
               }`}
             >
-              Live Leads
+              {label}
             </Link>
+          ))}
+          <div className="pt-2">
             <Link
               href="/leads"
-              className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
+              onClick={() => setMobileOpen(false)}
+              className="block text-center bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-sm font-semibold px-5 py-3 rounded-xl"
             >
               Get Leads
             </Link>
           </div>
         </div>
-      </div>
+      )}
     </nav>
   )
 }
