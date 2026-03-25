@@ -55,17 +55,25 @@ export async function POST(req: NextRequest) {
   // Not yet claimed — create Stripe checkout
   const { data: permit } = await service
     .from('building_permits')
-    .select('trade, city, permit_type, velocity')
+    .select('trade, city, permit_type, velocity, est_cost')
     .eq('id', permit_id)
     .single()
 
   if (!permit) return NextResponse.json({ error: 'Permit not found' }, { status: 404 })
 
+  // Tiered pricing based on estimated project cost
+  function permitPriceCents(estCost: string | null): number {
+    const n = estCost ? parseFloat(estCost.replace(/[^0-9.]/g, '')) : 0
+    if (n >= 200000) return 8500  // $85
+    if (n >= 30000)  return 5000  // $50
+    return 2500                   // $25
+  }
+
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
   const label = permit.permit_type || `${permit.trade} Permit`
-  const isFast = permit.velocity === 'Fast'
+  const priceCents = permitPriceCents(permit.est_cost)
 
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
@@ -74,11 +82,9 @@ export async function POST(req: NextRequest) {
         currency: 'cad',
         product_data: {
           name: `${label} — ${permit.city}`,
-          description: isFast
-            ? 'Claim this fill-in ready permit to get the full address and knock on the door.'
-            : 'Claim this permit lead to get the full address for this building project.',
+          description: 'Includes the full civic address only. Use it to door knock or find the homeowner on Facebook.',
         },
-        unit_amount: 4000,
+        unit_amount: priceCents,
       },
       quantity: 1,
     }],

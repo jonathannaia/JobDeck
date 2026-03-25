@@ -14,6 +14,13 @@ function timeAgo(dateStr: string) {
   return 'Just now'
 }
 
+function permitPrice(estCost: string | null | undefined): number {
+  const n = estCost ? parseFloat(estCost.replace(/[^0-9.]/g, '')) : 0
+  if (n >= 200000) return 85
+  if (n >= 30000)  return 50
+  return 25
+}
+
 function LeadCard({
   lead,
   contractorTrade,
@@ -117,17 +124,26 @@ function LeadCard({
 
         {/* Claim button */}
         {!unlockedData && (
-          <button
-            onClick={() => onUnlock(lead.id, lead.type)}
-            disabled={unlocking === lead.id}
-            className={`shrink-0 disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors whitespace-nowrap ${
-              isFast && isPermit
-                ? 'bg-[#d97706] hover:bg-[#b45309]'
-                : 'bg-[#2563eb] hover:bg-[#1d4ed8]'
-            }`}
-          >
-            {unlocking === lead.id ? 'Loading...' : 'Claim Lead'}
-          </button>
+          <div className="shrink-0 flex flex-col items-end gap-1">
+            <button
+              onClick={() => onUnlock(lead.id, lead.type)}
+              disabled={unlocking === lead.id}
+              className={`disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors whitespace-nowrap ${
+                isFast && isPermit
+                  ? 'bg-[#d97706] hover:bg-[#b45309]'
+                  : 'bg-[#2563eb] hover:bg-[#1d4ed8]'
+              }`}
+            >
+              {unlocking === lead.id
+                ? 'Loading...'
+                : isPermit
+                  ? `Claim — $${permitPrice(lead.est_cost)}`
+                  : 'Claim Lead — $40'}
+            </button>
+            {isPermit && (
+              <span className="text-[#9ca3af] text-xs">Address only</span>
+            )}
+          </div>
         )}
       </div>
     </div>
