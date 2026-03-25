@@ -12,12 +12,15 @@ export async function POST(req: NextRequest) {
   const supabase = createServiceClient()
 
   // Count available permits for this city/trade
+  // 'Painter' maps to renovation permits (Carpenter + General Contractor)
   let query = supabase
     .from('building_permits')
     .select('id', { count: 'exact', head: true })
     .eq('city', city)
 
-  if (trade && trade !== 'all') {
+  if (trade === 'Painter') {
+    query = query.in('trade', ['Carpenter', 'General Contractor'])
+  } else if (trade && trade !== 'all') {
     query = query.eq('trade', trade)
   }
 

@@ -8,7 +8,8 @@ const CITIES = ['Toronto', 'Mississauga', 'Brampton', 'Burlington']
 const TRADES = [
   { value: 'all', label: 'All Trades' },
   { value: 'General Contractor', label: 'General Contractor' },
-  { value: 'Carpentry', label: 'Carpentry / Decking' },
+  { value: 'Carpenter', label: 'Carpentry / Renovation' },
+  { value: 'Painter', label: 'Painting / Decorating' },
   { value: 'Roofer', label: 'Roofing' },
   { value: 'HVAC', label: 'HVAC' },
   { value: 'Plumber', label: 'Plumbing' },

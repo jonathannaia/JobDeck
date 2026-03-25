@@ -21,6 +21,7 @@ export async function GET(req: NextRequest) {
   const { city, trade, count } = session.metadata
   const supabase = createServiceClient()
 
+  // 'Painter' maps to renovation permits (Carpenter + General Contractor)
   let query = supabase
     .from('building_permits')
     .select('address, city, postal, trade, permit_type, description, issued_date, est_cost, velocity')
@@ -28,7 +29,9 @@ export async function GET(req: NextRequest) {
     .order('issued_date', { ascending: false })
     .limit(parseInt(count) || 25)
 
-  if (trade && trade !== 'all') {
+  if (trade === 'Painter') {
+    query = query.in('trade', ['Carpenter', 'General Contractor'])
+  } else if (trade && trade !== 'all') {
     query = query.eq('trade', trade)
   }
 
