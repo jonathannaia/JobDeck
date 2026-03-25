@@ -120,16 +120,24 @@ async function main() {
     permit_num:  r['Permit #'] || null,
   })).filter(r => r.trade && r.address && r.permit_num)
 
-  console.log(`   ${records.length} valid records (filtered ${rows.length - records.length} missing key fields)`)
+  // Deduplicate by permit_num (some cities can have duplicates across runs)
+  const seen = new Set()
+  const deduped = records.filter(r => {
+    if (seen.has(r.permit_num)) return false
+    seen.add(r.permit_num)
+    return true
+  })
+
+  console.log(`   ${deduped.length} valid records (filtered ${rows.length - deduped.length} duplicates/missing)`)
 
   // Upsert in batches of 100
   const BATCH = 100
   let imported = 0
-  for (let i = 0; i < records.length; i += BATCH) {
-    const batch = records.slice(i, i + BATCH)
+  for (let i = 0; i < deduped.length; i += BATCH) {
+    const batch = deduped.slice(i, i + BATCH)
     await supabaseRequest('POST', '/building_permits?on_conflict=permit_num', batch)
     imported += batch.length
-    process.stdout.write(`\r   Imported ${imported}/${records.length}...`)
+    process.stdout.write(`\r   Imported ${imported}/${deduped.length}...`)
   }
 
   console.log(`\n\n✅ Done — ${imported} permits in Supabase`)

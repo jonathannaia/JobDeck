@@ -33,7 +33,7 @@ export default async function LeadsPage() {
       .from('building_permits')
       .select('id, velocity, trade, city, postal, permit_type, description, status, issued_date, est_cost')
       .order('issued_date', { ascending: false })
-      .limit(200),
+      .limit(2000),
   ])
 
   const organicLeads: AnonymizedLead[] = (leads || []).map(lead => ({
