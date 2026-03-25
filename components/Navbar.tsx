@@ -12,7 +12,6 @@ export default function Navbar() {
   const links = [
     { href: '/', label: 'Post a Job' },
     { href: '/contractors', label: 'For Contractors' },
-    { href: '/leads', label: 'Live Leads' },
     { href: '/dashboard', label: 'Dashboard' },
   ]
 
@@ -80,7 +79,7 @@ export default function Navbar() {
           ))}
           <div className="pt-2">
             <Link
-              href="/leads"
+              href="/contractors/batch"
               onClick={() => setMobileOpen(false)}
               className="block text-center bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-sm font-semibold px-5 py-3 rounded-xl"
             >

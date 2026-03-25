@@ -169,10 +169,20 @@ export default function BatchPage() {
             </div>
           </div>
 
-          <p className="text-center text-xs text-[#9ca3af] mt-6">
-            Prefer to choose permits one by one?{' '}
-            <a href="/leads" className="text-[#2563eb] hover:underline">Browse individual permits →</a>
-          </p>
+          <div className="mt-6 bg-white border-2 border-[#e2e8f0] hover:border-[#2563eb] rounded-2xl p-5 transition-colors">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="font-semibold text-[#0f172a] text-sm">Prefer to pick permits one by one?</p>
+                <p className="text-[#6b7280] text-xs mt-0.5">Browse the full list and claim individual permits. $25–$85 each.</p>
+              </div>
+              <a
+                href="/leads"
+                className="shrink-0 inline-flex items-center gap-1.5 bg-[#f8fafc] hover:bg-[#EFF6FF] border border-[#e2e8f0] text-[#2563eb] font-semibold text-sm px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap"
+              >
+                Browse permits →
+              </a>
+            </div>
+          </div>
         </div>
       </section>
     </div>
