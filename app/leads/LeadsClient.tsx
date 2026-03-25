@@ -158,6 +158,7 @@ export default function LeadsClient({
   permits: AnonymizedLead[]
 }) {
   const [contractor, setContractor] = useState<any>(null)
+  const [authChecked, setAuthChecked] = useState(false)
   const [unlocking, setUnlocking] = useState<string | null>(null)
   const [unlockedLeads, setUnlockedLeads] = useState<Record<string, any>>({})
 
@@ -171,6 +172,7 @@ export default function LeadsClient({
         const data = await res.json()
         setContractor(data.contractor)
       }
+      setAuthChecked(true)
     }
     checkAuth()
 
@@ -298,7 +300,7 @@ export default function LeadsClient({
               {myTradeCount} leads matching your trade ({contractor.trade_type}) shown first
             </p>
           )}
-          {!contractor && (
+          {authChecked && !contractor && (
             <a href="/contractors/signup" className="mt-6 inline-block bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-medium px-6 py-2.5 rounded-lg text-sm transition-colors">
               Sign Up to Access Leads
             </a>
