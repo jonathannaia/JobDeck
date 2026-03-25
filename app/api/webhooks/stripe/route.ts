@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
             subject: `Your JobDeck Project Addresses for ${city} are ready!`,
             html: `
               <div style="font-family:sans-serif;max-width:560px;margin:0 auto;color:#0f172a">
-                <h2 style="margin-bottom:8px">Your permit batch is ready</h2>
+                <h2 style="margin-bottom:8px">Your Project Addresses are ready</h2>
                 <p>Hi ${firstName},</p>
                 <p>Thank you for your purchase. Your batch of <strong>${count} residential project addresses</strong> for <strong>${tradeLabel}</strong> in <strong>${city}</strong> is ready to download.</p>
                 <p style="margin:24px 0">
