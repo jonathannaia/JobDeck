@@ -266,6 +266,7 @@ export default function LeadsClient({
   }, [sortedAll])
 
   const [expandedCities, setExpandedCities] = useState<Set<string>>(new Set())
+  const [cityTradeFilters, setCityTradeFilters] = useState<Record<string, string>>({})
 
   const toggleCity = useCallback((city: string) => {
     setExpandedCities(prev => {
@@ -274,6 +275,10 @@ export default function LeadsClient({
       else next.add(city)
       return next
     })
+  }, [])
+
+  const setCityTrade = useCallback((city: string, trade: string) => {
+    setCityTradeFilters(prev => ({ ...prev, [city]: trade }))
   }, [])
 
   const myTradeCount = contractor
@@ -308,6 +313,11 @@ export default function LeadsClient({
           )}
           {citySections.map(([city, cityLeads]) => {
             const isExpanded = expandedCities.has(city)
+            const selectedTrade = cityTradeFilters[city] || ''
+            const trades = Array.from(new Set(cityLeads.map(l => l.trade_label))).sort()
+            const visibleLeads = selectedTrade
+              ? cityLeads.filter(l => l.trade_label === selectedTrade)
+              : cityLeads
             return (
               <div key={city}>
                 <button
@@ -323,18 +333,46 @@ export default function LeadsClient({
                   <span className="text-[#9ca3af] text-sm">{isExpanded ? '▾ Hide' : '▸ Show'}</span>
                 </button>
                 {isExpanded && (
-                  <div className="space-y-4">
-                    {cityLeads.map(lead => (
-                      <LeadCard
-                        key={lead.id}
-                        lead={lead}
-                        contractorTrade={contractor?.trade_type ?? null}
-                        onUnlock={handleUnlock}
-                        unlocking={unlocking}
-                        unlockedData={unlockedLeads[lead.id]}
-                      />
-                    ))}
-                  </div>
+                  <>
+                    {/* Trade filter pills */}
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      <button
+                        onClick={() => setCityTrade(city, '')}
+                        className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+                          !selectedTrade
+                            ? 'bg-[#2563eb] text-white border-[#2563eb]'
+                            : 'bg-white text-[#6b7280] border-[#e2e8f0] hover:border-[#2563eb] hover:text-[#2563eb]'
+                        }`}
+                      >
+                        All
+                      </button>
+                      {trades.map(trade => (
+                        <button
+                          key={trade}
+                          onClick={() => setCityTrade(city, trade)}
+                          className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+                            selectedTrade === trade
+                              ? 'bg-[#2563eb] text-white border-[#2563eb]'
+                              : 'bg-white text-[#6b7280] border-[#e2e8f0] hover:border-[#2563eb] hover:text-[#2563eb]'
+                          }`}
+                        >
+                          {trade}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="space-y-4">
+                      {visibleLeads.map(lead => (
+                        <LeadCard
+                          key={lead.id}
+                          lead={lead}
+                          contractorTrade={contractor?.trade_type ?? null}
+                          onUnlock={handleUnlock}
+                          unlocking={unlocking}
+                          unlockedData={unlockedLeads[lead.id]}
+                        />
+                      ))}
+                    </div>
+                  </>
                 )}
               </div>
             )
