@@ -18,9 +18,10 @@ export const TRADE_FILTERS: Record<string, TradeFilter> = {
     minValue: 2000,
   },
   Electrician: {
-    include: ['electrical', 'service upgrade', 'ev charger', 'solar', 'panel', 'wiring', 'generator'],
+    include: ['electrical', 'service upgrade', 'ev charger', 'tesla wall', 'panel upgrade', '200 amp', 'sub-panel', 'solar', 'panel', 'wiring', 'generator', 'new building', 'second unit', 'basement apartment', 'addition'],
     exclude: ['roofing', 'siding', 'deck', 'hvac', 'mechanical'],
     minValue: 2000,
+    dbTrades: ['Electrician', 'Electrical / EV Charging'],
   },
   HVAC: {
     include: ['hvac', 'mechanical', 'furnace', 'air conditioning', 'heat pump', 'ductwork', 'gas piping', 'heating', 'cooling', 'boiler', 'ventilation', 'fireplace'],

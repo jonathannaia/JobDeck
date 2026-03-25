@@ -11,6 +11,7 @@ const TRADE_MAX_AGE: Record<string, number> = {
   Roofer:               30, // urgent repairs — filled quickly
   Plumber:              30,
   Electrician:          30,
+  'Electrical / EV Charging': 30,
   HVAC:                 30,
   Decking:              60,
   Fencing:              60,
@@ -59,7 +60,8 @@ const GLOBAL_EXCLUDE = ['sign ', 'signage', ' sign', 'antenna', 'cell tower', 'b
 const TRADE_MAP: [string, string[], string[]][] = [
   ['Plumber',            ['plumbing', 'plumber', 'drain', 'backwater valve', 'sewer', 'water service', 'rough-in', 'hot water', 'water heater'], ['roofing', 'deck', 'fence', 'hvac', 'mechanical', 'furnace']],
   ['HVAC',               ['hvac', 'mechanical', 'heating', 'cooling', 'furnace', 'air conditioning', 'heat pump', 'boiler', 'ventilation', 'ductwork', 'gas piping', 'fireplace'], ['plumbing', 'shingle', 'deck', 'fence']],
-  ['Electrician',        ['electrical', 'electrician', 'service upgrade', 'ev charger', 'solar', 'panel change', 'panel upgrade', 'wiring', 'generator'], ['roofing', 'siding', 'deck', 'hvac', 'mechanical']],
+  ['Electrical / EV Charging', ['ev charger', 'tesla wall', 'panel upgrade', '200 amp', 'service upgrade', 'sub-panel', 'new building', 'second unit', 'basement apartment', 'addition'], ['roofing', 'siding', 'deck', 'hvac', 'mechanical']],
+  ['Electrician',        ['electrical', 'electrician', 'solar', 'panel change', 'wiring', 'generator'], ['roofing', 'siding', 'deck', 'hvac', 'mechanical']],
   ['Roofer',             ['roofing', 're-roof', 'shingle', 'flat roof', 'metal roof', 'roof structure', 'eavestroughing', 'eavestrough', 'gutter', 'skylight', 'soffit', 'fascia'], ['plumbing', 'hvac', 'mechanical', 'basement', 'interior alteration', 'sign', 'antenna']],
   ['Carpenter',          ['interior alteration', 'basement finish', 'kitchen', 'bathroom', 'window', 'door', 'drywall', 'flooring', 'framing', 'carpentry'], ['hvac', 'mechanical', 'plumbing', 'electrical', 'sewer', 'roofing', 'demolition', 'overhead door', 'garage door']],
   ['General Contractor', ['addition', 'second unit', 'new building', 'secondary suite', 'structural alteration', 'new construction', 'renovation', 'reno', 'alteration', 'small residential', 'detached', 'semi-detached'], ['demolition']],
