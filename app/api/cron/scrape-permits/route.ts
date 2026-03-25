@@ -365,8 +365,39 @@ async function fetchHamilton(): Promise<Permit[]> {
 async function fetchOttawa(): Promise<Permit[]> {
   // Ottawa does not publish a queryable REST API for building permits —
   // data is only available as monthly Excel downloads from open.ottawa.ca.
-  // Returning empty until a live endpoint becomes available.
   return []
+}
+
+async function fetchOakville(): Promise<Permit[]> {
+  const cutoff = new Date(Date.now() - MAX_AGE_DAYS * 86400000).toISOString().slice(0, 10)
+  // Verified: maps.oakville.ca Active Building Permits FeatureServer/2
+  const data = await fetchJson(`https://maps.oakville.ca/oakgis/rest/services/SBS/Active_Building_Permits/FeatureServer/2/query?where=1%3D1&outFields=*&f=json&outSR=4326&resultRecordCount=500&orderByFields=ISSUEDATE+DESC`)
+  const results: Permit[] = []
+  for (const f of data.features || []) {
+    const a = f.attributes || {}
+    // FOLDERDESC = short permit type, FOLDERDESCRIPTION = full work description
+    const type = a.FOLDERDESC || ''
+    const desc = (a.FOLDERDESCRIPTION || '').trim()
+    const cost = a.CONSTRUCTIONVALUE || ''
+    const address = (a.ADDRESS || '').trim()
+    const issued_date = a.ISSUEDATE ? new Date(a.ISSUEDATE).toISOString().slice(0, 10) : ''
+    if (issued_date && issued_date < cutoff) continue
+    // CONSTRUCTIONVALUE feeds the $15k Painter threshold in classifyTrade
+    const trades = classifyTrade('Oakville', type, desc, cost)
+    if (!trades.length || !isActivePermit(a.STATUSDESC || '') || !isResidentialScale(cost)) continue
+    const tags = isHotPermit(issued_date) ? ['HOT'] : []
+    for (const trade of trades) {
+      if (issued_date && issued_date < cutoffForTrade(trade)) continue
+      results.push({
+        city: 'Oakville', address, postal: '', permit_type: type, description: desc,
+        status: a.STATUSDESC || '', issued_date, est_cost: cost,
+        builder: '', permit_num: `${a.PERMITNUMBER || ''}|${trade}`,
+        trade, velocity: classifyVelocity(type, desc),
+        maps_url: mapsUrl(`${address}, Oakville, ON`, ''), tags,
+      })
+    }
+  }
+  return results
 }
 
 export async function GET(req: NextRequest) {
@@ -383,6 +414,7 @@ export async function GET(req: NextRequest) {
     scrapeCity('Barrie', fetchBarrie),
     scrapeCity('Hamilton', fetchHamilton),
     scrapeCity('Ottawa', fetchOttawa),
+    scrapeCity('Oakville', fetchOakville),
   ])
 
   const allPermits: Permit[] = []
