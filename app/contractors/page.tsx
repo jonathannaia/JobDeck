@@ -20,10 +20,10 @@ export default function ContractorsPage() {
             href="/contractors/batch"
             className="inline-flex items-center gap-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold px-10 py-5 rounded-xl text-lg shadow-lg hover:shadow-xl"
           >
-            Get 20–30 Renovation Opportunities
+            Get 20–25 Renovation Opportunities
             <ArrowRight size={20} strokeWidth={2.5} />
           </Link>
-          <p className="text-slate-500 text-sm mt-4">$99 one-time · Instant CSV download · No subscription</p>
+          <p className="text-slate-500 text-sm mt-4">$40 one-time · Instant CSV download · No subscription</p>
         </div>
       </section>
 
@@ -121,14 +121,14 @@ export default function ContractorsPage() {
         <div className="max-w-xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-white mb-4">Try a small batch. See for yourself.</h2>
           <p className="text-slate-400 mb-3 text-lg">
-            Get 20–30 active renovation permits in your city for $99. If you reach out and don't get any traction, we'll refund you.
+            Get 20–25 active renovation permits in your city for $40. If you reach out and don't get any traction, we'll refund you.
           </p>
           <p className="text-slate-500 text-sm mb-8">No subscription. No monthly fees. Just one simple test.</p>
           <Link
             href="/contractors/batch"
             className="inline-flex items-center gap-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold px-10 py-5 rounded-xl text-lg shadow-lg hover:shadow-xl"
           >
-            Get 20–30 Opportunities — $99
+            Get 20–25 Opportunities — $40
             <ArrowRight size={20} strokeWidth={2.5} />
           </Link>
         </div>
