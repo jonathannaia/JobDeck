@@ -406,24 +406,26 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const results = await Promise.allSettled([
-    scrapeCity('Toronto', fetchToronto),
-    scrapeCity('Mississauga', fetchMississauga),
-    scrapeCity('Burlington', fetchBurlington),
-    scrapeCity('Brampton', fetchBrampton),
-    scrapeCity('Barrie', fetchBarrie),
-    scrapeCity('Hamilton', fetchHamilton),
-    scrapeCity('Ottawa', fetchOttawa),
-    scrapeCity('Oakville', fetchOakville),
-  ])
-
   const allPermits: Permit[] = []
   const summary: Record<string, number> = {}
-  for (const r of results) {
-    if (r.status === 'fulfilled') {
-      allPermits.push(...r.value.permits)
-      summary[r.value.city] = r.value.count
-    }
+
+  const cities: [string, () => Promise<Permit[]>][] = [
+    ['Toronto',     fetchToronto],
+    ['Mississauga', fetchMississauga],
+    ['Burlington',  fetchBurlington],
+    ['Brampton',    fetchBrampton],
+    ['Barrie',      fetchBarrie],
+    ['Hamilton',    fetchHamilton],
+    ['Ottawa',      fetchOttawa],
+    ['Oakville',    fetchOakville],
+  ]
+
+  for (const [name, fetcher] of cities) {
+    console.log(`Fetching ${name}...`)
+    const result = await scrapeCity(name, fetcher)
+    console.log(`${name} done: ${result.count} permits`)
+    allPermits.push(...result.permits)
+    summary[result.city] = result.count
   }
 
   // Deduplicate by permit_num
