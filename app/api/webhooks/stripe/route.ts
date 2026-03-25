@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
         break
       }
 
-      const plan = session.metadata?.plan as 'starter' | 'pro' | 'pay_per_lead' | undefined
+      const plan = session.metadata?.plan as 'starter' | 'pro' | 'pay_per_lead' | 'weekly_partner' | undefined
       const planType = plan || 'starter'
       const name = session.metadata?.name || session.customer_details?.name || email.split('@')[0]
       const phone = session.metadata?.phone || session.customer_details?.phone || ''
@@ -123,7 +123,8 @@ export async function POST(req: NextRequest) {
       }
 
       const subscriptionId = session.subscription as string | null
-      const creditLimit = planType === 'pro' ? 999999 : planType === 'pay_per_lead' ? 999999 : 15
+      // weekly_partner: 4 batches × 25 = 100 leads/month
+      const creditLimit = planType === 'pro' ? 999999 : planType === 'pay_per_lead' ? 999999 : planType === 'weekly_partner' ? 100 : 15
 
       // Check if contractor already exists
       const { data: existing } = await supabase

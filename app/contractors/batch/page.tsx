@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { MapPin, ArrowRight, CheckCircle } from 'lucide-react'
+import { MapPin, ArrowRight, CheckCircle, Zap } from 'lucide-react'
 
 const CITIES = ['Toronto', 'Mississauga', 'Brampton', 'Burlington', 'Hamilton', 'Oakville']
 
@@ -19,6 +19,7 @@ const TRADES = [
 const inputClass = 'w-full bg-white border border-[#e2e8f0] rounded-xl px-4 py-3 text-[#0f172a] placeholder-[#9ca3af] focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-colors text-sm'
 
 export default function BatchPage() {
+  const [plan, setPlan] = useState<'batch' | 'weekly_partner'>('batch')
   const [city, setCity] = useState('')
   const [trade, setTrade] = useState('all')
   const [email, setEmail] = useState('')
@@ -28,14 +29,15 @@ export default function BatchPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!city || !email || !name) { setError('Please fill in all fields'); return }
+    if (!email || !name) { setError('Please fill in all fields'); return }
+    if (plan === 'batch' && !city) { setError('Please select a city'); return }
     setError('')
     setLoading(true)
     try {
       const res = await fetch('/api/permits/batch-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ city, trade, email, name }),
+        body: JSON.stringify({ city, trade, email, name, plan }),
       })
       const data = await res.json()
       if (data.url) window.location.href = data.url
@@ -54,12 +56,11 @@ export default function BatchPage() {
         <div className="max-w-2xl mx-auto">
           <p className="text-blue-300 text-sm font-semibold uppercase tracking-widest mb-5">For Ontario Contractors</p>
           <h1 className="text-4xl sm:text-5xl font-bold text-white leading-[1.1] mb-5">
-            Get 20–25 homes starting renovations in your area
+            Get homes starting renovations in your area
           </h1>
-          <p className="text-slate-400 text-lg mb-3">
+          <p className="text-slate-400 text-lg">
             Active building permits — filtered by city and trade. Perfect for door knocking, flyers, or direct mail.
           </p>
-          <p className="text-2xl font-bold text-white">$40 <span className="text-slate-400 text-base font-normal">· one-time · instant CSV</span></p>
         </div>
       </section>
 
@@ -85,9 +86,48 @@ export default function BatchPage() {
       {/* Form */}
       <section className="py-14 px-4">
         <div className="max-w-lg mx-auto">
+
+          {/* Plan selector */}
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            <button
+              type="button"
+              onClick={() => setPlan('batch')}
+              className={`rounded-2xl border-2 p-4 text-left transition-colors ${plan === 'batch' ? 'border-[#2563eb] bg-[#EFF6FF]' : 'border-[#e2e8f0] bg-white hover:border-[#93c5fd]'}`}
+            >
+              <p className="font-bold text-[#0f172a] text-base">$40</p>
+              <p className="text-xs text-[#6b7280] mt-0.5">One-time · 25 addresses</p>
+              <p className="text-xs text-[#374151] mt-2 font-medium">Single batch, instant CSV</p>
+            </button>
+            <button
+              type="button"
+              onClick={() => setPlan('weekly_partner')}
+              className={`rounded-2xl border-2 p-4 text-left transition-colors relative ${plan === 'weekly_partner' ? 'border-[#2563eb] bg-[#EFF6FF]' : 'border-[#e2e8f0] bg-white hover:border-[#93c5fd]'}`}
+            >
+              <span className="absolute top-3 right-3 bg-[#2563eb] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">BEST VALUE</span>
+              <p className="font-bold text-[#0f172a] text-base">$99<span className="text-sm font-normal text-[#6b7280]">/mo</span></p>
+              <p className="text-xs text-[#6b7280] mt-0.5">Weekly · 100 addresses/mo</p>
+              <p className="text-xs text-[#374151] mt-2 font-medium">Fresh batch every week</p>
+            </button>
+          </div>
+
+          {plan === 'weekly_partner' && (
+            <div className="bg-[#f0fdf4] border border-[#86efac] rounded-xl px-4 py-3 mb-5 flex gap-2 items-start">
+              <Zap size={15} className="text-[#16a34a] shrink-0 mt-0.5" />
+              <p className="text-sm text-[#15803d]">
+                <strong>Weekly Partner:</strong> We send you 25 fresh project addresses every week — 100/month total. Only <strong>$0.99 per address</strong> vs $1.60 on the single batch.
+              </p>
+            </div>
+          )}
+
           <div className="bg-white border border-[#e2e8f0] rounded-2xl p-8 shadow-sm">
-            <h2 className="text-2xl font-bold text-[#0f172a] mb-1">Get my batch</h2>
-            <p className="text-[#6b7280] text-sm mb-1">Pick your city and trade. We'll pull up to 25 active renovation permits and deliver them as a CSV right after checkout.</p>
+            <h2 className="text-2xl font-bold text-[#0f172a] mb-1">
+              {plan === 'weekly_partner' ? 'Become a Weekly Partner' : 'Get my batch'}
+            </h2>
+            <p className="text-[#6b7280] text-sm mb-1">
+              {plan === 'weekly_partner'
+                ? 'Set your city and trade. We\'ll deliver 25 fresh project addresses to your inbox every week.'
+                : 'Pick your city and trade. We\'ll pull up to 25 active renovation permits and deliver them as a CSV right after checkout.'}
+            </p>
             <p className="text-[#9ca3af] text-xs mb-6">You receive addresses and project details based on public permit records. JobDeck is a data provider, not a municipal authority.</p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -122,12 +162,12 @@ export default function BatchPage() {
                 disabled={loading}
                 className="w-full flex items-center justify-center gap-2 bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-60 text-white font-bold py-4 rounded-xl text-base shadow-md mt-2"
               >
-                {loading ? 'Redirecting...' : 'Get My Batch — $40'}
+                {loading ? 'Redirecting...' : plan === 'weekly_partner' ? 'Subscribe — $99/mo' : 'Get My Batch — $40'}
                 {!loading && <ArrowRight size={18} strokeWidth={2.5} />}
               </button>
 
               <p className="text-center text-xs text-[#6b7280]">
-                One-time payment. No subscription. Instant download.
+                {plan === 'weekly_partner' ? 'Recurring monthly subscription. Cancel anytime.' : 'One-time payment. No subscription. Instant download.'}
               </p>
               <p className="text-center text-xs text-[#22c55e] font-medium">
                 ✓ If you don't get any traction, we'll refund you.
