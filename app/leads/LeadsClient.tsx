@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { AnonymizedLead } from './page'
 
@@ -254,6 +254,28 @@ export default function LeadsClient({
     setUnlocking(null)
   }
 
+  // Group leads by city, preserving sort order within each city
+  const citySections = useMemo(() => {
+    const map = new Map<string, AnonymizedLead[]>()
+    for (const lead of sortedAll) {
+      const city = lead.location || 'Other'
+      if (!map.has(city)) map.set(city, [])
+      map.get(city)!.push(lead)
+    }
+    return Array.from(map.entries()) // [city, leads[]]
+  }, [sortedAll])
+
+  const [collapsedCities, setCollapsedCities] = useState<Set<string>>(new Set())
+
+  const toggleCity = useCallback((city: string) => {
+    setCollapsedCities(prev => {
+      const next = new Set(prev)
+      if (next.has(city)) next.delete(city)
+      else next.add(city)
+      return next
+    })
+  }, [])
+
   const myTradeCount = contractor
     ? sortedAll.filter(l => l.trade_key === contractor.trade_type).length
     : 0
@@ -280,20 +302,43 @@ export default function LeadsClient({
       </section>
 
       <section className="py-10 px-4">
-        <div className="max-w-3xl mx-auto space-y-4">
+        <div className="max-w-3xl mx-auto space-y-6">
           {sortedAll.length === 0 && (
             <p className="text-center text-[#6b7280] py-12">No leads yet — check back soon.</p>
           )}
-          {sortedAll.map(lead => (
-            <LeadCard
-              key={lead.id}
-              lead={lead}
-              contractorTrade={contractor?.trade_type ?? null}
-              onUnlock={handleUnlock}
-              unlocking={unlocking}
-              unlockedData={unlockedLeads[lead.id]}
-            />
-          ))}
+          {citySections.map(([city, cityLeads]) => {
+            const isCollapsed = collapsedCities.has(city)
+            return (
+              <div key={city}>
+                <button
+                  onClick={() => toggleCity(city)}
+                  className="w-full flex items-center justify-between mb-3 group"
+                >
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-base font-semibold text-[#0f172a]">{city}</h2>
+                    <span className="text-xs text-[#6b7280] bg-[#f1f5f9] px-2 py-0.5 rounded-full">
+                      {cityLeads.length} lead{cityLeads.length !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                  <span className="text-[#9ca3af] text-sm">{isCollapsed ? '▸ Show' : '▾ Hide'}</span>
+                </button>
+                {!isCollapsed && (
+                  <div className="space-y-4">
+                    {cityLeads.map(lead => (
+                      <LeadCard
+                        key={lead.id}
+                        lead={lead}
+                        contractorTrade={contractor?.trade_type ?? null}
+                        onUnlock={handleUnlock}
+                        unlocking={unlocking}
+                        unlockedData={unlockedLeads[lead.id]}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
       </section>
     </div>
