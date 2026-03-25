@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/lead-monitor",
       "schedule": "0 13 * * *"
+    },
+    {
+      "path": "/api/cron/scrape-permits",
+      "schedule": "0 2 * * 0"
     }
   ]
 }
