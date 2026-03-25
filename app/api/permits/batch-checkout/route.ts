@@ -16,7 +16,6 @@ export async function POST(req: NextRequest) {
     .from('building_permits')
     .select('id', { count: 'exact', head: true })
     .eq('city', city)
-    .eq('status', 'Issued')
 
   if (trade && trade !== 'all') {
     query = query.eq('trade', trade)

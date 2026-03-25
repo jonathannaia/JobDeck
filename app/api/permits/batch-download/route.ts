@@ -25,7 +25,6 @@ export async function GET(req: NextRequest) {
     .from('building_permits')
     .select('address, city, postal, trade, permit_type, description, issued_date, est_cost, velocity')
     .eq('city', city)
-    .eq('status', 'Issued')
     .order('issued_date', { ascending: false })
     .limit(parseInt(count) || 25)
 
