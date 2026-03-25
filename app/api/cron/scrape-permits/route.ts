@@ -329,28 +329,31 @@ async function fetchBarrie(): Promise<Permit[]> {
 
 async function fetchHamilton(): Promise<Permit[]> {
   const cutoff = new Date(Date.now() - MAX_AGE_DAYS * 86400000).toISOString().slice(0, 10)
-  const data = await fetchJson(`https://services1.arcgis.com/mUcv9CtI38HO679M/arcgis/rest/services/Building_Permits_Issued_Year_to_Date/FeatureServer/0/query?where=1%3D1&outFields=*&f=json&resultRecordCount=500&orderByFields=ISSUE_DATE+DESC`)
+  // Verified endpoint: Building and Demolition Permits 2017–Present (Table ID 6)
+  const data = await fetchJson(`https://services.arcgis.com/rYz782eMbySr2srL/arcgis/rest/services/Building_and_Demolition_Permits_2017_to_Present/FeatureServer/6/query?where=1%3D1&outFields=*&f=json&outSR=4326&resultRecordCount=500&orderByFields=ISSUEDDATE+DESC`)
   const results: Permit[] = []
   for (const f of data.features || []) {
     const a = f.attributes || {}
-    const type = a.PERMIT_TYPE || a.WORKTYPE || ''
-    const desc = (a.DESCRIPTIO || '').trim()
-    const cost = a.WORK_VALUE || ''
-    const address = (a.PROJ_ADDR || '').trim()
-    const issued_date = a.ISSUE_DATE ? new Date(a.ISSUE_DATE).toISOString().slice(0, 10) : ''
+    // Hamilton fields: WORKCLASS = permit type, DESCRIPTION = work description
+    const type = a.WORKCLASS || a.PERMITCLASS || ''
+    const desc = (a.DESCRIPTION || '').trim()
+    const address = (a.ORIGINALADDRESS1 || '').trim()
+    // ISSUEDDATE is a Unix ms timestamp
+    const issued_date = a.ISSUEDDATE ? new Date(a.ISSUEDDATE).toISOString().slice(0, 10) : ''
     if (issued_date && issued_date < cutoff) continue
-    // Hamilton-specific exclusions: Pool Heater and Tent are common false positives
+    // Hamilton-specific exclusions
     const descLower = `${type} ${desc}`.toLowerCase()
-    if (descLower.includes('pool heater') || descLower.includes('tent')) continue
-    const trades = classifyTrade('Hamilton', type, desc, cost)
-    if (!trades.length || !isActivePermit(a.STATUS || a.PERMIT_STATUS || '') || !isResidentialScale(cost)) continue
+    if (descLower.includes('pool heater') || descLower.includes('tent') || descLower.includes('demolit')) continue
+    // No cost field in Hamilton dataset — cost-based rules won't trigger but keyword rules still apply
+    const trades = classifyTrade('Hamilton', type, desc)
+    if (!trades.length || !isActivePermit(a.STATUSCURRENT || '')) continue
     const tags = isHotPermit(issued_date) ? ['HOT'] : []
     for (const trade of trades) {
       if (issued_date && issued_date < cutoffForTrade(trade)) continue
       results.push({
-        city: 'Hamilton', address, postal: a.POSTAL_CODE || '', permit_type: type, description: desc,
-        status: a.STATUS || a.PERMIT_STATUS || '', issued_date, est_cost: cost,
-        builder: a.CONTRACTOR || a.BUILDER || '', permit_num: `${a.PERMIT_NO || a.PERMIT_NUM || ''}|${trade}`,
+        city: 'Hamilton', address, postal: a.ORIGINALZIP || '', permit_type: type, description: desc,
+        status: a.STATUSCURRENT || '', issued_date, est_cost: '',
+        builder: '', permit_num: `${a.PERMITNUMBER || ''}|${trade}`,
         trade, velocity: classifyVelocity(type, desc),
         maps_url: mapsUrl(`${address}, Hamilton, ON`, ''), tags,
       })
@@ -360,33 +363,10 @@ async function fetchHamilton(): Promise<Permit[]> {
 }
 
 async function fetchOttawa(): Promise<Permit[]> {
-  const cutoff = new Date(Date.now() - MAX_AGE_DAYS * 86400000).toISOString().slice(0, 10)
-  const data = await fetchJson(`https://services.arcgis.com/999sd9Zrv9M9Y7p5/arcgis/rest/services/Building_Permits/FeatureServer/0/query?where=1%3D1&outFields=*&f=json&resultRecordCount=500&orderByFields=PERMIT_ISSUED_DATE+DESC`)
-  const results: Permit[] = []
-  for (const f of data.features || []) {
-    const a = f.attributes || {}
-    const type = a.PERMIT_TYPE_DESC || a.PERMIT_TYPE || ''
-    const desc = (a.PROJECT_DESCRIPTION || '').trim()
-    const cost = a.ESTIMATED_VALUE || ''
-    // Ottawa address is split into number + street name
-    const address = `${a.ADDRESS_NUMBER || ''} ${a.STREET_NAME || ''}`.trim()
-    const issued_date = a.PERMIT_ISSUED_DATE ? new Date(a.PERMIT_ISSUED_DATE).toISOString().slice(0, 10) : ''
-    if (issued_date && issued_date < cutoff) continue
-    const trades = classifyTrade('Ottawa', type, desc, cost)
-    if (!trades.length || !isActivePermit(a.STATUS || a.PERMIT_STATUS || '') || !isResidentialScale(cost)) continue
-    const tags = isHotPermit(issued_date) ? ['HOT'] : []
-    for (const trade of trades) {
-      if (issued_date && issued_date < cutoffForTrade(trade)) continue
-      results.push({
-        city: 'Ottawa', address, postal: a.POSTAL_CODE || '', permit_type: type, description: desc,
-        status: a.STATUS || a.PERMIT_STATUS || '', issued_date, est_cost: cost,
-        builder: a.CONTRACTOR || a.BUILDER || '', permit_num: `${a.PERMIT_NUMBER || a.PERMIT_NO || ''}|${trade}`,
-        trade, velocity: classifyVelocity(type, desc),
-        maps_url: mapsUrl(`${address}, Ottawa, ON`, ''), tags,
-      })
-    }
-  }
-  return results
+  // Ottawa does not publish a queryable REST API for building permits —
+  // data is only available as monthly Excel downloads from open.ottawa.ca.
+  // Returning empty until a live endpoint becomes available.
+  return []
 }
 
 export async function GET(req: NextRequest) {
