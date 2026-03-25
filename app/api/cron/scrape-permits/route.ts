@@ -16,7 +16,7 @@ function isResidentialScale(cost: string | number) {
   if (!cost) return true
   const n = parseFloat(String(cost).replace(/[^0-9.]/g, ''))
   if (isNaN(n)) return true
-  return n <= 500000
+  return n >= 2000 && n <= 500000
 }
 
 const FAST_SIGNALS = ['repair', 'replace', 'replacement', 'leak', 'drain', 'sewer', 'water service', 'shingle', 'roofing', 'roof repair', 'eavestrough', 'gutter', 'panel upgrade', 'electrical repair', 'furnace', 'boiler', 'heat pump', 'deck', 'decking', 'fence', 'fencing', 'gate', 'basement finish', 'bathroom', 'kitchen', 'window', 'door', 'drywall', 'flooring', 'painting', 'insulation', 'small residential', 'minor', 'alteration']
@@ -29,26 +29,79 @@ function classifyVelocity(type: string, description: string) {
   return 'Fast'
 }
 
-const TRADE_MAP: [string, string[]][] = [
-  ['Plumber',            ['plumbing', 'plumber', 'drain', 'sewer', 'water service', 'backflow', 'hot water', 'water heater']],
-  ['HVAC',               ['hvac', 'mechanical', 'heating', 'cooling', 'furnace', 'air conditioning', 'heat pump', 'boiler', 'ventilation', 'ductwork', 'fireplace']],
-  ['Electrician',        ['electrical', 'electrician', 'wiring', 'panel upgrade', 'generator', 'ev charger']],
-  ['Roofer',             ['roofing', 'roof', 'shingle', 'eavestroughing', 'eavestrough', 'gutter', 'skylight', 'soffit', 'fascia']],
-  ['Carpenter',          ['carpentry', 'framing', 'structural', 'interior alteration', 'addition', 'garage', 'kitchen', 'bathroom', 'basement', 'window', 'door', 'drywall', 'flooring']],
-  ['General Contractor', ['renovation', 'reno', 'alteration', 'new construction', 'demolition', 'accessory', 'detached', 'semi-detached']],
-  ['Painter',            ['painting', 'paint']],
-  ['Landscaper',         ['landscaping', 'landscape', 'grading', 'retaining wall', 'pool']],
-  ['Lawn Service',       ['lawn', 'sod', 'irrigation', 'sprinkler']],
-  ['Decking',            ['deck', 'decking', 'porch', 'balcony']],
-  ['Fencing',            ['fence', 'fencing', 'gate']],
+// Permits matching any of these are discarded entirely — not residential trade work
+const GLOBAL_EXCLUDE = ['sign ', 'signage', ' sign', 'antenna', 'cell tower', 'billboard', 'pylon', 'telecommunication']
+
+// [trade, include_keywords, exclude_keywords]
+// Municipality aliases: Mechanical = HVAC (Toronto), Heating = HVAC (Brampton), Small Residential = GC (Mississauga)
+const TRADE_MAP: [string, string[], string[]][] = [
+  ['Plumber',            ['plumbing', 'plumber', 'drain', 'backwater valve', 'sewer', 'water service', 'rough-in', 'hot water', 'water heater'], ['roofing', 'deck', 'fence', 'hvac', 'mechanical', 'furnace']],
+  ['HVAC',               ['hvac', 'mechanical', 'heating', 'cooling', 'furnace', 'air conditioning', 'heat pump', 'boiler', 'ventilation', 'ductwork', 'gas piping', 'fireplace'], ['plumbing', 'shingle', 'deck', 'fence']],
+  ['Electrician',        ['electrical', 'electrician', 'service upgrade', 'ev charger', 'solar', 'panel change', 'panel upgrade', 'wiring', 'generator'], ['roofing', 'siding', 'deck', 'hvac', 'mechanical']],
+  ['Roofer',             ['roofing', 're-roof', 'shingle', 'flat roof', 'metal roof', 'roof structure', 'eavestroughing', 'eavestrough', 'gutter', 'skylight', 'soffit', 'fascia'], ['plumbing', 'hvac', 'mechanical', 'basement', 'interior alteration', 'sign', 'antenna']],
+  ['Carpenter',          ['interior alteration', 'basement finish', 'kitchen', 'bathroom', 'window', 'door', 'drywall', 'flooring', 'framing', 'carpentry'], ['hvac', 'mechanical', 'plumbing', 'electrical', 'sewer', 'roofing', 'demolition', 'overhead door', 'garage door']],
+  ['General Contractor', ['addition', 'second unit', 'new building', 'secondary suite', 'structural alteration', 'new construction', 'renovation', 'reno', 'alteration', 'small residential', 'detached', 'semi-detached'], ['demolition']],
+  ['Painter',            ['painting', 'paint'], []],
+  ['Decking',            ['deck', 'decking', 'porch', 'balcony', 'pergola', 'gazebo'], ['hvac', 'plumbing', 'electrical']],
+  ['Fencing',            ['fence', 'fencing', 'gate'], []],
+  ['Landscaper',         ['landscaping', 'landscape', 'grading', 'retaining wall', 'pool'], []],
+  ['Lawn Service',       ['lawn', 'sod', 'irrigation', 'sprinkler'], []],
 ]
 
-function classifyTrade(type: string, description: string): string | null {
+// High-rise keywords: these permits exclude Roofer and Decking (residential contractors can't service them)
+const HIGH_RISE_SIGNALS = ['condominium', 'apartment', 'high-rise', 'highrise', 'tower', 'multi-unit', 'office building']
+
+const HOT_WINDOW_MS = 7 * 24 * 60 * 60 * 1000
+
+function parseCost(cost: string | number | undefined): number {
+  if (!cost) return NaN
+  const n = parseFloat(String(cost).replace(/[^0-9.]/g, ''))
+  return isNaN(n) ? NaN : n
+}
+
+function mapsUrl(address: string, city: string): string {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${address} ${city}`)}`
+}
+
+function isHotPermit(issuedDate: string): boolean {
+  if (!issuedDate) return false
+  return Date.now() - new Date(issuedDate).getTime() < HOT_WINDOW_MS
+}
+
+// Returns all matching trades for a permit (multi-trade tagging)
+function classifyTrade(type: string, description: string, cost?: string | number): string[] {
   const text = `${type} ${description}`.toLowerCase()
-  for (const [trade, keywords] of TRADE_MAP) {
-    if (keywords.some(k => text.includes(k))) return trade
+
+  // Step 1: global exclusions — discard non-trade permits entirely
+  if (GLOBAL_EXCLUDE.some(k => text.includes(k))) return []
+
+  const costVal = parseCost(cost)
+  const trades: string[] = []
+  const isHighRise = HIGH_RISE_SIGNALS.some(k => text.includes(k))
+
+  // Step 2: high-value structural work → General Contractor
+  if (!isNaN(costVal) && costVal > 40000) {
+    if (['addition', 'new building', 'second storey', 'second story'].some(k => text.includes(k))) {
+      trades.push('General Contractor')
+    }
   }
-  return null
+
+  // Step 3: high-value interior work → Painter (renovation intent signal)
+  if (!isNaN(costVal) && costVal > 15000) {
+    if (['interior alteration', 'basement finishing', 'secondary suite'].some(k => text.includes(k))) {
+      trades.push('Painter')
+    }
+  }
+
+  // Step 4: keyword matching with negative constraints + high-rise exclusions
+  for (const [trade, includes, excludes] of TRADE_MAP) {
+    if (!includes.some(k => text.includes(k))) continue
+    if (excludes.some(k => text.includes(k))) continue
+    if (isHighRise && (trade === 'Roofer' || trade === 'Decking')) continue
+    if (!trades.includes(trade)) trades.push(trade)
+  }
+
+  return trades
 }
 
 async function fetchJson(url: string) {
@@ -73,6 +126,8 @@ type Permit = {
   permit_num: string
   trade: string
   velocity: string
+  maps_url: string
+  tags: string[]
 }
 
 async function scrapeCity(name: string, fetcher: () => Promise<Permit[]>): Promise<{ city: string; count: number; permits: Permit[] }> {
@@ -93,14 +148,19 @@ async function fetchToronto(): Promise<Permit[]> {
     if (r.ISSUED_DATE && r.ISSUED_DATE < cutoff) continue
     const type = r.PERMIT_TYPE || ''
     const desc = r.DESCRIPTION || ''
-    const trade = classifyTrade(type, desc)
-    if (!trade || !isActivePermit(r.STATUS) || !isResidentialScale(r.EST_CONST_COST)) continue
-    results.push({
-      city: 'Toronto', address: `${r.STREET_NUM} ${r.STREET_NAME} ${r.STREET_TYPE || ''}`.trim(),
-      postal: r.POSTAL || '', permit_type: type, description: desc, status: r.STATUS || '',
-      issued_date: r.ISSUED_DATE || r.APPLICATION_DATE || '', est_cost: r.EST_CONST_COST || '',
-      builder: r.BUILDER_NAME || '', permit_num: r.PERMIT_NUM || '', trade, velocity: classifyVelocity(type, desc),
-    })
+    const trades = classifyTrade(type, desc, r.EST_CONST_COST)
+    if (!trades.length || !isActivePermit(r.STATUS) || !isResidentialScale(r.EST_CONST_COST)) continue
+    const address = `${r.STREET_NUM} ${r.STREET_NAME} ${r.STREET_TYPE || ''}`.trim()
+    const issued_date = r.ISSUED_DATE || r.APPLICATION_DATE || ''
+    const tags = isHotPermit(issued_date) ? ['HOT'] : []
+    for (const trade of trades) {
+      results.push({
+        city: 'Toronto', address, postal: r.POSTAL || '', permit_type: type, description: desc,
+        status: r.STATUS || '', issued_date, est_cost: r.EST_CONST_COST || '',
+        builder: r.BUILDER_NAME || '', permit_num: `${r.PERMIT_NUM || ''}|${trade}`,
+        trade, velocity: classifyVelocity(type, desc), maps_url: mapsUrl(address, 'Toronto'), tags,
+      })
+    }
   }
   return results
 }
@@ -113,14 +173,19 @@ async function fetchMississauga(): Promise<Permit[]> {
     const a = f.attributes || {}
     const type = a.SCOPE || a.FILE_TYPE || ''
     const desc = a.DESCRIPTION || ''
-    const trade = classifyTrade(type, desc)
-    const issued = a.ISSUE_DATE ? new Date(a.ISSUE_DATE).toISOString().slice(0, 10) : ''
-    if (!trade || !isActivePermit(a.STATUS) || !isResidentialScale(a.EST_CON_VALUE)) continue
-    results.push({
-      city: 'Mississauga', address: a.ADDRESS || '', postal: a.POSTAL_CODE || '',
-      permit_type: type, description: desc, status: a.STATUS || '', issued_date: issued,
-      est_cost: a.EST_CON_VALUE || '', builder: '', permit_num: a.BP_NO || '', trade, velocity: classifyVelocity(type, desc),
-    })
+    const trades = classifyTrade(type, desc, a.EST_CON_VALUE)
+    const issued_date = a.ISSUE_DATE ? new Date(a.ISSUE_DATE).toISOString().slice(0, 10) : ''
+    if (!trades.length || !isActivePermit(a.STATUS) || !isResidentialScale(a.EST_CON_VALUE)) continue
+    const address = a.ADDRESS || ''
+    const tags = isHotPermit(issued_date) ? ['HOT'] : []
+    for (const trade of trades) {
+      results.push({
+        city: 'Mississauga', address, postal: a.POSTAL_CODE || '', permit_type: type, description: desc,
+        status: a.STATUS || '', issued_date, est_cost: a.EST_CON_VALUE || '',
+        builder: '', permit_num: `${a.BP_NO || ''}|${trade}`,
+        trade, velocity: classifyVelocity(type, desc), maps_url: mapsUrl(address, 'Mississauga'), tags,
+      })
+    }
   }
   return results
 }
@@ -133,14 +198,19 @@ async function fetchBurlington(): Promise<Permit[]> {
     const a = f.attributes || {}
     const type = a.FOLDERTYPE || ''
     const desc = `${a.WORKDESC || ''} ${a.SUBDESC || ''}`.trim()
-    const trade = classifyTrade(type, desc)
-    const issued = a.ISSUEDATE ? new Date(a.ISSUEDATE).toISOString().slice(0, 10) : ''
-    if (!trade || !isActivePermit(a.FOLDERSTATUSDESC) || !isResidentialScale(a.CONSTRUCTVALUE)) continue
-    results.push({
-      city: 'Burlington', address: (a.ADDRESS || '').trim(), postal: '',
-      permit_type: type, description: desc, status: a.FOLDERSTATUSDESC || '', issued_date: issued,
-      est_cost: a.CONSTRUCTVALUE || '', builder: '', permit_num: a.FILENO || '', trade, velocity: classifyVelocity(type, desc),
-    })
+    const trades = classifyTrade(type, desc, a.CONSTRUCTVALUE)
+    const issued_date = a.ISSUEDATE ? new Date(a.ISSUEDATE).toISOString().slice(0, 10) : ''
+    if (!trades.length || !isActivePermit(a.FOLDERSTATUSDESC) || !isResidentialScale(a.CONSTRUCTVALUE)) continue
+    const address = (a.ADDRESS || '').trim()
+    const tags = isHotPermit(issued_date) ? ['HOT'] : []
+    for (const trade of trades) {
+      results.push({
+        city: 'Burlington', address, postal: '', permit_type: type, description: desc,
+        status: a.FOLDERSTATUSDESC || '', issued_date, est_cost: a.CONSTRUCTVALUE || '',
+        builder: '', permit_num: `${a.FILENO || ''}|${trade}`,
+        trade, velocity: classifyVelocity(type, desc), maps_url: mapsUrl(address, 'Burlington'), tags,
+      })
+    }
   }
   return results
 }
@@ -153,15 +223,19 @@ async function fetchBrampton(): Promise<Permit[]> {
     const a = f.attributes || {}
     const type = a.SUBDESC || ''
     const desc = `${a.WORKDESC || ''} ${a.SUBDESC || ''}`.trim()
-    const trade = classifyTrade(type, desc)
-    const issued = a.ISSUEDATE ? new Date(a.ISSUEDATE).toISOString().slice(0, 10) : ''
-    if (!trade || !isActivePermit(a.STATUSDESC) || !isResidentialScale(a.CONSTRUCTVALUE)) continue
-    results.push({
-      city: 'Brampton', address: (a.ADDRESS || '').trim(), postal: '',
-      permit_type: type, description: desc, status: a.STATUSDESC || '', issued_date: issued,
-      est_cost: a.CONSTRUCTVALUE || '', builder: a.BUILDER || a.CONTRACTOR || '', permit_num: a.PERMITNUMBER || a.GIS_ID || '',
-      trade, velocity: classifyVelocity(type, desc),
-    })
+    const trades = classifyTrade(type, desc, a.CONSTRUCTVALUE)
+    const issued_date = a.ISSUEDATE ? new Date(a.ISSUEDATE).toISOString().slice(0, 10) : ''
+    if (!trades.length || !isActivePermit(a.STATUSDESC) || !isResidentialScale(a.CONSTRUCTVALUE)) continue
+    const address = (a.ADDRESS || '').trim()
+    const tags = isHotPermit(issued_date) ? ['HOT'] : []
+    for (const trade of trades) {
+      results.push({
+        city: 'Brampton', address, postal: '', permit_type: type, description: desc,
+        status: a.STATUSDESC || '', issued_date, est_cost: a.CONSTRUCTVALUE || '',
+        builder: a.BUILDER || a.CONTRACTOR || '', permit_num: `${a.PERMITNUMBER || a.GIS_ID || ''}|${trade}`,
+        trade, velocity: classifyVelocity(type, desc), maps_url: mapsUrl(address, 'Brampton'), tags,
+      })
+    }
   }
   return results
 }
@@ -174,14 +248,19 @@ async function fetchBarrie(): Promise<Permit[]> {
     const a = f.attributes || {}
     const type = a.Sub_Type || ''
     const desc = a.Description || ''
-    const trade = classifyTrade(type, desc)
-    const issued = (a.Date_Status || '').replace(/\./g, '-')
-    if (!trade || !isActivePermit(a.RECORD_STATUS)) continue
-    results.push({
-      city: 'Barrie', address: (a.Full_Address || '').trim(), postal: '',
-      permit_type: type, description: desc, status: a.RECORD_STATUS || '', issued_date: issued,
-      est_cost: '', builder: '', permit_num: a.RECORD_ID || '', trade, velocity: classifyVelocity(type, desc),
-    })
+    const trades = classifyTrade(type, desc)
+    const issued_date = (a.Date_Status || '').replace(/\./g, '-')
+    if (!trades.length || !isActivePermit(a.RECORD_STATUS)) continue
+    const address = (a.Full_Address || '').trim()
+    const tags = isHotPermit(issued_date) ? ['HOT'] : []
+    for (const trade of trades) {
+      results.push({
+        city: 'Barrie', address, postal: '', permit_type: type, description: desc,
+        status: a.RECORD_STATUS || '', issued_date, est_cost: '',
+        builder: '', permit_num: `${a.RECORD_ID || ''}|${trade}`,
+        trade, velocity: classifyVelocity(type, desc), maps_url: mapsUrl(address, 'Barrie'), tags,
+      })
+    }
   }
   return results
 }
@@ -225,7 +304,7 @@ export async function GET(req: NextRequest) {
     const batch = deduped.slice(i, i + BATCH)
     const { error } = await supabase
       .from('building_permits')
-      .upsert(batch, { onConflict: 'permit_num' })
+      .upsert(batch, { onConflict: 'permit_num', ignoreDuplicates: false })
     if (!error) imported += batch.length
   }
 

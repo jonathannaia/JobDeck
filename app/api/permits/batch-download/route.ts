@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createServiceClient } from '@/lib/supabase/server'
+import { getDbTrades, applyTradeFilter } from '@/lib/trade-filters'
 
 export async function GET(req: NextRequest) {
   const sessionId = req.nextUrl.searchParams.get('session_id')
@@ -19,31 +20,41 @@ export async function GET(req: NextRequest) {
   }
 
   const { city, trade, count } = session.metadata
+  const requested = parseInt(count) || 25
   const supabase = createServiceClient()
 
-  // 'Painter' maps to renovation permits (Carpenter + General Contractor)
+  const dbTrades = getDbTrades(trade)
+
+  // Fetch a larger pool so post-filter still yields enough results
   let query = supabase
     .from('building_permits')
     .select('address, city, postal, trade, permit_type, description, issued_date, est_cost, velocity')
     .eq('city', city)
     .order('issued_date', { ascending: false })
-    .limit(parseInt(count) || 25)
+    .limit(200)
 
-  if (trade === 'Painter') {
-    query = query.in('trade', ['Carpenter', 'General Contractor'])
-  } else if (trade && trade !== 'all') {
-    query = query.eq('trade', trade)
+  if (dbTrades) {
+    query = dbTrades.length === 1
+      ? query.eq('trade', dbTrades[0])
+      : query.in('trade', dbTrades)
   }
 
-  const { data: permits, error } = await query
+  const { data: rawPermits, error } = await query
 
-  if (error || !permits?.length) {
+  if (error || !rawPermits?.length) {
     return NextResponse.json({ error: 'No permits found' }, { status: 404 })
   }
 
-  // Build CSV
+  const permits = applyTradeFilter(rawPermits, trade).slice(0, requested)
+
+  if (!permits.length) {
+    return NextResponse.json({ error: 'No permits found' }, { status: 404 })
+  }
+
+  // Build CSV — label virtual trades (Painter) with the display name, not the DB trade value
+  const displayTrade = trade === 'all' ? null : trade
   const headers = ['Address', 'City', 'Postal', 'Trade', 'Permit Type', 'Description', 'Issued Date', 'Est. Value', 'Velocity']
-  const escape = (v: any) => `"${String(v || '').replace(/"/g, '""')}"`
+  const escape = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`
 
   const rows = [
     headers.join(','),
@@ -51,7 +62,7 @@ export async function GET(req: NextRequest) {
       escape(p.address),
       escape(p.city),
       escape(p.postal),
-      escape(p.trade),
+      escape(displayTrade ?? p.trade),
       escape(p.permit_type),
       escape(p.description),
       escape(p.issued_date),

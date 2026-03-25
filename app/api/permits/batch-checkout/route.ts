@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createServiceClient } from '@/lib/supabase/server'
+import { getDbTrades, applyTradeFilter } from '@/lib/trade-filters'
 
 export async function POST(req: NextRequest) {
   const { city, trade, email, name } = await req.json()
@@ -10,22 +11,24 @@ export async function POST(req: NextRequest) {
   }
 
   const supabase = createServiceClient()
+  const dbTrades = getDbTrades(trade)
 
-  // Count available permits for this city/trade
-  // 'Painter' maps to renovation permits (Carpenter + General Contractor)
+  // Fetch permits to count accurately after trade-specific filtering
   let query = supabase
     .from('building_permits')
-    .select('id', { count: 'exact', head: true })
+    .select('permit_type, description, est_cost')
     .eq('city', city)
+    .limit(200)
 
-  if (trade === 'Painter') {
-    query = query.in('trade', ['Carpenter', 'General Contractor'])
-  } else if (trade && trade !== 'all') {
-    query = query.eq('trade', trade)
+  if (dbTrades) {
+    query = dbTrades.length === 1
+      ? query.eq('trade', dbTrades[0])
+      : query.in('trade', dbTrades)
   }
 
-  const { count } = await query
-  const available = Math.min(count || 0, 25)
+  const { data: rawPermits } = await query
+  const filtered = applyTradeFilter(rawPermits ?? [], trade)
+  const available = Math.min(filtered.length, 25)
 
   if (available === 0) {
     return NextResponse.json({ error: 'No permits available for this selection' }, { status: 400 })
