@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   }
 
   const { count } = await query
-  const available = Math.min(count || 0, 30)
+  const available = Math.min(count || 0, 25)
 
   if (available === 0) {
     return NextResponse.json({ error: 'No permits available for this selection' }, { status: 400 })
@@ -39,10 +39,10 @@ export async function POST(req: NextRequest) {
       price_data: {
         currency: 'cad',
         product_data: {
-          name: `${available} Renovation Opportunities — ${city}`,
+          name: `${available} Renovation Opportunities — ${city} (${tradeLabel})`,
           description: `${tradeLabel} · Active building permits with addresses. Includes permit type, estimated project value, and issued date.`,
         },
-        unit_amount: 9900, // $99 CAD
+        unit_amount: 4000, // $40 CAD
       },
       quantity: 1,
     }],

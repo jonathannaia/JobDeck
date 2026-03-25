@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { MapPin, Building2, ArrowRight, CheckCircle } from 'lucide-react'
+import { useState } from 'react'
+import { MapPin, ArrowRight, CheckCircle } from 'lucide-react'
 
 const CITIES = ['Toronto', 'Mississauga', 'Brampton', 'Burlington']
 
@@ -30,7 +30,6 @@ export default function BatchPage() {
     if (!city || !email || !name) { setError('Please fill in all fields'); return }
     setError('')
     setLoading(true)
-
     try {
       const res = await fetch('/api/permits/batch-checkout', {
         method: 'POST',
@@ -48,89 +47,65 @@ export default function BatchPage() {
 
   return (
     <div className="min-h-screen bg-[#f8fafc]">
+
       {/* Hero */}
       <section className="bg-[#0f172a] py-16 px-4 text-center">
-        <div className="max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-4 py-1.5 text-blue-300 text-sm font-semibold mb-6">
-            <Building2 size={14} strokeWidth={2.5} />
-            Permit-Based Prospecting Data
-          </div>
+        <div className="max-w-2xl mx-auto">
+          <p className="text-blue-300 text-sm font-semibold uppercase tracking-widest mb-5">For Ontario Contractors</p>
           <h1 className="text-4xl sm:text-5xl font-bold text-white leading-[1.1] mb-5">
-            Know which homes are about to spend money.<br />
-            <span className="text-[#60a5fa]">Before your competitors do.</span>
+            Get 20–25 homes starting renovations in your area
           </h1>
-          <p className="text-slate-400 text-lg max-w-xl mx-auto">
-            Get 20–30 active renovation opportunities in your city. Addresses, permit details, and estimated project values — delivered instantly as a CSV.
+          <p className="text-slate-400 text-lg mb-3">
+            Active building permits — filtered by city and trade. Perfect for door knocking, flyers, or direct mail.
           </p>
+          <p className="text-2xl font-bold text-white">$40 <span className="text-slate-400 text-base font-normal">· one-time · instant CSV</span></p>
         </div>
       </section>
 
       {/* How it works */}
-      <section className="py-12 px-4 bg-white border-b border-[#e2e8f0]">
-        <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-6 text-center">
-            {[
-              { n: '1', title: 'We track permits', desc: 'New building permits filed with Ontario municipalities' },
-              { n: '2', title: 'We filter residential', desc: 'Only active renovation and construction projects' },
-              { n: '3', title: 'You get addresses', desc: 'Homes confirmed to be spending money on renovations' },
-              { n: '4', title: 'You reach out first', desc: 'Door knock, drop a flyer, or send direct mail' },
-            ].map(({ n, title, desc }) => (
-              <div key={n} className="flex flex-col items-center">
-                <div className="w-9 h-9 bg-[#EFF6FF] rounded-full flex items-center justify-center mb-3">
-                  <span className="text-[#2563eb] font-bold text-sm">{n}</span>
-                </div>
-                <p className="font-semibold text-[#0f172a] text-sm mb-1">{title}</p>
-                <p className="text-[#6b7280] text-xs leading-relaxed">{desc}</p>
+      <section className="bg-white border-b border-[#e2e8f0] py-10 px-4">
+        <div className="max-w-4xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+          {[
+            { n: '1', label: 'We track new permits in your area' },
+            { n: '2', label: 'We filter for real residential projects' },
+            { n: '3', label: 'You get a list of homes starting work' },
+            { n: '4', label: 'You reach them before competitors' },
+          ].map(({ n, label }) => (
+            <div key={n}>
+              <div className="w-9 h-9 bg-[#EFF6FF] rounded-full flex items-center justify-center mx-auto mb-3">
+                <span className="text-[#2563eb] font-bold text-sm">{n}</span>
               </div>
-            ))}
-          </div>
+              <p className="text-sm text-[#374151] font-medium leading-snug">{label}</p>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* Main form + info */}
-      <section className="py-16 px-4">
-        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
-
-          {/* Left — form */}
+      {/* Form */}
+      <section className="py-14 px-4">
+        <div className="max-w-lg mx-auto">
           <div className="bg-white border border-[#e2e8f0] rounded-2xl p-8 shadow-sm">
-            <h2 className="text-2xl font-bold text-[#0f172a] mb-2">Get your batch</h2>
-            <p className="text-[#6b7280] text-sm mb-6">Select your city and trade. We'll send you up to 30 active permits instantly after checkout.</p>
+            <h2 className="text-2xl font-bold text-[#0f172a] mb-1">Get my batch</h2>
+            <p className="text-[#6b7280] text-sm mb-6">Pick your city and trade. We'll pull up to 25 active renovation permits and deliver them as a CSV right after checkout.</p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-[#374151] mb-1.5">Your Name</label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  placeholder="Kevin Smith"
-                  className={inputClass}
-                />
+                <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Kevin Smith" className={inputClass} />
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-[#374151] mb-1.5">Email Address</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="kevin@smithroofing.ca"
-                  className={inputClass}
-                />
-                <p className="text-[#9ca3af] text-xs mt-1">Your CSV download link will be on the confirmation page.</p>
+                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="kevin@smithroofing.ca" className={inputClass} />
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-[#374151] mb-1.5">
-                  <MapPin size={13} className="inline mr-1" />
-                  City
+                  <MapPin size={13} className="inline mr-1" />City
                 </label>
                 <select value={city} onChange={e => setCity(e.target.value)} className={`${inputClass} appearance-none`}>
                   <option value="" disabled>Select a city...</option>
                   {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-[#374151] mb-1.5">Trade</label>
                 <select value={trade} onChange={e => setTrade(e.target.value)} className={`${inputClass} appearance-none`}>
@@ -143,63 +118,60 @@ export default function BatchPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-60 text-white font-semibold py-4 rounded-xl text-base shadow-md mt-2"
+                className="w-full flex items-center justify-center gap-2 bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-60 text-white font-bold py-4 rounded-xl text-base shadow-md mt-2"
               >
-                {loading ? 'Redirecting...' : 'Get 20–30 Opportunities — $99'}
-                {!loading && <ArrowRight size={18} strokeWidth={2} />}
+                {loading ? 'Redirecting...' : 'Get My Batch — $40'}
+                {!loading && <ArrowRight size={18} strokeWidth={2.5} />}
               </button>
 
-              <p className="text-[#9ca3af] text-xs text-center">
-                One-time payment. Instant CSV download. No subscription.
+              <p className="text-center text-xs text-[#6b7280]">
+                One-time payment. No subscription. Instant download.
+              </p>
+              <p className="text-center text-xs text-[#22c55e] font-medium">
+                ✓ If you don't get any traction, we'll refund you.
               </p>
             </form>
           </div>
 
-          {/* Right — value props */}
-          <div className="space-y-5">
-            <div className="bg-white border border-[#e2e8f0] rounded-2xl p-6 shadow-sm">
-              <h3 className="font-bold text-[#0f172a] mb-4">What's included in each record</h3>
-              <div className="space-y-2">
-                {[
-                  'Full civic address',
-                  'Permit type (deck, renovation, addition, etc.)',
-                  'Estimated project value',
-                  'Date permit was issued',
-                  'Fast vs. long-term project signal',
-                ].map(item => (
-                  <div key={item} className="flex items-center gap-2">
-                    <CheckCircle size={15} strokeWidth={2} className="text-[#22c55e] shrink-0" />
-                    <span className="text-sm text-[#374151]">{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-white border border-[#e2e8f0] rounded-2xl p-6 shadow-sm">
-              <h3 className="font-bold text-[#0f172a] mb-4">Who this is for</h3>
-              <div className="space-y-2">
-                {[
-                  'Roofing & exterior contractors',
-                  'Window & door companies',
-                  'Renovation & general contractors',
-                  'Painters, flooring, drywall',
-                  'Anyone doing door knocking or direct mail',
-                ].map(item => (
-                  <div key={item} className="flex items-center gap-2">
-                    <CheckCircle size={15} strokeWidth={2} className="text-[#22c55e] shrink-0" />
-                    <span className="text-sm text-[#374151]">{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="bg-[#0f172a] rounded-2xl p-6 text-white">
-              <p className="text-sm font-semibold text-blue-300 mb-2">Not for you if...</p>
-              <p className="text-slate-400 text-sm leading-relaxed">
-                You rely purely on referrals or inbound calls and aren't interested in proactive outreach. This data requires you to make first contact — door knocking, flyers, or direct mail.
-              </p>
+          {/* What's included */}
+          <div className="mt-6 bg-white border border-[#e2e8f0] rounded-2xl p-6">
+            <h3 className="font-bold text-[#0f172a] mb-4 text-sm">What's included in each record</h3>
+            <div className="space-y-2">
+              {[
+                'Full civic address',
+                'Permit type (deck, renovation, addition, roofing, etc.)',
+                'Estimated project value',
+                'Date permit was issued',
+              ].map(item => (
+                <div key={item} className="flex items-center gap-2">
+                  <CheckCircle size={14} strokeWidth={2} className="text-[#22c55e] shrink-0" />
+                  <span className="text-sm text-[#374151]">{item}</span>
+                </div>
+              ))}
             </div>
           </div>
+
+          {/* How to use */}
+          <div className="mt-4 bg-white border border-[#e2e8f0] rounded-2xl p-6">
+            <h3 className="font-bold text-[#0f172a] mb-4 text-sm">How contractors use this</h3>
+            <div className="space-y-3">
+              {[
+                { icon: '🚪', text: 'Knock doors where renovations just started' },
+                { icon: '📬', text: 'Drop flyers in high-intent neighbourhoods' },
+                { icon: '✉️', text: 'Send direct mail to the address' },
+              ].map(({ icon, text }) => (
+                <div key={text} className="flex items-center gap-3">
+                  <span className="text-lg">{icon}</span>
+                  <span className="text-sm text-[#374151]">{text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <p className="text-center text-xs text-[#9ca3af] mt-6">
+            Prefer to choose permits one by one?{' '}
+            <a href="/leads" className="text-[#2563eb] hover:underline">Browse individual permits →</a>
+          </p>
         </div>
       </section>
     </div>
