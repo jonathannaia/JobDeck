@@ -338,7 +338,8 @@ export default function LeadsClient({
               Get a Batch of 25 — $40
             </a>
           )}
-
+        </div>
+      </section>
 
       <section className="py-10 px-4">
         <div className="max-w-3xl mx-auto space-y-6">
