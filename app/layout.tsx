@@ -4,8 +4,16 @@ import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 
-const geist = Geist({ subsets: ['latin'], variable: '--font-geist' })
-const geistMono = Geist_Mono({ subsets: ['latin'], variable: '--font-geist-mono' })
+// Geist — body font (sets --font-geist CSS variable on the element)
+const geist = Geist({
+  subsets: ['latin'],
+  variable: '--font-geist',
+})
+
+const geistMono = Geist_Mono({
+  subsets: ['latin'],
+  variable: '--font-geist-mono',
+})
 
 export const metadata: Metadata = {
   title: 'JobDeck — Find Local Contractors in Ontario',
@@ -21,9 +29,9 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className={`h-full ${geist.variable} ${geistMono.variable}`}>
       <head>
-        {/* Satoshi — display font */}
+        {/* Satoshi — display font for headings */}
         <link rel="preconnect" href="https://api.fontshare.com" />
         <link
           rel="stylesheet"
@@ -41,7 +49,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${geist.variable} ${geistMono.variable} min-h-full flex flex-col antialiased`}>
+      <body className="min-h-full flex flex-col antialiased">
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />
