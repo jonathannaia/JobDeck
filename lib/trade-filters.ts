@@ -42,18 +42,17 @@ export const TRADE_FILTERS: Record<string, TradeFilter> = {
     include: ['floor', 'flooring', 'hardwood', 'laminate', 'tile', 'tiling', 'vinyl', 'subfloor', 'backsplash', 'lvp', 'lvt', 'engineered wood'],
     exclude: ['roofing', 'hvac', 'mechanical', 'plumbing', 'electrical', 'sewer', 'demolition'],
     minValue: 3000,
-    // Pull from Flooring & Tiling (future) and Carpenter (existing permits contain these keywords)
     dbTrades: ['Flooring & Tiling', 'Carpenter'],
   },
   'Drywall & Taping': {
-    include: ['drywall', 'taping', 'tape and mud', 'gypsum', 'plasterboard', 'framing'],
+    include: ['drywall', 'taping', 'gypsum', 'plasterboard'],
     exclude: ['roofing', 'hvac', 'mechanical', 'plumbing', 'electrical', 'sewer', 'demolition'],
     minValue: 2000,
     dbTrades: ['Drywall & Taping', 'Carpenter'],
   },
   'Kitchen & Bath Renovation': {
-    include: ['kitchen', 'bathroom', 'bath reno', 'kitchen reno', 'vanity', 'cabinet', 'ensuite'],
-    exclude: ['roofing', 'hvac', 'mechanical', 'plumbing', 'electrical', 'sewer', 'demolition'],
+    include: ['kitchen', 'bathroom', 'bath reno', 'vanity', 'cabinet', 'ensuite'],
+    exclude: ['roofing', 'hvac', 'mechanical', 'plumbing', 'electrical', 'sewer', 'demolition', 'new building', 'addition'],
     minValue: 10000,
     dbTrades: ['Kitchen & Bath Renovation', 'Carpenter', 'General Contractor'],
   },
