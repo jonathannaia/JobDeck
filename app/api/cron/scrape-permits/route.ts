@@ -329,26 +329,50 @@ async function fetchBarrie(): Promise<Permit[]> {
   return results
 }
 
+// Hamilton's ArcGIS endpoint was last updated Dec 2023 — use a wide 365-day window
+// so any available data is captured. Filter to residential PERMITCLASS values only.
+const HAMILTON_RESIDENTIAL_CLASSES = [
+  'single family dwelling', 'two family dwelling', 'row housing', 'semi-detached',
+  'townhouse', 'apartment', 'residential', 'accessory structure', 'duplex',
+  'triplex', 'fourplex', 'dwelling', 'addition to dwelling',
+]
+
 async function fetchHamilton(): Promise<Permit[]> {
-  const cutoff = new Date(Date.now() - MAX_AGE_DAYS * 86400000).toISOString().slice(0, 10)
-  // Verified endpoint: Building and Demolition Permits 2017–Present (Table ID 6)
+  const cutoff = new Date(Date.now() - 365 * 86400000).toISOString().slice(0, 10)
   const data = await fetchJson(`https://services.arcgis.com/rYz782eMbySr2srL/arcgis/rest/services/Building_and_Demolition_Permits_2017_to_Present/FeatureServer/6/query?where=1%3D1&outFields=*&f=json&outSR=4326&resultRecordCount=500&orderByFields=ISSUEDDATE+DESC`)
+
+  const features = data.features || []
+  console.log(`Hamilton: ${features.length} raw features from API`)
+
+  if (features.length > 0) {
+    const newest = features[0]?.attributes?.ISSUEDDATE
+    const oldest = features[features.length - 1]?.attributes?.ISSUEDDATE
+    console.log(`Hamilton date range: ${newest ? new Date(newest).toISOString().slice(0, 10) : 'null'} → ${oldest ? new Date(oldest).toISOString().slice(0, 10) : 'null'}`)
+  }
+
   const results: Permit[] = []
-  for (const f of data.features || []) {
+  let droppedDate = 0, droppedClass = 0, droppedTrade = 0, droppedStatus = 0
+
+  for (const f of features) {
     const a = f.attributes || {}
-    // Hamilton fields: WORKCLASS = permit type, DESCRIPTION = work description
+    const permitClass = (a.PERMITCLASS || '').toLowerCase()
     const type = a.WORKCLASS || a.PERMITCLASS || ''
     const desc = (a.DESCRIPTION || '').trim()
     const address = (a.ORIGINALADDRESS1 || '').trim()
-    // ISSUEDDATE is a Unix ms timestamp
     const issued_date = a.ISSUEDDATE ? new Date(a.ISSUEDDATE).toISOString().slice(0, 10) : ''
-    if (issued_date && issued_date < cutoff) continue
-    // Hamilton-specific exclusions
+
+    if (issued_date && issued_date < cutoff) { droppedDate++; continue }
+
+    // Only residential permit classes
+    if (!HAMILTON_RESIDENTIAL_CLASSES.some(c => permitClass.includes(c))) { droppedClass++; continue }
+
     const descLower = `${type} ${desc}`.toLowerCase()
     if (descLower.includes('pool heater') || descLower.includes('tent') || descLower.includes('demolit')) continue
-    // No cost field in Hamilton dataset — cost-based rules won't trigger but keyword rules still apply
+
     const trades = classifyTrade('Hamilton', type, desc)
-    if (!trades.length || !isActivePermit(a.STATUSCURRENT || '')) continue
+    if (!trades.length) { droppedTrade++; continue }
+    if (!isActivePermit(a.STATUSCURRENT || '')) { droppedStatus++; continue }
+
     const tags = isHotPermit(issued_date) ? ['HOT'] : []
     for (const trade of trades) {
       if (issued_date && issued_date < cutoffForTrade(trade)) continue
@@ -361,6 +385,8 @@ async function fetchHamilton(): Promise<Permit[]> {
       })
     }
   }
+
+  console.log(`Hamilton filtered: date=${droppedDate} class=${droppedClass} trade=${droppedTrade} status=${droppedStatus} → ${results.length} kept`)
   return results
 }
 
