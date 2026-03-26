@@ -214,7 +214,7 @@ export default function BatchPage() {
             <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="font-semibold text-[#0f172a] text-sm">Prefer to pick permits one by one?</p>
-                <p className="text-[#6b7280] text-xs mt-0.5">Browse the full list and claim individual permits. $25–$85 each.</p>
+                <p className="text-[#6b7280] text-xs mt-0.5">Browse the full list and claim individual permits. $10–$15 each.</p>
               </div>
               <a
                 href="/leads"

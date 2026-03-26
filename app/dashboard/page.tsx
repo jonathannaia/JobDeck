@@ -106,7 +106,7 @@ export default async function DashboardPage() {
         <div className="bg-white border border-[#e2e8f0] rounded-xl p-5 flex items-center justify-between gap-4">
           <div>
             <p className="text-sm font-semibold text-[#0f172a]">Browse individual permits</p>
-            <p className="text-xs text-[#6b7280] mt-0.5">Claim specific addresses one at a time. $25–$85 each.</p>
+            <p className="text-xs text-[#6b7280] mt-0.5">Claim specific addresses one at a time. $10–$15 each.</p>
           </div>
           <a
             href="/leads"

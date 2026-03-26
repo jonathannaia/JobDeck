@@ -14,11 +14,15 @@ function timeAgo(dateStr: string) {
   return 'Just now'
 }
 
-function permitPrice(estCost: string | null | undefined): number {
-  const n = estCost ? parseFloat(estCost.replace(/[^0-9.]/g, '')) : 0
-  if (n >= 200000) return 85
-  if (n >= 30000)  return 50
-  return 25
+const SMALL_TYPES = ['plumbing only', 'decking', 'secondary buildings']
+const LARGE_DESC_KEYWORDS = ['addition', 'accessory dwelling unit', 'basement apartment', 'new dwelling']
+
+function permitPrice(permitType: string | null | undefined, description: string | null | undefined): number {
+  const type = (permitType || '').toLowerCase()
+  const desc = (description || '').toLowerCase()
+  if (SMALL_TYPES.some(t => type.includes(t))) return 10
+  if (type.includes('residential') || LARGE_DESC_KEYWORDS.some(k => desc.includes(k))) return 15
+  return 12
 }
 
 function LeadCard({
@@ -137,7 +141,7 @@ function LeadCard({
               {unlocking === lead.id
                 ? 'Loading...'
                 : isPermit
-                  ? `Claim — $${permitPrice(lead.est_cost)}`
+                  ? `Claim — $${permitPrice(lead.permit_type, lead.description)}`
                   : 'Claim Lead — $40'}
             </button>
             {isPermit && (

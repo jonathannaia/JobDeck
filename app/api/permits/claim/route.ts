@@ -55,25 +55,28 @@ export async function POST(req: NextRequest) {
   // Not yet claimed — create Stripe checkout
   const { data: permit } = await service
     .from('building_permits')
-    .select('trade, city, permit_type, velocity, est_cost')
+    .select('trade, city, permit_type, description, velocity, est_cost')
     .eq('id', permit_id)
     .single()
 
   if (!permit) return NextResponse.json({ error: 'Permit not found' }, { status: 404 })
 
-  // Tiered pricing based on estimated project cost
-  function permitPriceCents(estCost: string | null): number {
-    const n = estCost ? parseFloat(estCost.replace(/[^0-9.]/g, '')) : 0
-    if (n >= 200000) return 8500  // $85
-    if (n >= 30000)  return 5000  // $50
-    return 2500                   // $25
+  const SMALL_TYPES = ['plumbing only', 'decking', 'secondary buildings']
+  const LARGE_DESC_KEYWORDS = ['addition', 'accessory dwelling unit', 'basement apartment', 'new dwelling']
+
+  function permitPriceCents(permitType: string | null, description: string | null): number {
+    const type = (permitType || '').toLowerCase()
+    const desc = (description || '').toLowerCase()
+    if (SMALL_TYPES.some(t => type.includes(t))) return 1000  // $10
+    if (type.includes('residential') || LARGE_DESC_KEYWORDS.some(k => desc.includes(k))) return 1500  // $15
+    return 1200  // $12
   }
 
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2026-02-25.clover' })
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
   const label = permit.permit_type || `${permit.trade} Permit`
-  const priceCents = permitPriceCents(permit.est_cost)
+  const priceCents = permitPriceCents(permit.permit_type, permit.description)
 
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
