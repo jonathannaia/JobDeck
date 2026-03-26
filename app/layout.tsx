@@ -16,9 +16,9 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'JobDeck — Find Local Contractors in Ontario',
+  title: 'JobDeck — Ontario Building Permit Data for Contractors',
   description:
-    'Post your home improvement job for free and get matched with trusted local contractors across Ontario.',
+    'Browse active residential building permits across Ontario. Find homes starting renovations in your city — filtered by trade.',
 }
 
 const GA_ID = 'G-GE5HYWRZL7'
