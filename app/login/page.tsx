@@ -38,7 +38,7 @@ export default function LoginPage() {
           </div>
           <h2 className="text-xl font-medium text-[#0f172a] mb-2">Check your email</h2>
           <p className="text-[#6b7280] text-sm">
-            We sent a magic link to <span className="text-[#2563eb] font-medium">{email}</span>. Click the link to sign in.
+            We sent a magic link to <span className="text-[#143A75] font-medium">{email}</span>. Click the link to sign in.
           </p>
         </div>
       </div>
@@ -62,7 +62,7 @@ export default function LoginPage() {
               onChange={e => setEmail(e.target.value)}
               placeholder="you@example.com"
               required
-              className="w-full bg-white border border-[#e2e8f0] rounded-lg px-4 py-3 text-[#0f172a] placeholder-[#9ca3af] focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-colors text-sm"
+              className="w-full bg-white border border-[#e2e8f0] rounded-lg px-4 py-3 text-[#0f172a] placeholder-[#9ca3af] focus:outline-none focus:border-[#143A75] focus:ring-1 focus:ring-[#143A75] transition-colors text-sm"
             />
           </div>
 
@@ -71,7 +71,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-60 text-white font-medium py-3 rounded-lg transition-colors text-sm"
+            className="w-full bg-[#143A75] hover:bg-[#0e2d5c] disabled:opacity-60 text-white font-medium py-3 rounded-lg transition-colors text-sm"
           >
             {loading ? 'Sending...' : 'Send Magic Link'}
           </button>
@@ -79,7 +79,7 @@ export default function LoginPage() {
 
         <p className="text-[#9ca3af] text-xs text-center mt-6">
           Not a contractor?{' '}
-          <Link href="/" className="text-[#2563eb] hover:text-[#1d4ed8]">
+          <Link href="/" className="text-[#143A75] hover:text-[#0e2d5c]">
             Post a job instead
           </Link>
         </p>

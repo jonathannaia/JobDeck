@@ -49,7 +49,7 @@ export default function AdminUpload() {
             <select
               value={city}
               onChange={e => setCity(e.target.value)}
-              className="border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm text-[#0f172a] focus:outline-none focus:border-[#2563eb]"
+              className="border border-[#e2e8f0] rounded-lg px-3 py-2 text-sm text-[#0f172a] focus:outline-none focus:border-[#143A75]"
             >
               {UPLOAD_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
@@ -59,7 +59,7 @@ export default function AdminUpload() {
             <label className="block text-xs font-medium text-[#374151] mb-1">CSV File</label>
             <div
               onClick={() => inputRef.current?.click()}
-              className="border-2 border-dashed border-[#e2e8f0] hover:border-[#2563eb] rounded-xl px-4 py-4 text-center cursor-pointer transition-colors"
+              className="border-2 border-dashed border-[#e2e8f0] hover:border-[#143A75] rounded-xl px-4 py-4 text-center cursor-pointer transition-colors"
             >
               {file ? (
                 <p className="text-sm text-[#0f172a] font-medium">{file.name}</p>

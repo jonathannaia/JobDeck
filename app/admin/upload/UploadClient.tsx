@@ -53,7 +53,7 @@ export default function UploadClient() {
         <select
           value={city}
           onChange={e => setCity(e.target.value)}
-          className="w-full border border-[#e2e8f0] rounded-xl px-4 py-3 text-sm text-[#0f172a] focus:outline-none focus:border-[#2563eb] bg-white"
+          className="w-full border border-[#e2e8f0] rounded-xl px-4 py-3 text-sm text-[#0f172a] focus:outline-none focus:border-[#143A75] bg-white"
         >
           {UPLOAD_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
@@ -71,12 +71,12 @@ export default function UploadClient() {
           onDragLeave={() => setDragging(false)}
           onClick={() => inputRef.current?.click()}
           className={`border-2 border-dashed rounded-xl px-6 py-10 text-center cursor-pointer transition-colors ${
-            dragging ? 'border-[#2563eb] bg-[#EFF6FF]' : 'border-[#e2e8f0] hover:border-[#93c5fd] hover:bg-[#f8fafc]'
+            dragging ? 'border-[#143A75] bg-[#EFF6FF]' : 'border-[#e2e8f0] hover:border-[#93c5fd] hover:bg-[#f8fafc]'
           }`}
         >
           {file ? (
             <div className="flex flex-col items-center gap-2">
-              <FileText size={28} className="text-[#2563eb]" />
+              <FileText size={28} className="text-[#143A75]" />
               <p className="font-semibold text-[#0f172a] text-sm">{file.name}</p>
               <p className="text-xs text-[#6b7280]">{(file.size / 1024).toFixed(1)} KB — click to change</p>
             </div>
@@ -110,7 +110,7 @@ export default function UploadClient() {
             ['date_issued / date', 'Issue date (any format)'],
           ].map(([col, desc]) => (
             <div key={col} className="flex gap-2">
-              <code className="text-[#2563eb] shrink-0">{col}</code>
+              <code className="text-[#143A75] shrink-0">{col}</code>
               <span>— {desc}</span>
             </div>
           ))}

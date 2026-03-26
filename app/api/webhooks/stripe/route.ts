@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
                 <p>Hi ${firstName},</p>
                 <p>Thank you for your purchase. Your batch of <strong>${count} residential project addresses</strong> for <strong>${tradeLabel}</strong> in <strong>${city}</strong> is ready to download.</p>
                 <p style="margin:24px 0">
-                  <a href="${downloadUrl}" style="background:#2563eb;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold">
+                  <a href="${downloadUrl}" style="background:#143A75;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold">
                     Download Your Project Addresses
                   </a>
                 </p>

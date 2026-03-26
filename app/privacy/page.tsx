@@ -64,7 +64,7 @@ export default function PrivacyPage() {
 
             <section>
               <h2 className="text-lg font-semibold text-[#0f172a] mb-3">9. Contact Us</h2>
-              <p>If you have questions about this Privacy Policy or your personal data, contact us at <a href="mailto:jonathan@naiadigital.org" className="text-[#2563eb] hover:underline">jonathan@naiadigital.org</a>.</p>
+              <p>If you have questions about this Privacy Policy or your personal data, contact us at <a href="mailto:jonathan@naiadigital.org" className="text-[#143A75] hover:underline">jonathan@naiadigital.org</a>.</p>
             </section>
           </div>
         </div>

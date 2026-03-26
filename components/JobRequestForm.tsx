@@ -11,7 +11,7 @@ const TIMELINE_OPTIONS = [
   'Flexible / planning ahead',
 ]
 
-const inputClass = 'w-full bg-white border border-[#e2e8f0] rounded-lg px-4 py-3 text-[#0f172a] placeholder-[#9ca3af] focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-colors text-sm'
+const inputClass = 'w-full bg-white border border-[#e2e8f0] rounded-lg px-4 py-3 text-[#0f172a] placeholder-[#9ca3af] focus:outline-none focus:border-[#143A75] focus:ring-1 focus:ring-[#143A75] transition-colors text-sm'
 const labelClass = 'block text-sm font-medium text-[#374151] mb-1.5'
 
 export default function JobRequestForm({ defaultTrade }: { defaultTrade?: string }) {
@@ -95,7 +95,7 @@ export default function JobRequestForm({ defaultTrade }: { defaultTrade?: string
             setSubmitted(false)
             setForm({ name: '', phone: '', email: '', trade_type: '', job_description: '', city: '', postal_code: '', timeline: '' })
           }}
-          className="mt-6 text-[#2563eb] hover:text-[#1d4ed8] text-sm underline"
+          className="mt-6 text-[#143A75] hover:text-[#0e2d5c] text-sm underline"
         >
           Submit another request
         </button>
@@ -114,12 +114,12 @@ export default function JobRequestForm({ defaultTrade }: { defaultTrade?: string
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
-          <label className={labelClass}>Full Name <span className="text-[#2563eb]">*</span></label>
+          <label className={labelClass}>Full Name <span className="text-[#143A75]">*</span></label>
           <input type="text" value={form.name} onChange={set('name')} placeholder="Jane Smith" className={inputClass} />
           {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
         </div>
         <div>
-          <label className={labelClass}>Phone Number <span className="text-[#2563eb]">*</span></label>
+          <label className={labelClass}>Phone Number <span className="text-[#143A75]">*</span></label>
           <input type="tel" value={form.phone} onChange={set('phone')} placeholder="416-555-0123" className={inputClass} />
           {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
         </div>
@@ -131,7 +131,7 @@ export default function JobRequestForm({ defaultTrade }: { defaultTrade?: string
       </div>
 
       <div>
-        <label className={labelClass}>Type of Work Needed <span className="text-[#2563eb]">*</span></label>
+        <label className={labelClass}>Type of Work Needed <span className="text-[#143A75]">*</span></label>
         <select value={form.trade_type} onChange={set('trade_type')} className={`${inputClass} appearance-none`}>
           <option value="" disabled>Select a trade...</option>
           {(Object.entries(TRADE_LABELS) as [TradeType, string][]).map(([value, label]) => (
@@ -142,7 +142,7 @@ export default function JobRequestForm({ defaultTrade }: { defaultTrade?: string
       </div>
 
       <div>
-        <label className={labelClass}>Job Description <span className="text-[#2563eb]">*</span></label>
+        <label className={labelClass}>Job Description <span className="text-[#143A75]">*</span></label>
         <textarea
           value={form.job_description}
           onChange={set('job_description')}
@@ -155,11 +155,11 @@ export default function JobRequestForm({ defaultTrade }: { defaultTrade?: string
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
-          <label className={labelClass}>City <span className="text-[#2563eb]">*</span></label>
+          <label className={labelClass}>City <span className="text-[#143A75]">*</span></label>
           <input type="text" value={form.city} onChange={set('city')} placeholder="Cambridge" className={inputClass} />
         </div>
         <div>
-          <label className={labelClass}>Postal Code <span className="text-[#2563eb]">*</span></label>
+          <label className={labelClass}>Postal Code <span className="text-[#143A75]">*</span></label>
           <input
             type="text"
             value={form.postal_code}
@@ -188,7 +188,7 @@ export default function JobRequestForm({ defaultTrade }: { defaultTrade?: string
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium py-3.5 rounded-lg transition-colors text-sm"
+        className="w-full bg-[#143A75] hover:bg-[#0e2d5c] disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium py-3.5 rounded-lg transition-colors text-sm"
       >
         {loading ? 'Submitting...' : 'Get Matched with Contractors'}
       </button>

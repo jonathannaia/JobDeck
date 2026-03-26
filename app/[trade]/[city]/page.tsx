@@ -50,7 +50,7 @@ export default async function TradecityPage({ params }: { params: Promise<{ trad
       {/* Hero */}
       <section className="bg-[#f8fafc] border-b border-[#e2e8f0] py-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center bg-[#EFF6FF] rounded-full px-4 py-1.5 text-[#1d4ed8] text-sm font-medium mb-6">
+          <div className="inline-flex items-center bg-[#EFF6FF] rounded-full px-4 py-1.5 text-[#0e2d5c] text-sm font-medium mb-6">
             {city.label}, Ontario
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold text-[#0f172a] leading-tight mb-4">
@@ -97,7 +97,7 @@ export default async function TradecityPage({ params }: { params: Promise<{ trad
             ].map(({ title, desc }) => (
               <div key={title} className="bg-white border border-[#e2e8f0] rounded-xl p-6">
                 <div className="w-8 h-8 bg-[#EFF6FF] rounded-lg flex items-center justify-center mb-4">
-                  <svg className="w-4 h-4 text-[#2563eb]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 text-[#143A75]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                 </div>
@@ -137,7 +137,7 @@ export default async function TradecityPage({ params }: { params: Promise<{ trad
           </p>
           <a
             href="/leads"
-            className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-medium px-6 py-3 rounded-lg transition-colors inline-block"
+            className="bg-[#143A75] hover:bg-[#0e2d5c] text-white font-medium px-6 py-3 rounded-lg transition-colors inline-block"
           >
             Browse Live Leads
           </a>

@@ -18,7 +18,7 @@ export default function ContractorsPage() {
           </p>
           <Link
             href="/contractors/batch"
-            className="inline-flex items-center gap-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold px-10 py-5 rounded-xl text-lg shadow-lg hover:shadow-xl"
+            className="inline-flex items-center gap-2 bg-[#143A75] hover:bg-[#0e2d5c] text-white font-bold px-10 py-5 rounded-xl text-lg shadow-lg hover:shadow-xl"
           >
             Get 20–25 Renovation Opportunities
             <ArrowRight size={20} strokeWidth={2.5} />
@@ -43,7 +43,7 @@ export default function ContractorsPage() {
             ].map(({ n, title, desc }) => (
               <div key={n} className="text-center">
                 <div className="w-10 h-10 bg-[#EFF6FF] rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-[#2563eb] font-bold">{n}</span>
+                  <span className="text-[#143A75] font-bold">{n}</span>
                 </div>
                 <h3 className="font-semibold text-[#0f172a] text-sm mb-2">{title}</h3>
                 <p className="text-[#6b7280] text-xs leading-relaxed">{desc}</p>
@@ -126,7 +126,7 @@ export default function ContractorsPage() {
           <p className="text-slate-500 text-sm mb-8">No subscription. No monthly fees. Just one simple test.</p>
           <Link
             href="/contractors/batch"
-            className="inline-flex items-center gap-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold px-10 py-5 rounded-xl text-lg shadow-lg hover:shadow-xl"
+            className="inline-flex items-center gap-2 bg-[#143A75] hover:bg-[#0e2d5c] text-white font-bold px-10 py-5 rounded-xl text-lg shadow-lg hover:shadow-xl"
           >
             Get 20–25 Opportunities — $40
             <ArrowRight size={20} strokeWidth={2.5} />
@@ -140,7 +140,7 @@ export default function ContractorsPage() {
           <p className="text-[#6b7280] text-sm mb-3">Prefer to browse permits one by one?</p>
           <Link
             href="/leads"
-            className="inline-flex items-center gap-2 text-[#2563eb] font-semibold text-sm hover:underline"
+            className="inline-flex items-center gap-2 text-[#143A75] font-semibold text-sm hover:underline"
           >
             Browse individual permits ($25–$85 each)
             <ArrowRight size={14} strokeWidth={2} />

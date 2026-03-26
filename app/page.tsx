@@ -10,13 +10,13 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left */}
           <div>
-            <div className="inline-flex items-center gap-2 bg-[#EFF6FF] rounded-full px-4 py-1.5 text-[#1d4ed8] text-sm font-semibold mb-6">
+            <div className="inline-flex items-center gap-2 bg-[#EFF6FF] rounded-full px-4 py-1.5 text-[#0e2d5c] text-sm font-semibold mb-6">
               <Zap size={14} strokeWidth={2.5} />
               Ontario&apos;s #1 Contractor Marketplace
             </div>
             <h1 className="text-5xl sm:text-6xl font-bold text-[#0f172a] leading-[1.1] mb-6">
               Get your home job done{' '}
-              <span className="text-[#2563eb]">right.</span>
+              <span className="text-[#143A75]">right.</span>
             </h1>
             <p className="text-[#6b7280] text-xl mb-8 leading-relaxed">
               Post your project and get matched with local contractors. Free for homeowners — always.
@@ -24,14 +24,14 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row gap-3 mb-10">
               <a
                 href="#request"
-                className="flex items-center justify-center gap-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-semibold px-8 py-4 rounded-xl text-base shadow-md hover:shadow-lg"
+                className="flex items-center justify-center gap-2 bg-[#143A75] hover:bg-[#0e2d5c] text-white font-semibold px-8 py-4 rounded-xl text-base shadow-md hover:shadow-lg"
               >
                 Post a Job — Free
                 <ArrowRight size={18} strokeWidth={2} />
               </a>
               <a
                 href="/contractors"
-                className="flex items-center justify-center gap-2 bg-white border-2 border-[#e2e8f0] hover:border-[#2563eb] hover:text-[#2563eb] text-[#374151] font-semibold px-8 py-4 rounded-xl text-base"
+                className="flex items-center justify-center gap-2 bg-white border-2 border-[#e2e8f0] hover:border-[#143A75] hover:text-[#143A75] text-[#374151] font-semibold px-8 py-4 rounded-xl text-base"
               >
                 I&apos;m a Contractor
               </a>
@@ -54,7 +54,7 @@ export default function HomePage() {
           <div className="hidden lg:flex flex-col gap-4">
             <div className="bg-[#f8fafc] border border-[#e2e8f0] rounded-2xl p-6">
               <p className="text-sm text-[#6b7280] font-medium mb-1">Active permits across Ontario</p>
-              <p className="text-4xl font-bold text-[#0f172a]">1,100<span className="text-[#2563eb]">+</span></p>
+              <p className="text-4xl font-bold text-[#0f172a]">1,100<span className="text-[#143A75]">+</span></p>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-[#f8fafc] border border-[#e2e8f0] rounded-2xl p-5">
@@ -92,7 +92,7 @@ export default function HomePage() {
             { icon: Clock, label: 'No account needed' },
           ].map(({ icon: Icon, label }) => (
             <div key={label} className="flex items-center gap-2">
-              <Icon size={16} strokeWidth={2} className="text-[#2563eb]" />
+              <Icon size={16} strokeWidth={2} className="text-[#143A75]" />
               <span className="text-[#374151] text-sm font-semibold">{label}</span>
             </div>
           ))}
@@ -121,7 +121,7 @@ export default function HomePage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {[
-              { n: '1', title: 'Describe Your Job', desc: 'Fill out the quick form above — takes under 2 minutes. No account needed.', color: '#EFF6FF', text: '#1d4ed8' },
+              { n: '1', title: 'Describe Your Job', desc: 'Fill out the quick form above — takes under 2 minutes. No account needed.', color: '#EFF6FF', text: '#0e2d5c' },
               { n: '2', title: 'Get Matched Instantly', desc: 'We notify local contractors who specialize in exactly what you need.', color: '#f0fdf4', text: '#16a34a' },
               { n: '3', title: 'Get Quotes', desc: 'Qualified contractors contact you directly to discuss and provide quotes.', color: '#fef9c3', text: '#92400e' },
             ].map(({ n, title, desc, color, text }) => (
@@ -143,7 +143,7 @@ export default function HomePage() {
           <p className="text-[#9ca3af] text-xs leading-relaxed">
             JobDeck provides publicly available building permit data for informational and business prospecting purposes only.
             We do not issue permits or represent any municipal authority.{' '}
-            <a href="/terms" className="text-[#2563eb] hover:underline">Terms of Service</a>
+            <a href="/terms" className="text-[#143A75] hover:underline">Terms of Service</a>
           </p>
         </div>
       </section>
@@ -155,7 +155,7 @@ export default function HomePage() {
           <p className="text-slate-400 mb-8 text-lg">Know which homes in your city are about to spend money — before anyone else does.</p>
           <a
             href="/contractors/batch"
-            className="inline-flex items-center gap-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-semibold px-8 py-4 rounded-xl text-base shadow-md hover:shadow-lg"
+            className="inline-flex items-center gap-2 bg-[#143A75] hover:bg-[#0e2d5c] text-white font-semibold px-8 py-4 rounded-xl text-base shadow-md hover:shadow-lg"
           >
             Get Renovation Opportunities
             <ArrowRight size={18} strokeWidth={2} />

@@ -62,7 +62,7 @@ export default async function AdminPage() {
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                           c.plan_type === 'pro'
-                            ? 'bg-[#EFF6FF] text-[#1d4ed8]'
+                            ? 'bg-[#EFF6FF] text-[#0e2d5c]'
                             : 'bg-[#f1f5f9] text-[#374151]'
                         }`}>
                           {c.plan_type === 'pro' ? 'Pro' : 'Starter'}
@@ -117,7 +117,7 @@ export default async function AdminPage() {
                   {leads.map((lead: any) => (
                     <tr key={lead.id} className="hover:bg-[#f8fafc] transition-colors">
                       <td className="px-6 py-4 text-[#0f172a] font-medium">{lead.name}</td>
-                      <td className="px-6 py-4 text-[#2563eb]">{lead.phone}</td>
+                      <td className="px-6 py-4 text-[#143A75]">{lead.phone}</td>
                       <td className="px-6 py-4 text-[#374151]">{lead.email || '—'}</td>
                       <td className="px-6 py-4 text-[#374151]">{TRADE_LABELS[lead.trade_type as TradeType] || lead.trade_type}</td>
                       <td className="px-6 py-4 text-[#374151]">{lead.postal_code}</td>

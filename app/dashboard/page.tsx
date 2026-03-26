@@ -62,7 +62,7 @@ export default async function DashboardPage() {
             <h2 className="text-[#0f172a] font-semibold">Batch Permit Data</h2>
             <a
               href="/contractors/batch"
-              className="text-xs text-[#2563eb] hover:underline font-medium"
+              className="text-xs text-[#143A75] hover:underline font-medium"
             >
               + Get another batch
             </a>
@@ -73,7 +73,7 @@ export default async function DashboardPage() {
               <p className="text-[#9ca3af] text-sm mb-4">No batch purchases yet.</p>
               <a
                 href="/contractors/batch"
-                className="inline-block bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-medium px-5 py-2.5 rounded-lg text-sm transition-colors"
+                className="inline-block bg-[#143A75] hover:bg-[#0e2d5c] text-white font-medium px-5 py-2.5 rounded-lg text-sm transition-colors"
               >
                 Get 25 Permits — $40
               </a>
@@ -92,7 +92,7 @@ export default async function DashboardPage() {
                   </div>
                   <a
                     href={`/api/permits/batch-download?session_id=${p.session_id}`}
-                    className="shrink-0 inline-flex items-center gap-1.5 bg-[#f8fafc] hover:bg-[#EFF6FF] border border-[#e2e8f0] text-[#2563eb] font-semibold text-xs px-4 py-2 rounded-lg transition-colors"
+                    className="shrink-0 inline-flex items-center gap-1.5 bg-[#f8fafc] hover:bg-[#EFF6FF] border border-[#e2e8f0] text-[#143A75] font-semibold text-xs px-4 py-2 rounded-lg transition-colors"
                   >
                     ↓ Re-download CSV
                   </a>
@@ -110,7 +110,7 @@ export default async function DashboardPage() {
           </div>
           <a
             href="/leads"
-            className="shrink-0 inline-flex items-center gap-1.5 bg-[#f8fafc] hover:bg-[#EFF6FF] border border-[#e2e8f0] text-[#2563eb] font-semibold text-xs px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
+            className="shrink-0 inline-flex items-center gap-1.5 bg-[#f8fafc] hover:bg-[#EFF6FF] border border-[#e2e8f0] text-[#143A75] font-semibold text-xs px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
           >
             Browse permits →
           </a>

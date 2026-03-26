@@ -35,7 +35,7 @@ function SuccessContent() {
 
         <a
           href={`/api/permits/batch-download?session_id=${sessionId}`}
-          className="inline-flex items-center gap-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-semibold px-6 py-3 rounded-xl text-sm mb-6"
+          className="inline-flex items-center gap-2 bg-[#143A75] hover:bg-[#0e2d5c] text-white font-semibold px-6 py-3 rounded-xl text-sm mb-6"
         >
           <Download size={16} strokeWidth={2} />
           Download CSV
@@ -50,13 +50,13 @@ function SuccessContent() {
             'Visit the addresses or send a direct mail piece',
           ].map(tip => (
             <div key={tip} className="flex items-start gap-2">
-              <span className="text-[#2563eb] font-bold text-xs mt-0.5">→</span>
+              <span className="text-[#143A75] font-bold text-xs mt-0.5">→</span>
               <span className="text-xs text-[#6b7280]">{tip}</span>
             </div>
           ))}
         </div>
 
-        <a href="/contractors/batch" className="text-sm text-[#2563eb] hover:underline">
+        <a href="/contractors/batch" className="text-sm text-[#143A75] hover:underline">
           Get another batch
         </a>
       </div>

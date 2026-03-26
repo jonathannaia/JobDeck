@@ -22,7 +22,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center shrink-0">
             <span className="font-bold text-xl tracking-tight text-[#0f172a]">
-              Job<span className="text-[#2563eb]">Deck</span>
+              Job<span className="text-[#143A75]">Deck</span>
             </span>
           </Link>
 
@@ -43,7 +43,7 @@ export default function Navbar() {
             ))}
             <Link
               href="/contractors/batch"
-              className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm whitespace-nowrap"
+              className="bg-[#143A75] hover:bg-[#0e2d5c] text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm whitespace-nowrap"
             >
               Browse Permit Data
             </Link>
@@ -70,7 +70,7 @@ export default function Navbar() {
               onClick={() => setMobileOpen(false)}
               className={`block px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                 pathname === href || (href !== '/' && pathname.startsWith(href))
-                  ? 'bg-[#EFF6FF] text-[#1d4ed8]'
+                  ? 'bg-[#EFF6FF] text-[#0e2d5c]'
                   : 'text-[#374151] hover:bg-[#f8fafc]'
               }`}
             >
@@ -81,7 +81,7 @@ export default function Navbar() {
             <Link
               href="/contractors/batch"
               onClick={() => setMobileOpen(false)}
-              className="block text-center bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-sm font-semibold px-5 py-3 rounded-xl"
+              className="block text-center bg-[#143A75] hover:bg-[#0e2d5c] text-white text-sm font-semibold px-5 py-3 rounded-xl"
             >
               Browse Permit Data
             </Link>

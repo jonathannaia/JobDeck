@@ -126,7 +126,7 @@ export default function TermsPage() {
 
             <section>
               <h2 className="text-lg font-semibold text-[#0f172a] mb-3">Contact</h2>
-              <p>Questions about these Terms? Contact us at <a href="mailto:jonathan@naiadigital.org" className="text-[#2563eb] hover:underline">jonathan@naiadigital.org</a>.</p>
+              <p>Questions about these Terms? Contact us at <a href="mailto:jonathan@naiadigital.org" className="text-[#143A75] hover:underline">jonathan@naiadigital.org</a>.</p>
             </section>
 
           </div>

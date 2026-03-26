@@ -40,7 +40,7 @@ export default async function MonitorPage() {
           </div>
           <a
             href="/admin"
-            className="text-sm text-[#2563eb] hover:underline"
+            className="text-sm text-[#143A75] hover:underline"
           >
             ← Back to Admin
           </a>
@@ -91,7 +91,7 @@ export default async function MonitorPage() {
                         href={post.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[#0f172a] font-medium hover:text-[#2563eb] transition-colors block truncate"
+                        className="text-[#0f172a] font-medium hover:text-[#143A75] transition-colors block truncate"
                       >
                         {post.title}
                       </a>
@@ -103,7 +103,7 @@ export default async function MonitorPage() {
                       href={post.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-shrink-0 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
+                      className="flex-shrink-0 bg-[#143A75] hover:bg-[#0e2d5c] text-white text-xs font-medium px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
                     >
                       Reply →
                     </a>

@@ -25,7 +25,7 @@ const TRADES = [
   { value: 'Landscaping & Interlock', label: 'Landscaping & Interlock' },
 ]
 
-const inputClass = 'w-full bg-white border border-[#e2e8f0] rounded-xl px-4 py-3 text-[#0f172a] placeholder-[#9ca3af] focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-colors text-sm'
+const inputClass = 'w-full bg-white border border-[#e2e8f0] rounded-xl px-4 py-3 text-[#0f172a] placeholder-[#9ca3af] focus:outline-none focus:border-[#143A75] focus:ring-1 focus:ring-[#143A75] transition-colors text-sm'
 
 export default function BatchPage() {
   const [plan, setPlan] = useState<'batch' | 'weekly_partner'>('batch')
@@ -119,7 +119,7 @@ export default function BatchPage() {
           <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl">
             <div className="flex items-start justify-between mb-4">
               <div className="w-10 h-10 bg-[#EFF6FF] rounded-full flex items-center justify-center shrink-0">
-                <MapPin size={18} className="text-[#2563eb]" />
+                <MapPin size={18} className="text-[#143A75]" />
               </div>
               <button onClick={() => setShowModal(false)} className="text-[#9ca3af] hover:text-[#374151] transition-colors">
                 <X size={20} />
@@ -198,7 +198,7 @@ export default function BatchPage() {
           ].map(({ n, label }) => (
             <div key={n}>
               <div className="w-9 h-9 bg-[#EFF6FF] rounded-full flex items-center justify-center mx-auto mb-3">
-                <span className="text-[#2563eb] font-bold text-sm">{n}</span>
+                <span className="text-[#143A75] font-bold text-sm">{n}</span>
               </div>
               <p className="text-sm text-[#374151] font-medium leading-snug">{label}</p>
             </div>
@@ -211,7 +211,7 @@ export default function BatchPage() {
         <div className="max-w-lg mx-auto">
 
           {/* Browse one-by-one CTA */}
-          <div className="bg-white border-2 border-[#e2e8f0] hover:border-[#2563eb] rounded-2xl p-5 mb-4 transition-colors">
+          <div className="bg-white border-2 border-[#e2e8f0] hover:border-[#143A75] rounded-2xl p-5 mb-4 transition-colors">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="font-semibold text-[#0f172a] text-sm">Prefer to pick permits one by one?</p>
@@ -219,7 +219,7 @@ export default function BatchPage() {
               </div>
               <a
                 href="/leads"
-                className="shrink-0 inline-flex items-center gap-1.5 bg-[#f8fafc] hover:bg-[#EFF6FF] border border-[#e2e8f0] text-[#2563eb] font-semibold text-sm px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap"
+                className="shrink-0 inline-flex items-center gap-1.5 bg-[#f8fafc] hover:bg-[#EFF6FF] border border-[#e2e8f0] text-[#143A75] font-semibold text-sm px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap"
               >
                 Browse permits →
               </a>
@@ -231,7 +231,7 @@ export default function BatchPage() {
             <button
               type="button"
               onClick={() => setPlan('batch')}
-              className={`rounded-2xl border-2 p-4 text-left transition-colors ${plan === 'batch' ? 'border-[#2563eb] bg-[#EFF6FF]' : 'border-[#e2e8f0] bg-white hover:border-[#93c5fd]'}`}
+              className={`rounded-2xl border-2 p-4 text-left transition-colors ${plan === 'batch' ? 'border-[#143A75] bg-[#EFF6FF]' : 'border-[#e2e8f0] bg-white hover:border-[#93c5fd]'}`}
             >
               <p className="font-bold text-[#0f172a] text-base">$40</p>
               <p className="text-xs text-[#6b7280] mt-0.5">One-time · Complete Monthly City Batch</p>
@@ -240,7 +240,7 @@ export default function BatchPage() {
             <button
               type="button"
               onClick={() => setPlan('weekly_partner')}
-              className={`rounded-2xl border-2 p-4 text-left transition-colors relative ${plan === 'weekly_partner' ? 'border-[#2563eb] bg-[#EFF6FF]' : 'border-[#e2e8f0] bg-white hover:border-[#93c5fd]'}`}
+              className={`rounded-2xl border-2 p-4 text-left transition-colors relative ${plan === 'weekly_partner' ? 'border-[#143A75] bg-[#EFF6FF]' : 'border-[#e2e8f0] bg-white hover:border-[#93c5fd]'}`}
             >
               <span className="absolute top-3 right-3 bg-[#FFBF5E] text-[#0A1A3C] text-[10px] font-bold px-2 py-0.5 rounded-full">BEST VALUE</span>
               <p className="font-bold text-[#0f172a] text-base">$99<span className="text-sm font-normal text-[#6b7280]">/mo</span></p>
@@ -304,7 +304,7 @@ export default function BatchPage() {
                           ✓ Found {previewCount} active permit{previewCount !== 1 ? 's' : ''} in {city} for {tradeLabel} in the last 30 days
                         </p>
                       ) : MANUAL_CITIES[city] ? (
-                        <p className="text-xs font-medium text-[#2563eb]">
+                        <p className="text-xs font-medium text-[#143A75]">
                           ✓ {city} data is updated bi-weekly via municipal reports. Next update: {MANUAL_CITIES[city]}.
                         </p>
                       ) : (
