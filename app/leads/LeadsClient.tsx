@@ -314,7 +314,7 @@ export default function LeadsClient({
       <section className="py-10 px-4">
         <div className="max-w-3xl mx-auto space-y-6">
           {sortedAll.length === 0 && (
-            <p className="text-center text-[#6b7280] py-12">No leads yet — check back soon.</p>
+            <p className="text-center text-[#6b7280] py-12">No permits yet — check back soon.</p>
           )}
           {citySections.map(([city, cityLeads]) => {
             const isExpanded = expandedCities.has(city)
@@ -332,7 +332,7 @@ export default function LeadsClient({
                   <div className="flex items-center gap-2">
                     <h2 className="text-base font-semibold text-[#0f172a]">{city}</h2>
                     <span className="text-xs text-[#6b7280] bg-[#f1f5f9] px-2 py-0.5 rounded-full">
-                      {cityLeads.length} lead{cityLeads.length !== 1 ? 's' : ''}
+                      {cityLeads.length} permit{cityLeads.length !== 1 ? 's' : ''}
                     </span>
                   </div>
                   <span className="text-[#9ca3af] text-sm">{isExpanded ? '▾ Hide' : '▸ Show'}</span>

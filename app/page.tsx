@@ -53,7 +53,7 @@ export default function HomePage() {
           {/* Right — stats card panel */}
           <div className="hidden lg:flex flex-col gap-4">
             <div className="bg-[#f8fafc] border border-[#e2e8f0] rounded-2xl p-6">
-              <p className="text-sm text-[#6b7280] font-medium mb-1">Active leads across Ontario</p>
+              <p className="text-sm text-[#6b7280] font-medium mb-1">Active permits across Ontario</p>
               <p className="text-4xl font-bold text-[#0f172a]">1,100<span className="text-[#2563eb]">+</span></p>
             </div>
             <div className="grid grid-cols-2 gap-4">
