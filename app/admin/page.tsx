@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { TRADE_LABELS, type TradeType } from '@/lib/types'
+import AdminUpload from './AdminUpload'
 
 const ADMIN_EMAIL = 'jonathan@naiadigital.org'
 
@@ -23,6 +24,8 @@ export default async function AdminPage() {
     <div className="min-h-screen bg-[#f8fafc]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <h1 className="text-2xl font-bold text-[#0f172a] mb-8">Admin Dashboard</h1>
+
+        <AdminUpload />
 
         {/* Contractors */}
         <div className="bg-white border border-[#e2e8f0] rounded-xl overflow-hidden mb-8">

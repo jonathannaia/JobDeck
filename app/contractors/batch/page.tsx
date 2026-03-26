@@ -1,9 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { MapPin, ArrowRight, CheckCircle, Zap } from 'lucide-react'
+import { MapPin, ArrowRight, CheckCircle, Zap, X } from 'lucide-react'
 
-const CITIES = ['Toronto', 'Mississauga', 'Brampton', 'Burlington', 'Hamilton', 'Oakville', 'St. Catharines', 'Sudbury']
+// Cities with manual bi-weekly imports (no live API). Next update dates.
+const MANUAL_CITIES: Record<string, string> = {
+  Pickering: 'April 8, 2026',
+}
+
+const CITIES = ['Toronto', 'Mississauga', 'Brampton', 'Burlington', 'Hamilton', 'Oakville', 'Pickering', 'St. Catharines', 'Sudbury']
 
 const TRADES = [
   { value: 'all', label: 'All Trades' },
@@ -33,7 +38,19 @@ export default function BatchPage() {
   const [previewCount, setPreviewCount] = useState<number | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
 
-  // Live permit count preview whenever city or trade changes
+  // City request modal
+  const [showModal, setShowModal] = useState(false)
+  const [modalEmail, setModalEmail] = useState('')
+  const [modalLoading, setModalLoading] = useState(false)
+  const [modalSubmitted, setModalSubmitted] = useState(false)
+
+  // Reset modal state when city changes
+  useEffect(() => {
+    setModalSubmitted(false)
+    setModalEmail('')
+  }, [city])
+
+  // Live permit count preview
   useEffect(() => {
     if (!city) { setPreviewCount(null); return }
     setPreviewLoading(true)
@@ -72,10 +89,90 @@ export default function BatchPage() {
     setLoading(false)
   }
 
+  async function handleCityRequest() {
+    if (!modalEmail || !city) return
+    setModalLoading(true)
+    try {
+      await fetch('/api/city-requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ city, email: modalEmail }),
+      })
+      setModalSubmitted(true)
+    } finally {
+      setModalLoading(false)
+    }
+  }
+
   const tradeLabel = TRADES.find(t => t.value === trade)?.label ?? 'All Trades'
+  const cityHasNoData = plan === 'batch' && city && previewCount === 0
 
   return (
     <div className="min-h-screen bg-[#f8fafc]">
+
+      {/* City Request Modal */}
+      {showModal && city && (
+        <div
+          className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
+          onClick={e => { if (e.target === e.currentTarget) setShowModal(false) }}
+        >
+          <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+            <div className="flex items-start justify-between mb-4">
+              <div className="w-10 h-10 bg-[#EFF6FF] rounded-full flex items-center justify-center shrink-0">
+                <MapPin size={18} className="text-[#2563eb]" />
+              </div>
+              <button onClick={() => setShowModal(false)} className="text-[#9ca3af] hover:text-[#374151] transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+
+            {modalSubmitted ? (
+              <div className="text-center py-4">
+                <CheckCircle size={36} className="text-[#22c55e] mx-auto mb-3" />
+                <p className="font-bold text-[#0f172a] mb-1">You're on the list</p>
+                <p className="text-sm text-[#6b7280]">We'll email you the moment {city} data is ready.</p>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="mt-5 w-full bg-[#f1f5f9] hover:bg-[#e2e8f0] text-[#374151] font-semibold py-2.5 rounded-xl text-sm transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            ) : (
+              <>
+                <h3 className="font-bold text-[#0f172a] text-lg mb-2">We're working on {city}</h3>
+                <p className="text-sm text-[#6b7280] mb-5">
+                  We're currently finalizing the manual data pull for {city}. Enter your email and we'll notify you the second the new batch is live.
+                </p>
+                <div className="space-y-3">
+                  <input
+                    type="email"
+                    value={modalEmail}
+                    onChange={e => setModalEmail(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleCityRequest()}
+                    placeholder="your@email.com"
+                    className={inputClass}
+                    autoFocus
+                  />
+                  <button
+                    onClick={handleCityRequest}
+                    disabled={modalLoading || !modalEmail}
+                    className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-50 text-white font-bold py-3 rounded-xl text-sm transition-colors"
+                  >
+                    {modalLoading ? 'Sending...' : 'Notify Me When It\'s Live'}
+                  </button>
+                  <button
+                    onClick={() => setShowModal(false)}
+                    className="w-full text-[#6b7280] hover:text-[#374151] text-sm py-1 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Hero */}
       <section className="bg-[#0f172a] py-16 px-4 text-center">
@@ -113,7 +210,7 @@ export default function BatchPage() {
       <section className="py-14 px-4">
         <div className="max-w-lg mx-auto">
 
-          {/* Browse one-by-one CTA — visible before plan selection */}
+          {/* Browse one-by-one CTA */}
           <div className="bg-white border-2 border-[#e2e8f0] hover:border-[#2563eb] rounded-2xl p-5 mb-4 transition-colors">
             <div className="flex items-center justify-between gap-4">
               <div>
@@ -198,15 +295,23 @@ export default function BatchPage() {
 
                 {/* Live permit preview */}
                 {city && (
-                  <div className="mt-2 h-5">
+                  <div className="mt-2 min-h-[20px]">
                     {previewLoading ? (
                       <p className="text-xs text-[#9ca3af]">Checking availability...</p>
                     ) : previewCount !== null ? (
-                      <p className={`text-xs font-medium ${previewCount === 0 ? 'text-red-500' : 'text-[#16a34a]'}`}>
-                        {previewCount === 0
-                          ? `No active permits found in ${city} for ${tradeLabel} right now.`
-                          : `✓ Found ${previewCount} active permit${previewCount !== 1 ? 's' : ''} in ${city} for ${tradeLabel} in the last 30 days`}
-                      </p>
+                      previewCount > 0 ? (
+                        <p className="text-xs font-medium text-[#16a34a]">
+                          ✓ Found {previewCount} active permit{previewCount !== 1 ? 's' : ''} in {city} for {tradeLabel} in the last 30 days
+                        </p>
+                      ) : MANUAL_CITIES[city] ? (
+                        <p className="text-xs font-medium text-[#2563eb]">
+                          ✓ {city} data is updated bi-weekly via municipal reports. Next update: {MANUAL_CITIES[city]}.
+                        </p>
+                      ) : (
+                        <p className="text-xs text-[#6b7280]">
+                          No active permits found in {city} right now.
+                        </p>
+                      )
                     ) : null}
                   </div>
                 )}
@@ -214,14 +319,26 @@ export default function BatchPage() {
 
               {error && <p className="text-red-500 text-sm">{error}</p>}
 
-              <button
-                type="submit"
-                disabled={loading || (plan === 'batch' && previewCount === 0)}
-                className="w-full flex items-center justify-center gap-2 bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-60 text-white font-bold py-4 rounded-xl text-base shadow-md mt-2"
-              >
-                {loading ? 'Redirecting...' : plan === 'weekly_partner' ? 'Subscribe — $99/mo' : 'Get My Batch — $40'}
-                {!loading && <ArrowRight size={18} strokeWidth={2.5} />}
-              </button>
+              {/* CTA button — switches to "Request This City" when count is 0 */}
+              {cityHasNoData ? (
+                <button
+                  type="button"
+                  onClick={() => setShowModal(true)}
+                  className="w-full flex items-center justify-center gap-2 bg-[#0f172a] hover:bg-[#1e293b] text-white font-bold py-4 rounded-xl text-base shadow-md mt-2 transition-colors"
+                >
+                  Request This City
+                  <ArrowRight size={18} strokeWidth={2.5} />
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full flex items-center justify-center gap-2 bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-60 text-white font-bold py-4 rounded-xl text-base shadow-md mt-2"
+                >
+                  {loading ? 'Redirecting...' : plan === 'weekly_partner' ? 'Subscribe — $99/mo' : 'Get My Batch — $40'}
+                  {!loading && <ArrowRight size={18} strokeWidth={2.5} />}
+                </button>
+              )}
 
               <p className="text-center text-xs text-[#6b7280]">
                 {plan === 'weekly_partner' ? 'Recurring monthly subscription. Cancel anytime.' : 'One-time payment. No subscription. Instant download.'}
