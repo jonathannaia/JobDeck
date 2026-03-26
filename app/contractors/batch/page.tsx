@@ -109,6 +109,22 @@ export default function BatchPage() {
       <section className="py-14 px-4">
         <div className="max-w-lg mx-auto">
 
+          {/* Browse one-by-one CTA — visible before plan selection */}
+          <div className="bg-white border-2 border-[#e2e8f0] hover:border-[#2563eb] rounded-2xl p-5 mb-4 transition-colors">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="font-semibold text-[#0f172a] text-sm">Prefer to pick permits one by one?</p>
+                <p className="text-[#6b7280] text-xs mt-0.5">Browse the full list and claim individual permits. $10–$15 each.</p>
+              </div>
+              <a
+                href="/leads"
+                className="shrink-0 inline-flex items-center gap-1.5 bg-[#f8fafc] hover:bg-[#EFF6FF] border border-[#e2e8f0] text-[#2563eb] font-semibold text-sm px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap"
+              >
+                Browse permits →
+              </a>
+            </div>
+          </div>
+
           {/* Plan selector */}
           <div className="grid grid-cols-2 gap-3 mb-6">
             <button
@@ -247,20 +263,6 @@ export default function BatchPage() {
             </div>
           </div>
 
-          <div className="mt-6 bg-white border-2 border-[#e2e8f0] hover:border-[#2563eb] rounded-2xl p-5 transition-colors">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="font-semibold text-[#0f172a] text-sm">Prefer to pick permits one by one?</p>
-                <p className="text-[#6b7280] text-xs mt-0.5">Browse the full list and claim individual permits. $10–$15 each.</p>
-              </div>
-              <a
-                href="/leads"
-                className="shrink-0 inline-flex items-center gap-1.5 bg-[#f8fafc] hover:bg-[#EFF6FF] border border-[#e2e8f0] text-[#2563eb] font-semibold text-sm px-4 py-2.5 rounded-xl transition-colors whitespace-nowrap"
-              >
-                Browse permits →
-              </a>
-            </div>
-          </div>
         </div>
       </section>
     </div>
