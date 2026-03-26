@@ -1,11 +1,8 @@
 'use client'
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
-import dynamic from 'next/dynamic'
 import { createClient } from '@/lib/supabase/client'
 import type { AnonymizedLead } from './page'
-
-const PermitMap = dynamic(() => import('./PermitMap'), { ssr: false })
 
 function timeAgo(dateStr: string) {
   if (!dateStr) return ''
@@ -196,7 +193,6 @@ export default function LeadsClient({
   const [authChecked, setAuthChecked] = useState(false)
   const [unlocking, setUnlocking] = useState<string | null>(null)
   const [unlockedLeads, setUnlockedLeads] = useState<Record<string, any>>({})
-  const [showMap, setShowMap] = useState(false)
 
   useEffect(() => {
     async function checkAuth() {
@@ -322,16 +318,6 @@ export default function LeadsClient({
     ? sortedAll.filter(l => l.trade_key === contractor.trade_type).length
     : 0
 
-  // City counts for map (permits only, grouped by city)
-  const cityCounts = useMemo(() => {
-    const map = new Map<string, number>()
-    for (const p of permits) {
-      if (p.location) map.set(p.location, (map.get(p.location) ?? 0) + 1)
-    }
-    return Array.from(map.entries())
-      .map(([city, count]) => ({ city, count }))
-      .sort((a, b) => b.count - a.count)
-  }, [permits])
 
   return (
     <div className="min-h-screen bg-[#F4F5F7]">
@@ -353,41 +339,6 @@ export default function LeadsClient({
             </a>
           )}
 
-          {/* Map toggle */}
-          <button
-            onClick={() => setShowMap(v => !v)}
-            className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[#143A75] hover:text-[#0e2d5c] border border-[#143A75]/30 hover:border-[#143A75] px-4 py-2 rounded-xl transition-colors"
-          >
-            <span>{showMap ? '✕ Close map' : '🗺 View permit density map'}</span>
-          </button>
-        </div>
-      </section>
-
-      {/* Permit density map */}
-      {showMap && (
-        <section className="px-4 pt-6">
-          <div className="max-w-3xl mx-auto">
-            <div className="bg-white border border-[#e2e8f0] rounded-xl overflow-hidden shadow-[var(--shadow-glass)]">
-              <div className="px-5 py-3 border-b border-[#e2e8f0] flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-[#0A1A3C]">Active permit density — Ontario</p>
-                  <p className="text-xs text-[#6b7280]">Circle size = number of active permits in that city</p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {cityCounts.slice(0, 5).map(({ city, count }) => (
-                    <span key={city} className="text-xs bg-[#EFF6FF] text-[#143A75] px-2 py-0.5 rounded-full font-medium">
-                      {city} {count}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div style={{ height: 380 }}>
-                <PermitMap cityCounts={cityCounts} />
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
 
       <section className="py-10 px-4">
         <div className="max-w-3xl mx-auto space-y-6">

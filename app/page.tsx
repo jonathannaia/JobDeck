@@ -1,5 +1,4 @@
 import JobRequestForm from '@/components/JobRequestForm'
-import HomeMapSection from '@/components/HomeMapSection'
 import { CheckCircle, Zap, Shield, Clock, Star, ArrowRight } from 'lucide-react'
 
 export default function HomePage() {
@@ -148,8 +147,6 @@ export default function HomePage() {
           </p>
         </div>
       </section>
-
-      <HomeMapSection />
 
       {/* Contractor CTA banner */}
       <section className="py-16 px-4 bg-[#0f172a]">
