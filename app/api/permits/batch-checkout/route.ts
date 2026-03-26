@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
 
   const { data: rawPermits } = await query
   const filtered = applyTradeFilter(rawPermits ?? [], trade)
-  const available = Math.min(filtered.length, 25)
+  const available = filtered.length
 
   if (available === 0) {
     return NextResponse.json({ error: 'No permits available for this selection' }, { status: 400 })
@@ -68,8 +68,8 @@ export async function POST(req: NextRequest) {
       price_data: {
         currency: 'cad',
         product_data: {
-          name: `${available} Renovation Opportunities — ${city} (${tradeLabel})`,
-          description: `${tradeLabel} · Active building permits with addresses. Includes permit type, estimated project value, and issued date.`,
+          name: `Complete Monthly City Batch — ${city} (${tradeLabel})`,
+          description: `${available} active residential permits from the last 30 days. Includes full civic address, permit type, estimated project value, and issued date.`,
         },
         unit_amount: 4000, // $40 CAD
       },

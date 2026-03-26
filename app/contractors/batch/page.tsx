@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { MapPin, ArrowRight, CheckCircle, Zap } from 'lucide-react'
 
 const CITIES = ['Toronto', 'Mississauga', 'Brampton', 'Burlington', 'Hamilton', 'Oakville', 'St. Catharines', 'Sudbury']
@@ -26,6 +26,26 @@ export default function BatchPage() {
   const [name, setName] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [previewCount, setPreviewCount] = useState<number | null>(null)
+  const [previewLoading, setPreviewLoading] = useState(false)
+
+  // Live permit count preview whenever city or trade changes
+  useEffect(() => {
+    if (!city) { setPreviewCount(null); return }
+    setPreviewLoading(true)
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/permits/preview-count?city=${encodeURIComponent(city)}&trade=${encodeURIComponent(trade)}`)
+        const data = await res.json()
+        setPreviewCount(data.count ?? 0)
+      } catch {
+        setPreviewCount(null)
+      } finally {
+        setPreviewLoading(false)
+      }
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [city, trade])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -47,6 +67,8 @@ export default function BatchPage() {
     }
     setLoading(false)
   }
+
+  const tradeLabel = TRADES.find(t => t.value === trade)?.label ?? 'All Trades'
 
   return (
     <div className="min-h-screen bg-[#f8fafc]">
@@ -95,8 +117,8 @@ export default function BatchPage() {
               className={`rounded-2xl border-2 p-4 text-left transition-colors ${plan === 'batch' ? 'border-[#2563eb] bg-[#EFF6FF]' : 'border-[#e2e8f0] bg-white hover:border-[#93c5fd]'}`}
             >
               <p className="font-bold text-[#0f172a] text-base">$40</p>
-              <p className="text-xs text-[#6b7280] mt-0.5">One-time · 25 addresses</p>
-              <p className="text-xs text-[#374151] mt-2 font-medium">Single batch, instant CSV</p>
+              <p className="text-xs text-[#6b7280] mt-0.5">One-time · Complete Monthly City Batch</p>
+              <p className="text-xs text-[#374151] mt-2 font-medium">Get every active residential permit issued in your city over the last 30 days.</p>
             </button>
             <button
               type="button"
@@ -105,8 +127,8 @@ export default function BatchPage() {
             >
               <span className="absolute top-3 right-3 bg-[#2563eb] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">BEST VALUE</span>
               <p className="font-bold text-[#0f172a] text-base">$99<span className="text-sm font-normal text-[#6b7280]">/mo</span></p>
-              <p className="text-xs text-[#6b7280] mt-0.5">Weekly · 100 addresses/mo</p>
-              <p className="text-xs text-[#374151] mt-2 font-medium">Fresh batch every week</p>
+              <p className="text-xs text-[#6b7280] mt-0.5">Weekly Market Feed</p>
+              <p className="text-xs text-[#374151] mt-2 font-medium">Every new permit in your service area delivered to your inbox every Monday morning.</p>
             </button>
           </div>
 
@@ -114,7 +136,7 @@ export default function BatchPage() {
             <div className="bg-[#f0fdf4] border border-[#86efac] rounded-xl px-4 py-3 mb-5 flex gap-2 items-start">
               <Zap size={15} className="text-[#16a34a] shrink-0 mt-0.5" />
               <p className="text-sm text-[#15803d]">
-                <strong>Weekly Partner:</strong> We send you 25 fresh project addresses every week — 100/month total. Only <strong>$0.99 per address</strong> vs $1.60 on the single batch.
+                <strong>Weekly Market Feed:</strong> Fresh permits hit your inbox every Monday — always current, never stale. Includes every new residential project from the past 7 days.
               </p>
             </div>
           )}
@@ -125,8 +147,8 @@ export default function BatchPage() {
             </h2>
             <p className="text-[#6b7280] text-sm mb-1">
               {plan === 'weekly_partner'
-                ? 'Set your city and trade. We\'ll deliver 25 fresh project addresses to your inbox every week.'
-                : 'Pick your city and trade. We\'ll pull up to 25 active renovation permits and deliver them as a CSV right after checkout.'}
+                ? 'Set your city and trade. Every new permit in your service area lands in your inbox every Monday morning.'
+                : "Pick your city and trade. We'll pull every active renovation permit from the last 30 days and deliver them as a CSV right after checkout."}
             </p>
             <p className="text-[#9ca3af] text-xs mb-6">You receive addresses and project details based on public permit records. JobDeck is a data provider, not a municipal authority.</p>
 
@@ -153,13 +175,28 @@ export default function BatchPage() {
                 <select value={trade} onChange={e => setTrade(e.target.value)} className={`${inputClass} appearance-none`}>
                   {TRADES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
                 </select>
+
+                {/* Live permit preview */}
+                {city && (
+                  <div className="mt-2 h-5">
+                    {previewLoading ? (
+                      <p className="text-xs text-[#9ca3af]">Checking availability...</p>
+                    ) : previewCount !== null ? (
+                      <p className={`text-xs font-medium ${previewCount === 0 ? 'text-red-500' : 'text-[#16a34a]'}`}>
+                        {previewCount === 0
+                          ? `No active permits found in ${city} for ${tradeLabel} right now.`
+                          : `✓ Found ${previewCount} active permit${previewCount !== 1 ? 's' : ''} in ${city} for ${tradeLabel} in the last 30 days`}
+                      </p>
+                    ) : null}
+                  </div>
+                )}
               </div>
 
               {error && <p className="text-red-500 text-sm">{error}</p>}
 
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || (plan === 'batch' && previewCount === 0)}
                 className="w-full flex items-center justify-center gap-2 bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-60 text-white font-bold py-4 rounded-xl text-base shadow-md mt-2"
               >
                 {loading ? 'Redirecting...' : plan === 'weekly_partner' ? 'Subscribe — $99/mo' : 'Get My Batch — $40'}
