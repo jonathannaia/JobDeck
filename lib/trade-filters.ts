@@ -38,6 +38,31 @@ export const TRADE_FILTERS: Record<string, TradeFilter> = {
     exclude: ['demolition'],
     minValue: 40000,
   },
+  'Flooring & Tiling': {
+    include: ['floor', 'flooring', 'hardwood', 'laminate', 'tile', 'tiling', 'vinyl', 'subfloor', 'backsplash', 'lvp', 'lvt', 'engineered wood'],
+    exclude: ['roofing', 'hvac', 'mechanical', 'plumbing', 'electrical', 'sewer', 'demolition'],
+    minValue: 3000,
+    // Pull from Flooring & Tiling (future) and Carpenter (existing permits contain these keywords)
+    dbTrades: ['Flooring & Tiling', 'Carpenter'],
+  },
+  'Drywall & Taping': {
+    include: ['drywall', 'taping', 'tape and mud', 'gypsum', 'plasterboard', 'framing'],
+    exclude: ['roofing', 'hvac', 'mechanical', 'plumbing', 'electrical', 'sewer', 'demolition'],
+    minValue: 2000,
+    dbTrades: ['Drywall & Taping', 'Carpenter'],
+  },
+  'Kitchen & Bath Renovation': {
+    include: ['kitchen', 'bathroom', 'bath reno', 'kitchen reno', 'vanity', 'cabinet', 'ensuite'],
+    exclude: ['roofing', 'hvac', 'mechanical', 'plumbing', 'electrical', 'sewer', 'demolition'],
+    minValue: 10000,
+    dbTrades: ['Kitchen & Bath Renovation', 'Carpenter', 'General Contractor'],
+  },
+  'Landscaping & Interlock': {
+    include: ['interlock', 'interlocking', 'landscaping', 'landscape', 'retaining wall', 'paving stone', 'grading', 'pool', 'patio'],
+    exclude: ['roofing', 'hvac', 'mechanical', 'plumbing', 'electrical', 'sewer'],
+    minValue: 3000,
+    dbTrades: ['Landscaping & Interlock', 'Landscaper'],
+  },
   // Painter: scraper now tags high-value interior permits directly as 'Painter' in DB.
   // We also pull Carpenter + GC as a fallback for permits the scraper classified before this rule.
   Painter: {

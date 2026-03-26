@@ -9,11 +9,15 @@ const TRADES = [
   { value: 'all', label: 'All Trades' },
   { value: 'General Contractor', label: 'General Contractor' },
   { value: 'Carpenter', label: 'Carpentry / Renovation' },
+  { value: 'Flooring & Tiling', label: 'Flooring & Tiling' },
+  { value: 'Drywall & Taping', label: 'Drywall & Taping' },
+  { value: 'Kitchen & Bath Renovation', label: 'Kitchen & Bath Renovation' },
   { value: 'Painter', label: 'Painting / Decorating' },
   { value: 'Roofer', label: 'Roofing' },
   { value: 'HVAC', label: 'HVAC' },
   { value: 'Plumber', label: 'Plumbing' },
   { value: 'Electrician', label: 'Electrical' },
+  { value: 'Landscaping & Interlock', label: 'Landscaping & Interlock' },
 ]
 
 const inputClass = 'w-full bg-white border border-[#e2e8f0] rounded-xl px-4 py-3 text-[#0f172a] placeholder-[#9ca3af] focus:outline-none focus:border-[#2563eb] focus:ring-1 focus:ring-[#2563eb] transition-colors text-sm'
