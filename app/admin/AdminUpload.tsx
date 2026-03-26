@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { Upload, CheckCircle, AlertCircle } from 'lucide-react'
 
-const UPLOAD_CITIES = ['Pickering', 'Markham', 'Hamilton', 'St. Catharines']
+const UPLOAD_CITIES = ['Pickering', 'Hamilton', 'St. Catharines']
 
 export default function AdminUpload() {
   const [city, setCity] = useState('Pickering')

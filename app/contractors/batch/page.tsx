@@ -9,6 +9,7 @@ const MANUAL_CITIES: Record<string, string> = {
 }
 
 const CITIES = ['Toronto', 'Mississauga', 'Brampton', 'Burlington', 'Hamilton', 'Oakville', 'Pickering', 'St. Catharines', 'Sudbury']
+// Note: Markham removed — ePLAN portal ToS prohibits automated access
 
 const TRADES = [
   { value: 'all', label: 'All Trades' },
