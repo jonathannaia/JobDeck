@@ -395,6 +395,63 @@ async function fetchHamilton(): Promise<Permit[]> {
   return results
 }
 
+async function fetchSudbury(): Promise<Permit[]> {
+  // Greater Sudbury Open Data API — ActivePermits returns only active permits (no date filter needed)
+  // Docs: https://dataportal.greatersudbury.ca/swagger/ui/index#/BuildingPermits
+  // Auth token is public and listed in their help docs
+  const token = process.env.SUDBURY_API_TOKEN || '402fa657-84dd-46a1-9ed7-e349a806dd19'
+  const cutoff = new Date(Date.now() - MAX_AGE_DAYS * 86400000).toISOString().slice(0, 10)
+
+  const res = await fetch(`https://dataportal.greatersudbury.ca/api/BuildingPermits/ActivePermits.json?auth_token=${token}`, {
+    headers: { 'User-Agent': 'JobDeck/1.0', 'Accept': 'application/json' },
+    signal: AbortSignal.timeout(20000),
+  })
+  if (!res.ok) throw new Error(`Sudbury API HTTP ${res.status}`)
+  const records: any[] = await res.json()
+
+  const results: Permit[] = []
+  for (const r of records) {
+    // Field names per Swagger schema (snake_case)
+    const permitNum  = String(r.permit_number || r.PermitNumber || r.permitNumber || '')
+    const type       = r.permit_type   || r.PermitType   || r.work_type   || r.WorkType   || ''
+    const desc       = r.project_description || r.ProjectDescription || r.work_type || r.WorkType || ''
+    const status     = r.status        || r.Status       || ''
+    const estCost    = String(r.estimated_value || r.EstimatedValue || '')
+
+    // Build address from parts
+    const streetNum  = r.street_number  || r.StreetNumber  || r.house_number || ''
+    const streetName = r.street_name    || r.StreetName    || ''
+    const streetSfx  = r.street_suffix  || r.StreetSuffix  || r.street_type || ''
+    const address    = `${streetNum} ${streetName} ${streetSfx}`.trim().replace(/\s+/g, ' ')
+
+    // Parse issued date
+    const rawDate   = r.issued_date || r.IssuedDate || r.issue_date || r.IssueDate || ''
+    const issued_date = rawDate ? new Date(rawDate).toISOString().slice(0, 10) : ''
+
+    if (!permitNum || !address) continue
+    if (issued_date && issued_date < cutoff) continue
+    if (status && /inactive|closed|cancelled|withdrawn|expired/i.test(status)) continue
+
+    const trades = classifyTrade('Sudbury', type, desc, estCost)
+    if (!trades.length) continue
+    if (!isResidentialScale(estCost)) continue
+
+    const tags = isHotPermit(issued_date) ? ['HOT'] : []
+    for (const trade of trades) {
+      if (issued_date && issued_date < cutoffForTrade(trade)) continue
+      results.push({
+        city: 'Sudbury', address, postal: r.postal_code || r.PostalCode || '',
+        permit_type: type, description: desc, status: status || 'Active',
+        issued_date, est_cost: estCost, builder: '',
+        permit_num: `SUB-${permitNum}|${trade}`,
+        trade, velocity: classifyVelocity(type, desc),
+        maps_url: mapsUrl(address, 'Sudbury'), tags,
+      })
+    }
+  }
+  return results
+}
+
 async function fetchStCatharines(): Promise<Permit[]> {
   const cutoff = new Date(Date.now() - MAX_AGE_DAYS * 86400000).toISOString().slice(0, 10)
   const data = await fetchJson(`https://services6.arcgis.com/Yx1h0qHJ9wIpQWuU/arcgis/rest/services/Building_Permits_Public/FeatureServer/0/query?where=ISSUEDATE+%3E+date+%27${cutoff}%27&outFields=PROPERTYNAME%2CFOLDERYEAR%2CFOLDERSEQUENCE%2CFOLDERDESC%2CFOLDERDESCRIPTION%2CISSUEDATE%2CSTATUSDESC%2CPROPPOSTAL&f=json&resultRecordCount=500&orderByFields=ISSUEDATE+DESC`)
@@ -479,6 +536,7 @@ export async function GET(req: NextRequest) {
     ['Ottawa',          fetchOttawa],
     ['Oakville',        fetchOakville],
     ['St. Catharines',  fetchStCatharines],
+    ['Sudbury',         fetchSudbury],
   ]
 
   for (const [name, fetcher] of cities) {

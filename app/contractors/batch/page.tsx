@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { MapPin, ArrowRight, CheckCircle, Zap } from 'lucide-react'
 
-const CITIES = ['Toronto', 'Mississauga', 'Brampton', 'Burlington', 'Hamilton', 'Oakville', 'St. Catharines']
+const CITIES = ['Toronto', 'Mississauga', 'Brampton', 'Burlington', 'Hamilton', 'Oakville', 'St. Catharines', 'Sudbury']
 
 const TRADES = [
   { value: 'all', label: 'All Trades' },
