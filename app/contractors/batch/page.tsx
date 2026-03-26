@@ -157,7 +157,7 @@ export default function BatchPage() {
                   <button
                     onClick={handleCityRequest}
                     disabled={modalLoading || !modalEmail}
-                    className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-50 text-white font-bold py-3 rounded-xl text-sm transition-colors"
+                    className="w-full bg-[#143A75] hover:bg-[#0e2d5c] disabled:opacity-50 text-white font-bold py-3 rounded-xl text-sm transition-colors"
                   >
                     {modalLoading ? 'Sending...' : 'Notify Me When It\'s Live'}
                   </button>
@@ -242,7 +242,7 @@ export default function BatchPage() {
               onClick={() => setPlan('weekly_partner')}
               className={`rounded-2xl border-2 p-4 text-left transition-colors relative ${plan === 'weekly_partner' ? 'border-[#2563eb] bg-[#EFF6FF]' : 'border-[#e2e8f0] bg-white hover:border-[#93c5fd]'}`}
             >
-              <span className="absolute top-3 right-3 bg-[#2563eb] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">BEST VALUE</span>
+              <span className="absolute top-3 right-3 bg-[#FFBF5E] text-[#0A1A3C] text-[10px] font-bold px-2 py-0.5 rounded-full">BEST VALUE</span>
               <p className="font-bold text-[#0f172a] text-base">$99<span className="text-sm font-normal text-[#6b7280]">/mo</span></p>
               <p className="text-xs text-[#6b7280] mt-0.5">Weekly Market Feed</p>
               <p className="text-xs text-[#374151] mt-2 font-medium">Every new permit in your service area delivered to your inbox every Monday morning.</p>
@@ -333,7 +333,7 @@ export default function BatchPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 bg-[#2563eb] hover:bg-[#1d4ed8] disabled:opacity-60 text-white font-bold py-4 rounded-xl text-base shadow-md mt-2"
+                  className="w-full flex items-center justify-center gap-2 bg-[#143A75] hover:bg-[#0e2d5c] disabled:opacity-60 text-white font-bold py-4 rounded-xl text-base shadow-md mt-2"
                 >
                   {loading ? 'Redirecting...' : plan === 'weekly_partner' ? 'Subscribe — $99/mo' : 'Get My Batch — $40'}
                   {!loading && <ArrowRight size={18} strokeWidth={2.5} />}

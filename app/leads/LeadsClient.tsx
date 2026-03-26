@@ -25,6 +25,33 @@ function permitPrice(permitType: string | null | undefined, description: string 
   return 12
 }
 
+function ValueBadge({ cost }: { cost: number | string | null | undefined }) {
+  if (!cost) return null
+  const n = parseFloat(String(cost))
+  if (isNaN(n)) return null
+  if (n < 20000)  return <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-100 text-green-700">Small</span>
+  if (n <= 100000) return <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">Medium</span>
+  return <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-100 text-red-700">Large</span>
+}
+
+function SkeletonCard() {
+  return (
+    <div className="bg-white/80 border border-white/20 shadow-[var(--shadow-glass)] rounded-xl p-6">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1 space-y-3">
+          <div className="flex gap-2">
+            <div className="skeleton h-5 w-20 rounded-full" />
+            <div className="skeleton h-5 w-24 rounded-full" />
+          </div>
+          <div className="skeleton h-4 w-3/4" />
+          <div className="skeleton h-3 w-1/3" />
+        </div>
+        <div className="skeleton h-9 w-28 rounded-lg shrink-0" />
+      </div>
+    </div>
+  )
+}
+
 function LeadCard({
   lead,
   contractorTrade,
@@ -43,14 +70,14 @@ function LeadCard({
   const isMyTrade = contractorTrade && lead.trade_key === contractorTrade
 
   return (
-    <div className={`bg-white border rounded-xl p-6 transition-all ${
-      isMyTrade ? 'border-[#2563eb] shadow-sm' : 'border-[#e2e8f0]'
+    <div className={`bg-white/80 backdrop-blur-md border rounded-xl p-6 shadow-[var(--shadow-glass)] transition-all ${
+      isMyTrade ? 'border-[#143A75]' : 'border-white/60'
     }`}>
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           {/* Badges row */}
           <div className="flex flex-wrap items-center gap-2 mb-2">
-            <span className="bg-[#EFF6FF] text-[#1d4ed8] text-xs font-medium px-2.5 py-1 rounded-full">
+            <span className="bg-[#EFF6FF] text-[#143A75] text-xs font-medium px-2.5 py-1 rounded-full">
               {lead.trade_label}
             </span>
             {isPermit && isFast && (
@@ -68,6 +95,7 @@ function LeadCard({
                 📋 Building Permit
               </span>
             )}
+            {isPermit && <ValueBadge cost={lead.est_cost} />}
             <span className="text-[#6b7280] text-xs">{lead.location}</span>
             <span className="text-[#9ca3af] text-xs">·{' '}
               {isPermit && lead.issued_date
@@ -101,7 +129,7 @@ function LeadCard({
               <div className="space-y-1 text-sm text-[#374151]">
                 <p><span className="font-medium">Name:</span> {unlockedData.name}</p>
                 <p><span className="font-medium">Phone:</span>{' '}
-                  <a href={`tel:${unlockedData.phone}`} className="text-[#2563eb] underline">{unlockedData.phone}</a>
+                  <a href={`tel:${unlockedData.phone}`} className="text-[#143A75] underline">{unlockedData.phone}</a>
                 </p>
                 {unlockedData.email && <p><span className="font-medium">Email:</span> {unlockedData.email}</p>}
                 <p><span className="font-medium">Postal Code:</span> {unlockedData.postal_code}</p>
@@ -135,7 +163,7 @@ function LeadCard({
               className={`disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors whitespace-nowrap ${
                 isFast && isPermit
                   ? 'bg-[#d97706] hover:bg-[#b45309]'
-                  : 'bg-[#2563eb] hover:bg-[#1d4ed8]'
+                  : 'bg-[#143A75] hover:bg-[#0e2d5c]'
               }`}
             >
               {unlocking === lead.id
@@ -217,13 +245,11 @@ export default function LeadsClient({
       const aMatch = trade && a.trade_key === trade ? 0 : 1
       const bMatch = trade && b.trade_key === trade ? 0 : 1
       if (aMatch !== bMatch) return aMatch - bMatch
-      // Within same trade group: Fast permits first, then organic, then slow permits
       const aScore = a.type === 'permit' && a.velocity === 'Fast' ? 0
         : a.type === 'organic' ? 1 : 2
       const bScore = b.type === 'permit' && b.velocity === 'Fast' ? 0
         : b.type === 'organic' ? 1 : 2
       if (aScore !== bScore) return aScore - bScore
-      // Finally by date desc
       return (b.created_at || '').localeCompare(a.created_at || '')
     })
   }, [leads, permits, contractor])
@@ -237,7 +263,6 @@ export default function LeadsClient({
     setUnlocking(leadId)
 
     if (type === 'permit') {
-      // Permit claim — fetch address details directly (permit data is public once paid)
       const res = await fetch('/api/permits/claim', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -251,7 +276,6 @@ export default function LeadsClient({
       return
     }
 
-    // Organic lead
     const res = await fetch('/api/stripe/unlock-checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -263,7 +287,7 @@ export default function LeadsClient({
     setUnlocking(null)
   }
 
-  // Group leads by city, preserving sort order within each city
+  // Group leads by city
   const citySections = useMemo(() => {
     const map = new Map<string, AnonymizedLead[]>()
     for (const lead of sortedAll) {
@@ -271,7 +295,7 @@ export default function LeadsClient({
       if (!map.has(city)) map.set(city, [])
       map.get(city)!.push(lead)
     }
-    return Array.from(map.entries()) // [city, leads[]]
+    return Array.from(map.entries())
   }, [sortedAll])
 
   const [expandedCities, setExpandedCities] = useState<Set<string>>(new Set())
@@ -295,20 +319,21 @@ export default function LeadsClient({
     : 0
 
   return (
-    <div className="min-h-screen bg-[#f8fafc]">
+    <div className="min-h-screen bg-[#F4F5F7]">
       <section className="bg-white border-b border-[#e2e8f0] py-12 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-3xl font-bold text-[#0f172a] mb-3">Browse Individual Permits</h1>
+          <h1 className="text-3xl font-bold text-[#0A1A3C] mb-3">Browse Individual Permits</h1>
           <p className="text-[#6b7280] max-w-xl mx-auto">
-            Active building permit records across Ontario — sorted by city and trade. Claim individual addresses or <a href="/contractors/batch" className="text-[#2563eb] hover:underline">get a full batch of 25</a>.
+            Active building permit records across Ontario — sorted by city and trade. Claim individual addresses or{' '}
+            <a href="/contractors/batch" className="text-[#143A75] hover:underline">get a full batch of 25</a>.
           </p>
           {contractor && myTradeCount > 0 && (
-            <p className="mt-3 text-[#2563eb] text-sm font-medium">
+            <p className="mt-3 text-[#143A75] text-sm font-medium">
               {myTradeCount} permits matching your trade ({contractor.trade_type}) shown first
             </p>
           )}
           {authChecked && !contractor && (
-            <a href="/contractors/batch" className="mt-6 inline-block bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-medium px-6 py-2.5 rounded-lg text-sm transition-colors">
+            <a href="/contractors/batch" className="mt-6 inline-block bg-[#143A75] hover:bg-[#0e2d5c] text-white font-medium px-6 py-2.5 rounded-lg text-sm transition-colors">
               Get a Batch of 25 — $40
             </a>
           )}
@@ -317,10 +342,18 @@ export default function LeadsClient({
 
       <section className="py-10 px-4">
         <div className="max-w-3xl mx-auto space-y-6">
-          {sortedAll.length === 0 && (
+          {/* Skeleton while auth resolves */}
+          {!authChecked && (
+            <div className="space-y-4">
+              {[...Array(4)].map((_, i) => <SkeletonCard key={i} />)}
+            </div>
+          )}
+
+          {authChecked && sortedAll.length === 0 && (
             <p className="text-center text-[#6b7280] py-12">No permits yet — check back soon.</p>
           )}
-          {citySections.map(([city, cityLeads]) => {
+
+          {authChecked && citySections.map(([city, cityLeads]) => {
             const isExpanded = expandedCities.has(city)
             const selectedTrade = cityTradeFilters[city] || ''
             const trades = Array.from(new Set(cityLeads.map(l => l.trade_label))).sort()
@@ -334,8 +367,8 @@ export default function LeadsClient({
                   className="w-full flex items-center justify-between mb-3 group"
                 >
                   <div className="flex items-center gap-2">
-                    <h2 className="text-base font-semibold text-[#0f172a]">{city}</h2>
-                    <span className="text-xs text-[#6b7280] bg-[#f1f5f9] px-2 py-0.5 rounded-full">
+                    <h2 className="text-base font-semibold text-[#0A1A3C]">{city}</h2>
+                    <span className="text-xs text-[#6b7280] bg-white px-2 py-0.5 rounded-full border border-[#e2e8f0]">
                       {cityLeads.length} permit{cityLeads.length !== 1 ? 's' : ''}
                     </span>
                   </div>
@@ -349,8 +382,8 @@ export default function LeadsClient({
                         onClick={() => setCityTrade(city, '')}
                         className={`text-xs px-3 py-1 rounded-full border transition-colors ${
                           !selectedTrade
-                            ? 'bg-[#2563eb] text-white border-[#2563eb]'
-                            : 'bg-white text-[#6b7280] border-[#e2e8f0] hover:border-[#2563eb] hover:text-[#2563eb]'
+                            ? 'bg-[#143A75] text-white border-[#143A75]'
+                            : 'bg-white text-[#6b7280] border-[#e2e8f0] hover:border-[#143A75] hover:text-[#143A75]'
                         }`}
                       >
                         All
@@ -361,8 +394,8 @@ export default function LeadsClient({
                           onClick={() => setCityTrade(city, trade)}
                           className={`text-xs px-3 py-1 rounded-full border transition-colors ${
                             selectedTrade === trade
-                              ? 'bg-[#2563eb] text-white border-[#2563eb]'
-                              : 'bg-white text-[#6b7280] border-[#e2e8f0] hover:border-[#2563eb] hover:text-[#2563eb]'
+                              ? 'bg-[#143A75] text-white border-[#143A75]'
+                              : 'bg-white text-[#6b7280] border-[#e2e8f0] hover:border-[#143A75] hover:text-[#143A75]'
                           }`}
                         >
                           {trade}
