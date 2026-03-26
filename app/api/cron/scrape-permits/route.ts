@@ -103,10 +103,15 @@ const CITY_ALIASES: { city: string; match: string; inject: string }[] = [
   { city: 'Brampton',    match: 'accessory apt',    inject: 'Secondary Suite' },
   { city: 'Hamilton',    match: 'residential alteration', inject: 'Interior Alteration' },
   { city: 'Hamilton',    match: 'accessory building',    inject: 'Renovation' },
-  { city: 'Ottawa',      match: 'interior renovation',   inject: 'Interior Alteration' },
-  { city: 'Ottawa',      match: 'internal alteration',   inject: 'Interior Alteration' },
-  { city: 'Ottawa',      match: 'tenant improvement',    inject: 'Renovation' },
-  { city: 'Ottawa',      match: 'dwelling unit',         inject: 'Renovation' },
+  { city: 'Ottawa',         match: 'interior renovation',   inject: 'Interior Alteration' },
+  { city: 'Ottawa',         match: 'internal alteration',   inject: 'Interior Alteration' },
+  { city: 'Ottawa',         match: 'tenant improvement',    inject: 'Renovation' },
+  { city: 'Ottawa',         match: 'dwelling unit',         inject: 'Renovation' },
+  // St. Catharines uses plain English in FOLDERDESCRIPTION — inject standard keywords
+  { city: 'St. Catharines', match: 'renovation',           inject: 'Interior Alteration Renovation' },
+  { city: 'St. Catharines', match: 'basement',             inject: 'Basement Finish' },
+  { city: 'St. Catharines', match: 'suite',                inject: 'Secondary Suite' },
+  { city: 'St. Catharines', match: 'addition',             inject: 'Addition' },
 ]
 
 function normalizePermit(city: string, type: string, desc: string): string {
@@ -390,6 +395,33 @@ async function fetchHamilton(): Promise<Permit[]> {
   return results
 }
 
+async function fetchStCatharines(): Promise<Permit[]> {
+  const cutoff = new Date(Date.now() - MAX_AGE_DAYS * 86400000).toISOString().slice(0, 10)
+  const data = await fetchJson(`https://services6.arcgis.com/Yx1h0qHJ9wIpQWuU/arcgis/rest/services/Building_Permits_Public/FeatureServer/0/query?where=ISSUEDATE+%3E+date+%27${cutoff}%27&outFields=PROPERTYNAME%2CFOLDERYEAR%2CFOLDERSEQUENCE%2CFOLDERDESC%2CFOLDERDESCRIPTION%2CISSUEDATE%2CSTATUSDESC%2CPROPPOSTAL&f=json&resultRecordCount=500&orderByFields=ISSUEDATE+DESC`)
+  const results: Permit[] = []
+  for (const f of data.features || []) {
+    const a = f.attributes || {}
+    const type = a.FOLDERDESC || ''
+    const desc = a.FOLDERDESCRIPTION || ''
+    const trades = classifyTrade('St. Catharines', type, desc)
+    const issued_date = a.ISSUEDATE ? new Date(a.ISSUEDATE).toISOString().slice(0, 10) : ''
+    if (!trades.length || !isActivePermit(a.STATUSDESC)) continue
+    const address = (a.PROPERTYNAME || '').trim()
+    const tags = isHotPermit(issued_date) ? ['HOT'] : []
+    const num = `${a.FOLDERYEAR || ''}-${a.FOLDERSEQUENCE || ''}`
+    for (const trade of trades) {
+      if (issued_date && issued_date < cutoffForTrade(trade)) continue
+      results.push({
+        city: 'St. Catharines', address, postal: a.PROPPOSTAL || '', permit_type: type, description: desc,
+        status: a.STATUSDESC || '', issued_date, est_cost: '',
+        builder: '', permit_num: `STC-${num}|${trade}`,
+        trade, velocity: classifyVelocity(type, desc), maps_url: mapsUrl(address, 'St. Catharines'), tags,
+      })
+    }
+  }
+  return results
+}
+
 async function fetchOttawa(): Promise<Permit[]> {
   // Ottawa does not publish a queryable REST API for building permits —
   // data is only available as monthly Excel downloads from open.ottawa.ca.
@@ -438,14 +470,15 @@ export async function GET(req: NextRequest) {
   const summary: Record<string, number> = {}
 
   const cities: [string, () => Promise<Permit[]>][] = [
-    ['Toronto',     fetchToronto],
-    ['Mississauga', fetchMississauga],
-    ['Burlington',  fetchBurlington],
-    ['Brampton',    fetchBrampton],
-    ['Barrie',      fetchBarrie],
-    ['Hamilton',    fetchHamilton],
-    ['Ottawa',      fetchOttawa],
-    ['Oakville',    fetchOakville],
+    ['Toronto',         fetchToronto],
+    ['Mississauga',     fetchMississauga],
+    ['Burlington',      fetchBurlington],
+    ['Brampton',        fetchBrampton],
+    ['Barrie',          fetchBarrie],
+    ['Hamilton',        fetchHamilton],
+    ['Ottawa',          fetchOttawa],
+    ['Oakville',        fetchOakville],
+    ['St. Catharines',  fetchStCatharines],
   ]
 
   for (const [name, fetcher] of cities) {
