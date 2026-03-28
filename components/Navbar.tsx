@@ -42,10 +42,10 @@ export default function Navbar() {
               </Link>
             ))}
             <Link
-              href="/contractors/batch"
+              href="/leads"
               className="bg-[#143A75] hover:bg-[#0e2d5c] text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm whitespace-nowrap"
             >
-              Browse Permit Data
+              Browse Leads
             </Link>
           </div>
 
@@ -79,11 +79,11 @@ export default function Navbar() {
           ))}
           <div className="pt-2">
             <Link
-              href="/contractors/batch"
+              href="/leads"
               onClick={() => setMobileOpen(false)}
               className="block text-center bg-[#143A75] hover:bg-[#0e2d5c] text-white text-sm font-semibold px-5 py-3 rounded-xl"
             >
-              Browse Permit Data
+              Browse Leads
             </Link>
           </div>
         </div>

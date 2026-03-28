@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { CheckCircle, ArrowRight } from 'lucide-react'
+import { CheckCircle, ArrowRight, Phone, Mail, Star } from 'lucide-react'
 
 export default function ContractorsPage() {
   return (
@@ -10,20 +10,20 @@ export default function ContractorsPage() {
         <div className="max-w-3xl mx-auto">
           <p className="text-blue-300 text-sm font-semibold uppercase tracking-widest mb-5">For Ontario Contractors</p>
           <h1 className="text-5xl sm:text-6xl font-bold text-white leading-[1.1] mb-6">
-            Find homeowners starting renovations<br />
-            <span className="text-[#60a5fa]">before anyone else calls them.</span>
+            Get homeowner leads<br />
+            <span className="text-[#60a5fa]">ready to hire right now.</span>
           </h1>
           <p className="text-slate-400 text-xl max-w-xl mx-auto mb-10">
-            We pull active building permit data across Ontario. Every record is a real renovation project — with the address and project details from public city records.
+            Homeowners in your city post jobs directly on JobDeck. You see the job, claim the lead, and contact them first — no bidding wars, no middlemen.
           </p>
           <Link
-            href="/contractors/batch"
+            href="/leads"
             className="inline-flex items-center gap-2 bg-[#143A75] hover:bg-[#0e2d5c] text-white font-bold px-10 py-5 rounded-xl text-lg shadow-lg hover:shadow-xl"
           >
-            Get 20–25 Renovation Opportunities
+            Browse Open Leads
             <ArrowRight size={20} strokeWidth={2.5} />
           </Link>
-          <p className="text-slate-500 text-sm mt-4">$40 one-time · Instant CSV download · No subscription</p>
+          <p className="text-slate-500 text-sm mt-4">$40 per lead · Contact info revealed instantly · No subscription</p>
         </div>
       </section>
 
@@ -32,14 +32,14 @@ export default function ContractorsPage() {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-[#0f172a] mb-3">How it works</h2>
-            <p className="text-[#6b7280]">Simple. You pick your city, we hand you the addresses.</p>
+            <p className="text-[#6b7280]">A homeowner needs work done. You show up first.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
             {[
-              { n: '1', title: 'Pick your city & trade', desc: 'Select the area and trade type you work in.' },
-              { n: '2', title: 'We find the permits', desc: 'We pull the latest issued renovation permits from city records.' },
-              { n: '3', title: 'You get the addresses', desc: 'Download a CSV with addresses, permit type, and project value.' },
-              { n: '4', title: 'You reach out first', desc: 'Show up before any other contractor has called.' },
+              { n: '1', title: 'Homeowner posts a job', desc: 'They describe the work, upload a photo, and set a budget — all in under 2 minutes.' },
+              { n: '2', title: 'We match by trade & city', desc: 'You only see leads that match your trade and service area.' },
+              { n: '3', title: 'You claim the lead', desc: 'Pay once to unlock their name, phone, and email. No one else gets that lead.' },
+              { n: '4', title: 'You reach out directly', desc: 'Call or text them right away. First contractor to respond wins the job.' },
             ].map(({ n, title, desc }) => (
               <div key={n} className="text-center">
                 <div className="w-10 h-10 bg-[#EFF6FF] rounded-full flex items-center justify-center mx-auto mb-4">
@@ -58,16 +58,16 @@ export default function ContractorsPage() {
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold text-[#0f172a] mb-3">Who this is for</h2>
-            <p className="text-[#6b7280]">This works best for contractors who are willing to make first contact.</p>
+            <p className="text-[#6b7280]">Works for any trade that does residential work in Ontario.</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
             {[
-              'Roofing & exterior contractors',
-              'Window & door companies',
+              'Roofers & exterior contractors',
+              'Plumbers & HVAC technicians',
+              'Electricians',
               'General contractors & renovators',
               'Painters, flooring & drywall',
-              'HVAC & mechanical',
-              'Anyone doing door knocking or direct mail',
+              'Landscapers & deck builders',
             ].map(item => (
               <div key={item} className="flex items-center gap-3 bg-white rounded-xl p-4 border border-[#e2e8f0]">
                 <CheckCircle size={16} strokeWidth={2} className="text-[#22c55e] shrink-0" />
@@ -77,37 +77,39 @@ export default function ContractorsPage() {
           </div>
           <div className="bg-white border border-[#e2e8f0] rounded-xl p-5 text-sm text-[#6b7280]">
             <span className="font-semibold text-[#374151]">Not the right fit: </span>
-            If you only work from referrals and aren't open to reaching out first, this won't work for you. Permit data requires you to make first contact.
+            If you only work from referrals and don't want to be the one reaching out first, these leads may not suit your style.
           </div>
         </div>
       </section>
 
-      {/* How contractors use this */}
+      {/* What you get when you claim */}
       <section className="py-20 px-4 bg-white">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-[#0f172a] mb-3">How contractors use this data</h2>
+            <h2 className="text-3xl font-bold text-[#0f172a] mb-3">What you get when you claim a lead</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {[
               {
-                emoji: '🚪',
-                title: 'Door knock',
-                desc: 'Show up at the address and introduce yourself. You\'re the first contractor they\'ve talked to about this job — no competition yet.',
+                icon: Phone,
+                title: 'Phone number',
+                desc: 'Call or text them directly. No waiting, no scheduler, no form to fill out on their end.',
               },
               {
-                emoji: '📬',
-                title: 'Drop a flyer',
-                desc: 'Leave something in the mailbox. Hit the surrounding homes too — permits tend to cluster in active renovation neighbourhoods.',
+                icon: Mail,
+                title: 'Email address',
+                desc: 'Send a quote by email. Give them something to reference and follow up on.',
               },
               {
-                emoji: '✉️',
-                title: 'Send direct mail',
-                desc: 'Mail a letter directly to the address. Physical mail isn\'t covered by spam laws and gets read. A professional letter stands out.',
+                icon: Star,
+                title: 'Full job details',
+                desc: 'Their budget, timeline, full description, and any photos they uploaded — so you show up prepared.',
               },
-            ].map(({ emoji, title, desc }) => (
+            ].map(({ icon: Icon, title, desc }) => (
               <div key={title} className="bg-[#f8fafc] border border-[#e2e8f0] rounded-2xl p-7">
-                <div className="text-3xl mb-4">{emoji}</div>
+                <div className="w-10 h-10 bg-[#EFF6FF] rounded-xl flex items-center justify-center mb-4">
+                  <Icon size={18} className="text-[#143A75]" strokeWidth={2} />
+                </div>
                 <h3 className="font-bold text-[#0f172a] mb-2">{title}</h3>
                 <p className="text-[#6b7280] text-sm leading-relaxed">{desc}</p>
               </div>
@@ -116,34 +118,20 @@ export default function ContractorsPage() {
         </div>
       </section>
 
-      {/* Offer + risk reversal */}
+      {/* CTA */}
       <section className="py-20 px-4 bg-[#0f172a]">
         <div className="max-w-xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-white mb-4">Try a small batch. See for yourself.</h2>
+          <h2 className="text-3xl font-bold text-white mb-4">Start claiming leads today.</h2>
           <p className="text-slate-400 mb-3 text-lg">
-            Get 20–25 active renovation permits in your city for $40. If you reach out and don't get any traction, we'll refund you.
+            Browse open homeowner jobs in your city. Claim the ones that fit. Pay only for what you take.
           </p>
-          <p className="text-slate-500 text-sm mb-8">No subscription. No monthly fees. Just one simple test.</p>
-          <Link
-            href="/contractors/batch"
-            className="inline-flex items-center gap-2 bg-[#143A75] hover:bg-[#0e2d5c] text-white font-bold px-10 py-5 rounded-xl text-lg shadow-lg hover:shadow-xl"
-          >
-            Get 20–25 Opportunities — $40
-            <ArrowRight size={20} strokeWidth={2.5} />
-          </Link>
-        </div>
-      </section>
-
-      {/* Secondary — browse & claim */}
-      <section className="py-12 px-4 bg-white border-t border-[#e2e8f0]">
-        <div className="max-w-xl mx-auto text-center">
-          <p className="text-[#6b7280] text-sm mb-3">Prefer to browse permits one by one?</p>
+          <p className="text-slate-500 text-sm mb-8">No subscription. No monthly fees. $40 per lead.</p>
           <Link
             href="/leads"
-            className="inline-flex items-center gap-2 text-[#143A75] font-semibold text-sm hover:underline"
+            className="inline-flex items-center gap-2 bg-[#143A75] hover:bg-[#0e2d5c] text-white font-bold px-10 py-5 rounded-xl text-lg shadow-lg hover:shadow-xl"
           >
-            Browse individual permits ($25–$85 each)
-            <ArrowRight size={14} strokeWidth={2} />
+            Browse Open Leads
+            <ArrowRight size={20} strokeWidth={2.5} />
           </Link>
         </div>
       </section>
