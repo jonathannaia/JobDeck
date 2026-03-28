@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
 
   const { data: lead } = await service
     .from('homeowner_leads')
-    .select('trade_type, city, postal_code')
+    .select('trade_type, city, postal_code, budget_range')
     .eq('id', lead_id)
     .single()
 
@@ -47,6 +47,12 @@ export async function POST(req: NextRequest) {
     ? lead.trade_type.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase())
     : 'Homeowner Lead'
 
+  const budget = lead?.budget_range || ''
+  const unitAmount =
+    budget === 'Under $1,000' ? 1200 :
+    budget === '$15,000+' ? 2500 :
+    1500 // $1K–$5K, $5K–$15K, unknown
+
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
     line_items: [{
@@ -56,7 +62,7 @@ export async function POST(req: NextRequest) {
           name: `${trade} Lead — ${location}`,
           description: 'One-time fee to unlock full contact info and job details for this homeowner lead.',
         },
-        unit_amount: 4000,
+        unit_amount: unitAmount,
       },
       quantity: 1,
     }],
