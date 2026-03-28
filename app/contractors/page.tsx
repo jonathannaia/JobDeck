@@ -23,7 +23,7 @@ export default function ContractorsPage() {
             Browse Open Leads
             <ArrowRight size={20} strokeWidth={2.5} />
           </Link>
-          <p className="text-slate-500 text-sm mt-4">$40 per lead · Contact info revealed instantly · No subscription</p>
+          <p className="text-slate-500 text-sm mt-4">Contact info revealed instantly when you claim a lead</p>
         </div>
       </section>
 
@@ -125,7 +125,7 @@ export default function ContractorsPage() {
           <p className="text-slate-400 mb-3 text-lg">
             Browse open homeowner jobs in your city. Claim the ones that fit. Pay only for what you take.
           </p>
-          <p className="text-slate-500 text-sm mb-8">No subscription. No monthly fees. $40 per lead.</p>
+          <p className="text-slate-500 text-sm mb-8">Pay only for the leads you claim.</p>
           <Link
             href="/leads"
             className="inline-flex items-center gap-2 bg-[#143A75] hover:bg-[#0e2d5c] text-white font-bold px-10 py-5 rounded-xl text-lg shadow-lg hover:shadow-xl"

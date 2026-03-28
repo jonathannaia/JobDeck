@@ -132,7 +132,7 @@ function LeadCard({
               disabled={unlocking === post.id}
               className="bg-[#143A75] hover:bg-[#0e2d5c] disabled:opacity-60 disabled:cursor-not-allowed text-white text-sm font-semibold px-5 py-2 rounded-xl transition-colors whitespace-nowrap"
             >
-              {unlocking === post.id ? 'Loading…' : 'Claim Lead — $40'}
+              {unlocking === post.id ? 'Loading…' : 'Claim Lead'}
             </button>
           </div>
         )}
