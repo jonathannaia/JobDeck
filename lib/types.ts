@@ -10,6 +10,7 @@ export type TradeType =
   | 'lawn_service'
   | 'decking'
   | 'fencing'
+  | 'concrete'
 
 export const TRADE_LABELS: Record<TradeType, string> = {
   plumber: 'Plumber',
@@ -23,6 +24,7 @@ export const TRADE_LABELS: Record<TradeType, string> = {
   lawn_service: 'Lawn Service',
   decking: 'Decking',
   fencing: 'Fencing',
+  concrete: 'Concrete',
 }
 
 export const ONTARIO_POSTAL_PREFIXES = ['K', 'L', 'M', 'N', 'P']

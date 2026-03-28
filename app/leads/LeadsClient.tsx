@@ -151,7 +151,7 @@ const BUDGET_OPTIONS = ['Under $1,000', '$1,000 – $5,000', '$5,000 – $15,000
 
 const ALL_TRADES = [
   'Plumber', 'Electrician', 'Roofer', 'HVAC', 'Carpenter',
-  'General Contractor', 'Painter', 'Landscaper', 'Lawn Service', 'Decking', 'Fencing',
+  'General Contractor', 'Painter', 'Landscaper', 'Lawn Service', 'Decking', 'Fencing', 'Concrete',
 ]
 
 const ALL_CITIES = [
