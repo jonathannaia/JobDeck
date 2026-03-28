@@ -58,7 +58,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-lg font-semibold text-[#0f172a] mb-3">5. Payments &amp; Refunds</h2>
               <p className="mb-3">Payments are processed securely through Stripe. Lead claim fees are charged at the time of purchase and are generally non-refundable once contact information has been revealed.</p>
-              <p>If you believe a lead was invalid (e.g., incorrect contact information), contact us at <a href="mailto:jonathan@jobdeck.ca" className="text-[#143A75] hover:underline">jonathan@jobdeck.ca</a> and we will review your request. Refunds are issued at JobDeck&apos;s sole discretion.</p>
+              <p>If you believe a lead was invalid (e.g., incorrect contact information), contact us at <a href="mailto:jonathan@naiadigital.org" className="text-[#143A75] hover:underline">jonathan@naiadigital.org</a> and we will review your request. Refunds are issued at JobDeck&apos;s sole discretion.</p>
             </section>
 
             <section>
@@ -101,7 +101,7 @@ export default function TermsPage() {
 
             <section>
               <h2 className="text-lg font-semibold text-[#0f172a] mb-3">Contact</h2>
-              <p>Questions about these Terms? Email us at <a href="mailto:jonathan@jobdeck.ca" className="text-[#143A75] hover:underline">jonathan@jobdeck.ca</a>.</p>
+              <p>Questions about these Terms? Email us at <a href="mailto:jonathan@naiadigital.org" className="text-[#143A75] hover:underline">jonathan@naiadigital.org</a>.</p>
             </section>
 
           </div>

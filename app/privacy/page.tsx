@@ -10,7 +10,7 @@ export default function PrivacyPage() {
 
             <section>
               <h2 className="text-lg font-semibold text-[#0f172a] mb-3">1. Who We Are</h2>
-              <p>JobDeck (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;) is an Ontario-based online marketplace that connects homeowners with local contractors. Our website is jobdeck.ca. Questions about this policy can be directed to <a href="mailto:jonathan@jobdeck.ca" className="text-[#143A75] hover:underline">jonathan@jobdeck.ca</a>.</p>
+              <p>JobDeck (&ldquo;we&rdquo;, &ldquo;us&rdquo;, &ldquo;our&rdquo;) is an Ontario-based online marketplace that connects homeowners with local contractors. Our website is jobdeck.ca. Questions about this policy can be directed to <a href="mailto:jonathan@naiadigital.org" className="text-[#143A75] hover:underline">jonathan@naiadigital.org</a>.</p>
             </section>
 
             <section>
@@ -61,7 +61,7 @@ export default function PrivacyPage() {
 
             <section>
               <h2 className="text-lg font-semibold text-[#0f172a] mb-3">7. Your Rights (PIPEDA)</h2>
-              <p>Under Canada&apos;s Personal Information Protection and Electronic Documents Act (PIPEDA), you have the right to access, correct, or request deletion of your personal information. To exercise these rights, email <a href="mailto:jonathan@jobdeck.ca" className="text-[#143A75] hover:underline">jonathan@jobdeck.ca</a> and we will respond within 30 days.</p>
+              <p>Under Canada&apos;s Personal Information Protection and Electronic Documents Act (PIPEDA), you have the right to access, correct, or request deletion of your personal information. To exercise these rights, email <a href="mailto:jonathan@naiadigital.org" className="text-[#143A75] hover:underline">jonathan@naiadigital.org</a> and we will respond within 30 days.</p>
             </section>
 
             <section>
@@ -81,7 +81,7 @@ export default function PrivacyPage() {
 
             <section>
               <h2 className="text-lg font-semibold text-[#0f172a] mb-3">Contact</h2>
-              <p>Questions about this Privacy Policy? Email us at <a href="mailto:jonathan@jobdeck.ca" className="text-[#143A75] hover:underline">jonathan@jobdeck.ca</a>.</p>
+              <p>Questions about this Privacy Policy? Email us at <a href="mailto:jonathan@naiadigital.org" className="text-[#143A75] hover:underline">jonathan@naiadigital.org</a>.</p>
             </section>
 
           </div>
