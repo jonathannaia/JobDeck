@@ -53,7 +53,7 @@ export default function HomePage() {
           {/* Right — stats card panel */}
           <div className="hidden lg:flex flex-col gap-4">
             <div className="bg-[#f8fafc] border border-[#e2e8f0] rounded-2xl p-6">
-              <p className="text-sm text-[#6b7280] font-medium mb-1">Active permits across Ontario</p>
+              <p className="text-sm text-[#6b7280] font-medium mb-1">Renovation projects tracked across Ontario</p>
               <p className="text-4xl font-bold text-[#0f172a]">1,100<span className="text-[#143A75]">+</span></p>
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -70,10 +70,10 @@ export default function HomePage() {
             <div className="bg-[#0f172a] rounded-2xl p-6 text-white">
               <div className="flex items-center gap-2 mb-3">
                 <Zap size={16} className="text-[#fbbf24]" />
-                <span className="text-[#fbbf24] text-xs font-semibold uppercase tracking-wide">Now Live in Ontario</span>
+                <span className="text-[#fbbf24] text-xs font-semibold uppercase tracking-wide">How it works</span>
               </div>
               <p className="text-sm text-slate-300 leading-relaxed">
-                Be one of the first homeowners to try JobDeck — currently matching contractors across Ontario.
+                Post your job in under 2 minutes. Local contractors who match your trade and city are notified right away and reach out to quote.
               </p>
               <p className="text-xs text-slate-400 mt-3 font-medium">Free for homeowners · No account needed</p>
             </div>
