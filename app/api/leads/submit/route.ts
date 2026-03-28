@@ -8,16 +8,18 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const { name, phone, email, trade_type, job_description, city, postal_code, timeline, budget_range } = body
 
-    if (!name || !phone || !email || !trade_type || !job_description || !postal_code) {
+    if (!name || !phone || !trade_type || !job_description) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    const prefix = postal_code.trim().toUpperCase().charAt(0)
-    if (!ONTARIO_POSTAL_PREFIXES.includes(prefix)) {
-      return NextResponse.json(
-        { error: 'Postal code must be an Ontario postal code (starts with K, L, M, N, or P)' },
-        { status: 400 }
-      )
+    if (postal_code) {
+      const prefix = postal_code.trim().toUpperCase().charAt(0)
+      if (!ONTARIO_POSTAL_PREFIXES.includes(prefix)) {
+        return NextResponse.json(
+          { error: 'Postal code must be an Ontario postal code (starts with K, L, M, N, or P)' },
+          { status: 400 }
+        )
+      }
     }
 
     const supabase = createServiceClient()
