@@ -12,7 +12,7 @@ export default function HomePage() {
           <div>
             <div className="inline-flex items-center gap-2 bg-[#EFF6FF] rounded-full px-4 py-1.5 text-[#0e2d5c] text-sm font-semibold mb-6">
               <Zap size={14} strokeWidth={2.5} />
-              Ontario&apos;s #1 Contractor Marketplace
+              Ontario&apos;s Fastest Way to Find a Local Contractor
             </div>
             <h1 className="text-5xl sm:text-6xl font-bold text-[#0f172a] leading-[1.1] mb-6">
               Get your home job done{' '}
@@ -61,22 +61,21 @@ export default function HomePage() {
                 <p className="text-sm text-[#6b7280] font-medium mb-1">Cities covered</p>
                 <p className="text-3xl font-bold text-[#0f172a]">12</p>
               </div>
-              <div className="bg-[#fef9c3] border border-[#fde68a] rounded-2xl p-5">
-                <p className="text-sm text-[#92400e] font-medium mb-1">⚡ Fill-In Ready</p>
-                <p className="text-3xl font-bold text-[#92400e]">Fast</p>
-                <p className="text-xs text-[#a16207] mt-1">Jobs starting soon</p>
+              <div className="bg-[#EFF6FF] border border-[#bfdbfe] rounded-2xl p-5">
+                <p className="text-sm text-[#1d4ed8] font-medium mb-1">Verified contractors</p>
+                <p className="text-3xl font-bold text-[#0e2d5c]">47<span className="text-lg">+</span></p>
+                <p className="text-xs text-[#3b82f6] mt-1">and growing</p>
               </div>
             </div>
             <div className="bg-[#0f172a] rounded-2xl p-6 text-white">
               <div className="flex items-center gap-2 mb-3">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={14} fill="#fbbf24" color="#fbbf24" />
-                ))}
+                <Zap size={16} className="text-[#fbbf24]" />
+                <span className="text-[#fbbf24] text-xs font-semibold uppercase tracking-wide">Now Live in Ontario</span>
               </div>
               <p className="text-sm text-slate-300 leading-relaxed">
-                &ldquo;Got 3 quotes within a day of posting. Hired a great local roofer.&rdquo;
+                Be one of the first homeowners to try JobDeck — currently matching contractors across Ontario.
               </p>
-              <p className="text-xs text-slate-400 mt-3 font-medium">— Sarah M., Brampton</p>
+              <p className="text-xs text-slate-400 mt-3 font-medium">Free for homeowners · No account needed</p>
             </div>
           </div>
         </div>
@@ -109,6 +108,40 @@ export default function HomePage() {
           <div className="bg-white border border-[#e2e8f0] rounded-2xl p-8 shadow-md">
             <JobRequestForm />
           </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="py-16 px-4 bg-[#f8fafc] border-t border-[#e2e8f0]">
+        <div className="max-w-2xl mx-auto">
+          <h2 className="text-2xl font-bold text-[#0f172a] mb-8 text-center">Common Questions</h2>
+          <div className="space-y-4">
+            {[
+              {
+                q: 'Will I get spammed?',
+                a: 'No. We only share your contact info with contractors who match your job type and location. You\'ll hear from a small number of relevant contractors — not a flood of random calls.',
+              },
+              {
+                q: 'How many contractors will contact me?',
+                a: 'Typically 2–4 local contractors. We limit the number of contractors per lead so you get meaningful quotes, not a dozen people calling at once.',
+              },
+              {
+                q: 'Is this actually free for homeowners?',
+                a: 'Yes — 100% free, always. Contractors pay to access leads. You never pay anything to post a job or receive quotes.',
+              },
+            ].map(({ q, a }) => (
+              <div key={q} className="bg-white border border-[#e2e8f0] rounded-xl p-6">
+                <p className="font-semibold text-[#0f172a] mb-2">{q}</p>
+                <p className="text-[#6b7280] text-sm leading-relaxed">{a}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-center text-sm text-[#6b7280] mt-8">
+            Have another question?{' '}
+            <a href="mailto:jonathan@jobdeck.ca" className="text-[#143A75] hover:underline font-medium">
+              Email jonathan@jobdeck.ca
+            </a>
+          </p>
         </div>
       </section>
 
