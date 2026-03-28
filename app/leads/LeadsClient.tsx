@@ -143,6 +143,16 @@ function LeadCard({
 
 const BUDGET_OPTIONS = ['Under $1,000', '$1,000 – $5,000', '$5,000 – $15,000', '$15,000+']
 
+const ALL_TRADES = [
+  'Plumber', 'Electrician', 'Roofer', 'HVAC', 'Carpenter',
+  'General Contractor', 'Painter', 'Landscaper', 'Lawn Service', 'Decking', 'Fencing',
+]
+
+const ALL_CITIES = [
+  'Toronto', 'Mississauga', 'Brampton', 'Burlington', 'Barrie',
+  'Hamilton', 'Oakville', 'Pickering', 'St. Catharines', 'Sudbury',
+]
+
 export default function LeadsClient({ posts }: { posts: LeadPost[] }) {
   const [contractor, setContractor] = useState<any>(null)
   const [authChecked, setAuthChecked] = useState(false)
@@ -198,15 +208,15 @@ export default function LeadsClient({ posts }: { posts: LeadPost[] }) {
     setUnlocking(null)
   }
 
-  const cities = useMemo(() =>
-    Array.from(new Set(posts.map(p => p.city))).sort(),
-    [posts]
-  )
+  const cities = useMemo(() => {
+    const extra = posts.map(p => p.city).filter(c => !ALL_CITIES.includes(c))
+    return [...ALL_CITIES, ...Array.from(new Set(extra))].sort()
+  }, [posts])
 
-  const trades = useMemo(() =>
-    Array.from(new Set(posts.map(p => p.trade_label))).sort(),
-    [posts]
-  )
+  const trades = useMemo(() => {
+    const extra = posts.map(p => p.trade_label).filter(t => !ALL_TRADES.includes(t))
+    return [...ALL_TRADES, ...Array.from(new Set(extra))].sort()
+  }, [posts])
 
   const filtered = useMemo(() => {
     return posts.filter(p => {
