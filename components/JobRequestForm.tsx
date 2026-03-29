@@ -116,10 +116,10 @@ export default function JobRequestForm({ defaultTrade }: { defaultTrade?: string
         const data = await res.json()
         throw new Error(data.error || 'Something went wrong')
       }
-      setSubmitted(true)
       if (typeof window !== 'undefined' && typeof (window as any).gtag === 'function') {
         (window as any).gtag('event', 'lead_submitted', { trade_type: form.trade_type })
       }
+      window.location.href = '/thank-you'
     } catch (err: unknown) {
       setServerError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
     } finally {
