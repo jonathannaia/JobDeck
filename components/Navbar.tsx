@@ -21,9 +21,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center shrink-0">
-            <span className="font-bold text-xl tracking-tight text-[#0f172a]">
-              Job<span className="text-[#143A75]">Deck</span>
-            </span>
+            <img src="/logo.svg" alt="JobDeck" className="h-9 w-auto" />
           </Link>
 
           {/* Desktop nav */}

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Background -->
+  <rect width="200" height="200" fill="#1a3869" rx="16"/>
+
+  <!-- Roof (orange triangle with eave) -->
+  <polygon points="100,18 162,72 38,72" fill="#e05c1e"/>
+  <rect x="34" y="68" width="132" height="8" fill="#e05c1e"/>
+
+  <!-- House body (white) -->
+  <rect x="44" y="76" width="112" height="58" fill="white"/>
+
+  <!-- Left window -->
+  <rect x="54" y="86" width="22" height="16" fill="#1a3869" rx="2"/>
+
+  <!-- Right window -->
+  <rect x="124" y="86" width="22" height="16" fill="#1a3869" rx="2"/>
+
+  <!-- Door / centre cutout (creates H silhouette) -->
+  <rect x="84" y="98" width="32" height="36" fill="#1a3869"/>
+
+  <!-- "Job" text (white) -->
+  <text x="44" y="163" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="36" fill="white" letter-spacing="-1">Job</text>
+
+  <!-- "Deck" text (orange) -->
+  <text x="101" y="163" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="36" fill="#e05c1e" letter-spacing="-1">Deck</text>
+
+  <!-- Subtitle -->
+  <text x="100" y="181" font-family="Arial, sans-serif" font-weight="400" font-size="10.5" fill="#8eaad4" text-anchor="middle" letter-spacing="2">ONTARIO CONTRACTOR MARKETPLACE</text>
+</svg>
