@@ -105,7 +105,19 @@ function LeadCard({
         )}
 
         {/* Unlocked state */}
-        {unlockedData ? (
+        {post.source === 'facebook' ? (
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#f1f5f9]">
+            <span className="text-[#9ca3af] text-xs">Posted in Facebook Group</span>
+            <a
+              href={post.post_url!}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-[#143A75] hover:bg-[#0e2d5c] text-white text-sm font-semibold px-5 py-2 rounded-xl transition-colors whitespace-nowrap"
+            >
+              View Post
+            </a>
+          </div>
+        ) : unlockedData ? (
           <div className="bg-[#f0fdf4] border border-[#bbf7d0] rounded-xl p-4 mt-2">
             <p className="text-[#16a34a] text-xs font-semibold uppercase tracking-wide mb-3">Lead Unlocked</p>
             <div className="space-y-1.5 text-sm text-[#374151]">
