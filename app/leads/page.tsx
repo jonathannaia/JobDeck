@@ -49,16 +49,20 @@ function extractCity(text: string): string {
 export default async function LeadsPage() {
   const supabase = createServiceClient()
 
+  const cutoff = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString()
+
   const [{ data: formLeads }, { data: fbLeads }] = await Promise.all([
     supabase
       .from('homeowner_leads')
       .select('id, trade_type, city, postal_code, job_description, timeline, budget_range, created_at')
+      .gte('created_at', cutoff)
       .order('created_at', { ascending: false })
       .limit(100),
     supabase
       .from('leads')
       .select('id, post_url, post_preview, post_text, posted_at, scraped_at')
       .eq('status', 'new')
+      .gte('scraped_at', cutoff)
       .order('scraped_at', { ascending: false })
       .limit(100),
   ])
